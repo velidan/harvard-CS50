@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Google Search</title>
+        <link rel="stylesheet" href="./layout.css" />
+        <link rel="stylesheet" href="./header.css" />
+        <link rel="stylesheet" href="./nav.css" />
+        <link rel="stylesheet" href="./form.css" />
+    </head>
+    <body>
+        <header class="header-basic">
+            <nav class="nav-basic">
+                <a href="./google-image-search.html">Image Search</a>
+                <a href="./google-advanced-search.html">Advanced Search</a>
+              </nav>
+        </header>
+        <div class="logo-wrapper">
+            <figure class="logo">
+                <a href="./index.html" aria-label="Go to google search">
+                    <img width="292" height="162" src="./large_thumbnail.webp" alt="google  old logo" aria-label="google old logo" />
+                </a>
+            </figure>
+        </div>
+        <main class="main-basic">
+            <h1>Google Search</h1>
+            <form class="g-search" action="https://www.google.com/search">
+                
+                <input type="text" aria-label="Google search input"  name="q">
+                <div class="actions-wrapper">
+                    <input type="submit" role="button" aria-label="Google Search Submit" value="Google Search">
+                    <input type="submit" name="btnI" role="button" aria-label="I'm lucky submit" value="I'm lucky">
+                </div>
+
+            </form>
+        </main>
+
+    </body>
+</html>

@@ -1,0 +1,19 @@
+.nav-basic {
+    font: 13px/27px Roboto,Arial,sans-serif;
+}
+
+.nav-basic a {
+    display: inline-block;
+    line-height: 24px;
+    vertical-align: middle;
+    color: rgba(0,0,0,.87);
+    text-decoration: none;
+}
+
+.nav-basic a:hover {
+    text-decoration: underline;
+}
+
+.nav-basic > a:not(:first-child) {
+    padding-left: 15px;
+}

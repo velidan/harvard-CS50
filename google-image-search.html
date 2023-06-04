@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Google Image Search</title>
+        <link rel="stylesheet" href="./layout.css" />
+        <link rel="stylesheet" href="./header.css" />
+        <link rel="stylesheet" href="./nav.css" />
+        <link rel="stylesheet" href="./form.css" />
+    </head>
+    <body>
+        <header class="header-basic">
+            <nav class="nav-basic">
+                <a href="./index.html">Google Search</a>
+              </nav>
+        </header>
+        <div class="logo-wrapper">
+            <figure class="logo">
+                <a href="./index.html" aria-label="Go to google search">
+                    <img width="292" height="162" src="./large_thumbnail.webp" alt="google  old logo" aria-label="google old logo" />
+                </a>
+            </figure>
+        </div>
+
+        <main class="main-basic">
+            <h1>Google Image Search</h1>
+            <form class="g-search" action="https://images.google.com/search">
+                <input type="hidden" name="tbm" value="isch" /> 
+                <input type="text" aria-label="Google image search input" name="q">
+                <input type="submit" role="button" aria-label="Google Image Search submit" value="Google Image Search">
+            </form>
+        </main>
+    </body>
+</html>
