@@ -1,0 +1,112 @@
+.g-search {
+    margin: 0 auto;
+    padding-top: 6px;
+    width: auto;
+    max-width: 584px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+}
+
+.g-search.advanced {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(6, 42px);
+    row-gap: 18px;
+}
+
+.g-search.advanced h5 {
+    font-size: 16px;
+    min-height: 42px;
+    font-weight: 500;
+    color: #333;
+}
+.g-search.advanced h5,
+.g-search.advanced input[type="submit"] {
+    grid-column: 1 / 3;
+}
+
+.actions-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.g-search input {
+    transition: all ease-in-out .3s;
+}
+
+.g-search input[type="text"] {
+    display: flex;
+    z-index: 3;
+    height: 44px;
+    background: #fff;
+    border: 1px solid #dfe1e5;
+    box-shadow: none;
+    border-radius: 24px;
+    margin: 0 auto 18px;
+    width: 80%;
+    display: inline-block;
+    padding: 0 24px;
+    outline: none;
+}
+
+.g-search input[type="text"]:hover {
+    background-color: #fff;
+    box-shadow: 0 1px 6px rgba(32,33,36,.28);
+    border-color: rgba(223,225,229,0);
+ }
+
+.g-search input[type='submit'] {
+    background-color: #f8f9fa;
+    border: 1px solid #f8f9fa;
+    border-radius: 4px;
+    color: #3c4043;
+    font-family: arial,sans-serif;
+    font-size: 14px;
+    margin: 11px 4px;
+    padding: 0 16px;
+    line-height: 27px;
+    height: 36px;
+    min-width: 54px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    align-self: center;
+}
+
+.g-search input[type='submit']:hover {
+    box-shadow: 0 1px 1px rgba(0,0,0,.1);
+    background-color: #f8f9fa;
+    border: 1px solid #dadce0;
+    color: #202124;
+}
+
+.g-search.advanced label { 
+    color: #222;
+    font-size: 13px;
+    line-height: 16px;
+    vertical-align: middle;
+}
+.g-search.advanced input[type="text"] {
+    border-radius: 1px;
+    border: 1px solid #d9d9d9;
+    font-size: 13px;
+    height: 25px;
+    padding: 1px 8px;
+    margin: 0;
+}
+
+.g-search.advanced input[type='submit'] {
+    color: white;
+    min-width: 54px;
+    padding: 0 8px;
+    background-color: #4d90fe;
+    border: 1px solid #3079ed;
+    margin: 0;
+}
+
+.g-search.advanced input[type='submit']:hover {
+    background-color: #357ae8;
+    border: 1px solid #2f5bb7;
+}

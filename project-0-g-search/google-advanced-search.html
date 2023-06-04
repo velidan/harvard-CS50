@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Google Advanced Search</title>
+        <link rel="stylesheet" href="./layout.css" />
+        <link rel="stylesheet" href="./header.css" />
+        <link rel="stylesheet" href="./nav.css" />
+        <link rel="stylesheet" href="./form.css" />
+    </head>
+    <body>
+        <header class="header-basic">
+            <nav class="nav-basic">
+                <a href="./index.html">Google Search</a>
+              </nav>
+        </header>
+        <div class="logo-wrapper">
+            <figure class="logo">
+                <a href="./index.html" aria-label="Go to google search">
+                    <img width="292" height="162" src="./large_thumbnail.webp" alt="google  old logo" aria-label="google old logo" />
+                </a>
+            </figure>
+        </div>
+        <main class="main-basic">
+            <h1>Google Advanced Search</h1>
+
+            <form class="g-search advanced" action="https://www.google.com/search">
+                <h5>Find pages that contains...</h5>
+                <label for="g_input_all">all these words</label>
+                <input id="g_input_all" type="text" aria-label="all these words google input"  name="as_q">
+                <label for="g_input_exact">this exact word or phrase</label>
+                <input id="g_input_exact" aria-label="this exact word or phrase google input" type="text" name="as_epq">
+                <label for="g_input_any">any of these words</label>
+                <input id="g_input_any" aria-label="any of these words" type="text" name="as_oq">
+                <label for="g_input_none">none of these words</label>
+                <input id="g_input_none" aria-label="none of these words"  type="text" name="as_eq">
+                <input type="submit" role="button" aria-label="Google Advanced Search Submit" value="Google Advanced Search">
+            </form>
+        </main>
+    </body>
+</html>

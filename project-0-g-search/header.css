@@ -1,0 +1,21 @@
+.header-basic {
+    display: flex;
+    align-items: center;
+    padding: 6px 15px;
+    height: 60px;
+    box-sizing: border-box;
+    justify-content: flex-end;
+    align-items: stretch;
+}
+ 
+.logo-wrapper {
+    min-height: 92px;
+    max-height: 290px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.logo-wrapper a {
+    display: inline-block;
+}
