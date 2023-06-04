@@ -11,7 +11,7 @@
 
 .g-search.advanced {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 3fr 1fr;
     grid-template-rows: repeat(6, 42px);
     row-gap: 18px;
 }
@@ -87,6 +87,7 @@
     font-size: 13px;
     line-height: 16px;
     vertical-align: middle;
+    text-align: right;
 }
 .g-search.advanced input[type="text"] {
     border-radius: 1px;
