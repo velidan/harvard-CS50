@@ -10,6 +10,7 @@ urlpatterns = [
     path("create", views.create_new_entity, name="create"),
     path("delete/<title>/", views.delete, name="delete"),
     path("edit/<title>/", views.edit, name="edit"),
+    path("random", views.random_page, name="random_page"),
 ]
 
 # handler404 ='encyclopedia.views.page_not_found_view'

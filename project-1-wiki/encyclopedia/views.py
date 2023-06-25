@@ -4,6 +4,9 @@ from django.http import Http404
 from django import forms
 from django.urls import reverse
 from django.http import HttpResponseRedirect
+import random
+import re
+from markdown2 import Markdown
 
 import logging
 from . import util
@@ -11,6 +14,46 @@ from . import util
 
 
 logger = logging.getLogger('django')
+
+def md_heading(md_text):
+    return re.sub(re.compile('#\s(.+)', re.M), "<h1>\\1</h1>", md_text)
+def md_link(md_text):
+    return re.sub(re.compile('\[(.+)\]\((.+)\)', re.M), "<a href=\"\\2\">\\1</a>", md_text)
+def md_bold(md_text):
+    return re.sub(re.compile('\*\*(.+)\*\*', re.M), "<b>\\1</b>", md_text)
+def md_paragraph(md_text):
+    return re.sub(re.compile('^([A-Za-z].*(?:\n[A-Za-z].*)*)', re.M), "<p>\\1</p>", md_text)
+def md_li(md_text):
+    return re.sub(re.compile('-(.*)', re.M), "<li>\\1</li>", md_text)
+def md_ul(md_text):
+    return re.sub(re.compile('(<li>.*</li>\n(?!\s*<li>))', re.DOTALL), "<ul>\n\\1</ul>", md_text)
+
+def md_to_html(md_text):
+#     text = """
+# # CSS
+# # CSS
+
+# - First item
+# - Second item
+# - Third item
+# - Fourth item
+
+# CSS is a **language** that can be used to add style to an [HTML](/wiki/HTML) page.
+
+#     """
+    # markdowner = Markdown()
+    # result = markdowner.convert(text)
+    # logger.info(md_text)
+
+    result = md_heading(md_text)
+    result = md_link(result)
+    result = md_bold(result)
+    result = md_paragraph(result)
+    result = md_li(result)
+    result = md_ul(result)
+    # logger.info(md_text)
+    # logger.info(result)
+    return result
 
 class SearchForm(forms.Form):
     q = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'search'}))
@@ -24,6 +67,7 @@ class EditForm(forms.Form):
 
 
 def index(request):
+    logger.info("Test application")
     return render(request, "encyclopedia/index.html", {
         "entries": util.list_entries(),
         "form": SearchForm()
@@ -31,6 +75,7 @@ def index(request):
 
 def page(request, title):
     entry = util.get_entry(title)
+    parsed_html = md_to_html(entry)
     # content =  if entry else HttpResponseNotFound("<h1>Page not found</h1>")
 
     if not entry:
@@ -40,7 +85,7 @@ def page(request, title):
 
     return render(request, 'encyclopedia/page.html', {
         "title": title,
-        "entry": entry
+        "entry": parsed_html
     })
 
 def search(request):
@@ -123,7 +168,10 @@ def edit(request, title):
 
     # return HttpResponseRedirect(reverse("index"))
 
-
+def random_page(request):
+    entries_titles = util.list_entries()
+    random_entry_title = random.choice(entries_titles)
+    return HttpResponseRedirect(reverse("page", kwargs={"title": random_entry_title}))
 
 
 def delete(request, title):
