@@ -91,12 +91,14 @@ def index(request):
 
 def page(request, title):
     entry = util.get_entry(title)
-    parsed_html = md_to_html(entry)
+ 
 
     if not entry:
         return  render(request, 'encyclopedia/custom_404.html', {
-        "title": title
+        "title": title,
+        "form": SearchForm(),
     })
+    parsed_html = md_to_html(entry)
 
     return render(request, 'encyclopedia/page.html', {
         "title": title,

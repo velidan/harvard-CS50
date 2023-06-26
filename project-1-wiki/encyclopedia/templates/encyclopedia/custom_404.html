@@ -1,0 +1,13 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    Page 404
+{% endblock %}
+
+{% block body %}
+    <h1 class="alert alert-danger" role="alert">
+        Page is not found!
+    </h1>
+    <h5>The page: <b>{{ title }}</b> does not exists!</h5>
+
+{% endblock %}
