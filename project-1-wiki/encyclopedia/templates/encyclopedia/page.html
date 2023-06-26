@@ -8,5 +8,8 @@
 
     {{ entry | safe }}
 
-    <a href="{% url 'edit' title=title %}">Edit Page</a>
+    <p class="edit-link-wrapper">
+        <a href="{% url 'edit' title=title %}">Edit Page</a>
+    </p>
+   
 {% endblock %}

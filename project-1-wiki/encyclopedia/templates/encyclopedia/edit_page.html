@@ -9,10 +9,7 @@
  
     <form class="edit-form" action="{% url 'edit' title=title %}" method="post">
         {% csrf_token %}
-        <!-- {% if exist_error %}
-            <p class="error">{{ exist_error }}</p>
-        {% endif %} -->
         {{ edit_form }}
-        <input class="save-button" type="submit" value="Update">
+        <input class="save-button save-button btn btn-md btn-primary" type="submit" value="Update">
     </form>
 {% endblock %}

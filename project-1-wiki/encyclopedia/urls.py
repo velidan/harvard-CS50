@@ -13,4 +13,3 @@ urlpatterns = [
     path("random", views.random_page, name="random_page"),
 ]
 
-# handler404 ='encyclopedia.views.page_not_found_view'

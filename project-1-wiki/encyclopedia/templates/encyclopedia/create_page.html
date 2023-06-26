@@ -5,14 +5,16 @@
 {% endblock %}
 
 {% block body %}
-    <h1 >Create New Page </h1>
+    <h1 class="centered-title" >Create New Page </h1>
  
     <form class="create-form" action="{% url 'create' %}" method="post">
         {% csrf_token %}
         {% if exist_error %}
-            <p class="error">{{ exist_error }}</p>
+        <div class="alert alert-danger" role="alert">
+            <strong>Oh! </strong>{{ exist_error }}
+          </div>
         {% endif %}
         {{ create_form }}
-        <input class="save-button" type="submit" value="Save">
+        <input class="save-button btn btn-md btn-primary" type="submit" value="Save">
     </form>
 {% endblock %}

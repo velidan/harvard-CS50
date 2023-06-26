@@ -1,6 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
-from django.http import Http404
+from django.http import HttpResponse, HttpResponseRedirect
 from django import forms
 from django.urls import reverse
 from django.http import HttpResponseRedirect
@@ -16,43 +15,60 @@ from . import util
 logger = logging.getLogger('django')
 
 def md_heading(md_text):
-    return re.sub(re.compile('#\s(.+)', re.M), "<h1>\\1</h1>", md_text)
+    return re.sub(re.compile('^#\s(.+)', re.M), "<h1>\\1</h1>", md_text)
+def md_heading_h2(md_text):
+    return re.sub(re.compile('^##\s(.+)', re.M), "<h2>\\1</h2>", md_text)
+def md_heading_h3(md_text):
+    return re.sub(re.compile('^###\s(.+)', re.M), "<h3>\\1</h3>", md_text)
+def md_heading_h4(md_text):
+    return re.sub(re.compile('^####\s(.+)', re.M), "<h4>\\1</h4>", md_text)
+def md_heading_h5(md_text):
+    return re.sub(re.compile('^#####\s(.+)', re.M), "<h5>\\1</h5>", md_text)
+def md_heading_h6(md_text):
+    return re.sub(re.compile('^######\s(.+)', re.M), "<h6>\\1</h6>", md_text)
 def md_link(md_text):
-    return re.sub(re.compile('\[(.+)\]\((.+)\)', re.M), "<a href=\"\\2\">\\1</a>", md_text)
+    return re.sub(re.compile('\[(.+?)\]\((.+?)\)', re.M), "<a href=\"\\2\">\\1</a>", md_text)
 def md_bold(md_text):
-    return re.sub(re.compile('\*\*(.+)\*\*', re.M), "<b>\\1</b>", md_text)
+    return re.sub(re.compile('\*\*(.+?)\*\*', re.M), "<b>\\1</b>", md_text)
 def md_paragraph(md_text):
     return re.sub(re.compile('^([A-Za-z].*(?:\n[A-Za-z].*)*)', re.M), "<p>\\1</p>", md_text)
 def md_li(md_text):
-    return re.sub(re.compile('-(.*)', re.M), "<li>\\1</li>", md_text)
+    return re.sub(re.compile('^\*(.*)', re.M), "<li>\\1</li>", md_text)
 def md_ul(md_text):
     return re.sub(re.compile('(<li>.*</li>\n(?!\s*<li>))', re.DOTALL), "<ul>\n\\1</ul>", md_text)
 
-def md_to_html(md_text):
-#     text = """
-# # CSS
-# # CSS
-
-# - First item
-# - Second item
-# - Third item
-# - Fourth item
-
-# CSS is a **language** that can be used to add style to an [HTML](/wiki/HTML) page.
-
-#     """
-    # markdowner = Markdown()
-    # result = markdowner.convert(text)
-    # logger.info(md_text)
-
+def md_heading_all(md_text):
     result = md_heading(md_text)
+    result = md_heading_h2(result)
+    result = md_heading_h3(result)
+    result = md_heading_h4(result)
+    result = md_heading_h5(result)
+    result = md_heading_h6(result)
+    return result
+
+def md_to_html(md_text):
+#     md_text = """
+# # Git
+
+# Git is a version control tool that can be used to keep track of versions of a software project.
+
+# ## GitHub
+
+# GitHub is an online service for hosting git repositories.
+#      """
+    
+    # markdowner = Markdown()
+    # result = markdowner.convert(md_text)
+
+
+    result = md_heading_all(md_text)
     result = md_link(result)
     result = md_bold(result)
     result = md_paragraph(result)
     result = md_li(result)
     result = md_ul(result)
-    # logger.info(md_text)
-    # logger.info(result)
+    logger.info(md_text)
+    logger.info(result)
     return result
 
 class SearchForm(forms.Form):
@@ -76,7 +92,6 @@ def index(request):
 def page(request, title):
     entry = util.get_entry(title)
     parsed_html = md_to_html(entry)
-    # content =  if entry else HttpResponseNotFound("<h1>Page not found</h1>")
 
     if not entry:
         return  render(request, 'encyclopedia/custom_404.html', {
@@ -85,6 +100,7 @@ def page(request, title):
 
     return render(request, 'encyclopedia/page.html', {
         "title": title,
+        "form": SearchForm(),
         "entry": parsed_html
     })
 
@@ -113,6 +129,7 @@ def search_result(request, query):
         
     return render(request, "encyclopedia/search_result.html", {
         "entries": matches,
+        "form": SearchForm(),
         "query": query_lowercased
     })
 
@@ -122,8 +139,7 @@ def create_new_entity(request):
  
         entries = util.list_entries()
         title = request.POST['title']
-        print("title: {title}".format(title=title))
-        print("entries: {entries}".format(entries=entries))
+
         # exists entity
         if title in entries:
             print("error")
@@ -137,9 +153,6 @@ def create_new_entity(request):
                 return HttpResponseRedirect(reverse("page", kwargs={"title": title_clean}))
             else:
                 print('invalid form data')
-
-    # else:
-
 
     return render(request, "encyclopedia/create_page.html", {
         "form": SearchForm(),
@@ -166,17 +179,14 @@ def edit(request, title):
         "title": title,
         })
 
-    # return HttpResponseRedirect(reverse("index"))
-
 def random_page(request):
     entries_titles = util.list_entries()
     random_entry_title = random.choice(entries_titles)
     return HttpResponseRedirect(reverse("page", kwargs={"title": random_entry_title}))
 
-
+# just to be able to delete some demo new pages
 def delete(request, title):
     util.delete_entry(title)
-    return  HttpResponse("<p>Deleted</p>")
+    index_url = reverse("index")
+    return  HttpResponse("<div><p>Deleted</p><a href=\"{url}\">Home</a></div>".format(url=index_url))
 
-# def page_not_found_view(request, exception):
-#     return render(request, 'encyclopedia/custom_404.html', status=404)
