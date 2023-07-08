@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
+from django.db.models.signals import post_save
 
 class User(AbstractUser):
     pass
@@ -12,7 +12,7 @@ class Listing(models.Model):
     description = models.TextField()
     start_bid = models.IntegerField()
     image_url = models.URLField(blank=True)
-    current_price = models.IntegerField()
+    current_price = models.IntegerField(blank=True, null=True)
     is_in_watchlist = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -21,14 +21,18 @@ class Listing(models.Model):
     closed_at = models.DateField(blank=True, null=True)
     category = models.ManyToManyField('Category', blank=True, related_name='listings')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.current_price = kwargs.get('start_bid')
-        # add your own logic
-
+    @classmethod
+    def post_create(cls, sender, instance, created, *args, **kwargs):
+        if not created:
+            return
+        instance.current_price = instance.start_bid
+        print(instance.current_price)
+        instance.save()
+    
     def __str__(self):
         return f"{self.title}"
-
+    
+post_save.connect(Listing.post_create, sender=Listing)
 
 class Bid(models.Model):
     target_listing = models.ForeignKey(Listing, blank=True, on_delete=models.CASCADE, related_name="bids")

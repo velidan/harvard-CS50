@@ -30,7 +30,13 @@ class CreateListingForm(forms.Form):
     category = forms.ModelChoiceField(queryset=Category.objects.all(), label="Category",  required=False)
 
 def index(request):
-    return render(request, "auctions/index.html")
+    listings = Listing.objects.filter(is_active=True)
+    logger.info(f'LISTINGS -> {listings}')
+    for listing in listings:
+         logger.info(f'listing.image_url -> {listing.image_url}')
+    return render(request, "auctions/index.html", {
+        "listings": listings
+    })
 
 
 def login_view(request):
@@ -102,7 +108,7 @@ def create_listing(request):
             image_url = form.cleaned_data["image_url"]
             category = form.cleaned_data["category"]
 
-            new_listing = Listing(title=title, description=description, start_bid=starting_bid, owner=request.user, current_price=starting_bid, image_url=image_url)
+            new_listing = Listing(title=title, description=description, start_bid=starting_bid, owner=request.user, image_url=image_url)
             new_listing.save()
 
 
@@ -132,3 +138,25 @@ def create_listing(request):
         return render(request, "auctions/create_listing.html", {
             "create_listing_form": CreateListingForm()
         })
+    
+def listing(request, id):
+    listing = Listing.objects.get(pk=id)
+    return render(request, "auctions/listing.html", {
+        "listing": listing
+    })
+
+def categories(request):
+    categories = Category.objects.all()
+    return render(request, "auctions/categories.html", {
+        "categories": categories
+    })
+
+def category(request, id):
+    category = Category.objects.get(pk=id)
+    logger.info(f"category", category)
+    category_listings = Listing.objects.filter(category=id)
+    logger.info(f"category_listings", category_listings)
+    return render(request, "auctions/category.html", {
+        "category": category,
+        "listings": category_listings
+    })

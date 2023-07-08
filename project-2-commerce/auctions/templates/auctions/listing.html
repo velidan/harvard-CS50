@@ -1,0 +1,82 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="container">
+        <h1>{{listing.title}}</h1>
+        <hr />
+        <b>Description</b>
+        <p>{{listing.description}}</p>
+        <hr />
+
+        <hr />
+        <b>Image</b>
+        {% if listing.image_url %}
+            <p><img src="{{listing.image_url}}" alt="{{listing.title}}" /></p>
+        {% else %}
+            <p>No Image</p>
+        {% endif %}
+       
+        <hr />
+
+        <hr />
+        <b>Categories</b>
+        {% if listing.category.exists %}
+          
+           
+            <ol>
+            {% for category in listing.category.all %}
+                <li>{{ category.title }}</li>
+            {% endfor %}
+            </ol>
+            <hr />
+        {% else %}
+            <p>Uncategorized</p>
+        {% endif %}
+
+        <hr />
+        <b>Starting Bid</b>
+        <p>{{listing.start_bid}}</p>
+        <hr />
+
+        <hr />
+        <b>Current Price</b>
+        <p>{{listing.current_price}}</p>
+        <hr />
+
+        <hr />
+        <b>Is in watchlist</b>
+        <p>{{listing.is_in_watchlist}}</p>
+        <hr />
+
+        <hr />
+        <b>Owner</b>
+        <p>{{listing.owner.username}}</p>
+        <hr />
+
+        <hr />
+        <b>Created At</b>
+        <p>{{listing.created_at}}</p>
+        <hr />
+
+        <hr />
+        <b>Comments</b>
+        {% if listing.comments.exists %}
+  
+  
+        <ol>
+        {% for comments in listing.comments.all %}
+            <li>{{ comments.text }}</li>
+        {% endfor %}
+        </ol>
+
+        {% else %}
+            <p>No Comments Yet</p>
+     
+    {% endif %}
+    <hr />
+    <!-- Content here -->
+  </div>
+    
+    
+
+{% endblock %}
