@@ -1,0 +1,13 @@
+body {
+    padding: 10px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    max-width: 450px;
+}
+
+/* --- create listing --- */
+
+/* --- !create listing --- */
