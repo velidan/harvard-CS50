@@ -1,7 +1,8 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Listings in the category: {{category.title}}</h2>
+    <h2 class="text-center mb-4">Listings in the category: <i>{{category.title}}</i></h2>
+
 
     {% include "auctions/listings_list_view.html" with listings=listings %}
 {% endblock %}

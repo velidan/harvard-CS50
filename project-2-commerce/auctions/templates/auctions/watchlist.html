@@ -1,12 +1,12 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Watchlist</h2>
+    {% include "auctions/title_view.html" with title="Your Watchlist" %}
 
     {% if watched_listings %}
         {% include "auctions/listings_list_view.html" with listings=watched_listings %}
     {% else %}
-        <b>No watched listings</b>
+        <p class="text-center">No watched listings</p>
     {% endif %}
 
 

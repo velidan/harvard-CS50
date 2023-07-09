@@ -1,125 +1,154 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <div class="container">
-        <h1>{{listing.title}}</h1>
-        <hr />
-        <b>Description</b>
-        <p>{{listing.description}}</p>
-        <hr />
 
-        <hr />
-        <b>Image</b>
-        {% if listing.image_url %}
-            <p><img src="{{listing.image_url}}" alt="{{listing.title}}" /></p>
-        {% else %}
-            <p>No Image</p>
-        {% endif %}
-       
-        <hr />
+{% if not listing.is_active %}
+    
+    <div class="alert alert-info mb-4" role="alert">
+        <p>Listing is closed</p>
+        <b>Winner is</b>: <i>{{ listing.win_bid.owner.username }}</i> with the biggest price: ${{ listing.win_bid.price }}
 
-        <hr />
-        <b>Categories</b>
-        {% if listing.category.exists %}
-          
-           
-            <ol>
-            {% for category in listing.category.all %}
-                <li>{{ category.title }}</li>
-            {% endfor %}
-            </ol>
-            <hr />
-        {% else %}
-            <p>Uncategorized</p>
-        {% endif %}
+    </div>
 
-        <hr />
-        <b>Starting Bid</b>
-        <p>{{listing.start_bid}}</p>
-        <hr />
+{% endif %}
 
-        <hr />
-        <b>Current Price</b>
-        <p>{{listing.current_price}}</p>
-        <hr />
+{% if listing.win_bid.owner.id == request.user.id %}
+    <div class="alert alert-success mb-4" role="alert">CONGRATULATION: <i>{{request.user.username}}</i>. You are the winner!</div>
+{% endif %}
 
-        <hr />
-        <b>Is in watchlist</b>
-        <p>{{listing.is_in_watchlist}}</p>
-        <hr />
 
-        <hr />
-        <b>Owner</b>
-        <p>{{listing.owner.username}}</p>
-        <hr />
+{% if bid_error %}
+    <div class="alert alert-danger mb-4" role="alert">{{ bid_error }}</div>
+{% endif %}
 
-        <hr />
-        <b>Created At</b>
-        <p>{{listing.created_at}}</p>
-        <hr />
+<div class="container">
+    <div class="card">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6 border-right d-flex">
+                    
+                    <div class="d-flex flex-1 w-100">
+                      <figure class="listing-figure flex-grow-1 d-flex justify-content-center">
+                        {% if listing.image_url %}
+                            <img src="{{listing.image_url}}" alt="{{listing.title}}" />
+                        {% else %}
+                        <p class="d-flex w-100 flex-1 bg-light align-items-center justify-content-center card-no-image-placeholder text-center">
+                            <b>No Image</b>
+                          </p>
+                        {% endif %}
+                      </div>
+                    
+                </div>
+                <div class="col-md-6">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <h3 class="mt-4">{{listing.title}}</h3>
+                                <p class="mb-3">{{listing.description}}</p>
+                                
+            
+                                <b class="text-left d-inline-block mb-2">Categories</b>
+            
+                                {% if listing.category.exists  %}
+                                  <ul class="d-flex flex-wrap p-0 card-categories list-group-horizontal">
+                                    
+                                    {% for category in listing.category.all %}
+                                      <li class="list-group-item border text-center">{{category.title}}</li>
+                                    {% endfor %}
+                            
+                                </ul>
+                                {% else %}
+                                  <p class="text-muted text-left mb-4 card-uncategorized">Uncategorized</p>
+                                {% endif %}
+            
+                                <p class="mb-1">Owner:  <b>{{listing.owner.username}}</b></p>
+            
+                                <p class="mb-1">Current price: <b>$ {{listing.current_price}}</b></p>
+            
+                                <p class="mb-1">Created: <b>{{listing.created_at}}</b></p>
+                            </div>
+                            <div class="col-6 d-flex align-items-end pb-1">
+                                {% if user.id == listing.owner.id and listing.is_active %}
+                                <form class="d-flex flex-grow-1 flex-column close-listing" action="{% url 'listing' id=listing.id %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form_type" value="close-listing-form">
+                                    <input class="save-button save-button btn btn-md btn-primary" type="submit" value="Close Listing">
+                                </form>
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
 
-        <hr />
-        <b>Comments</b>
-        {% if listing.comments.exists %}
-  
-  
-            <ol>
-            {% for comments in listing.comments.all %}
-                <li><b>{{ comments.author.username }}</b>: {{ comments.text }}</li>
-            {% endfor %}
-            </ol>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        {% else %}
-            <p>No Comments Yet</p>
-     
-        {% endif %}
+
+    <div class="row ">
+        <div class="container border footer-wrapper">
+            <div class="row">
+                <div class="col-6 border-right pt-2 pb-2 ">
+
+                    <h5 class="text-center">Comments</h5>
+                    <div class="listing-comments pr-2">
+                        {% if listing.comments.exists %}
+                    
+                    
+                        
         
+                            {% for comments in listing.comments.all %}
+                            
+                                <div class="border mb-4">
+                                    <div class="card-body">
 
-        {% if listing.is_active %}
+                                <i class="fs-6 mb-2">{{ comments.author.username }}</i>
+                                <p class="ml-4">{{ comments.text }}</p>
+                    
+                                
+                                </div>
+                            </div>
 
 
-                {% if user.is_authenticated %}
+                            {% endfor %}
+                
+                        
+                        {% else %}
+                            <p class="text-center">No Comments Yet</p>
+                        
+                        {% endif %}
+                    </div>
+      
 
-                    {% if bid_error %}
-                        <h2>{{ bid_error }}</h2>
+                </div>
+                <div class="col-6 pt-2 pb-2">
+
+            {% if listing.is_active %}
+
+
+                    {% if user.is_authenticated %}
+            
+                        <form class="proceed-listing-form d-flex flex-column" action="{% url 'listing' id=listing.id %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="proceed-listing-form">
+                            {{ proceed_listing_form }}
+                            <input class="save-button mt-4 save-button btn btn-md btn-primary" type="submit" value="Proceed">
+                        </form>
+    
                     {% endif %}
-        
-                    <form class="proceed-listing-form" action="{% url 'listing' id=listing.id %}" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="form_type" value="proceed-listing-form">
-                        {{ proceed_listing_form }}
-                        <input class="save-button save-button btn btn-md btn-primary" type="submit" value="Proceed">
-                    </form>
 
-                {% endif %}
+            {% endif %}
 
-                {% if user.id == listing.owner.id %}
-                    <form class="close-listing" action="{% url 'listing' id=listing.id %}" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="form_type" value="close-listing-form">
-                        <input class="save-button save-button btn btn-md btn-primary" type="submit" value="Close Listing">
-                    </form>
-                {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
 
 
-        {% else %}
-
-                <h1>LISTING IS CLOSED</h1>
-                <b>WIN BID IS</b>: {{ listing.win_bid.owner.username }}: {{ listing.win_bid.price }}
-
-                {% if listing.win_bid.owner.id == request.user.id %}
-                    <h1>CONGRATULATION!!! YOU WIN THE BID</h1>
-                {% endif %}
-        {% endif %}
-     
-        
-    <hr />
-
-    
-
-    <!-- Content here -->
-  </div>
-    
     
 
 {% endblock %}

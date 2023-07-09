@@ -2,21 +2,43 @@ body {
     padding: 10px;
 }
 
-form {
+.flex-form {
     display: flex;
     flex-direction: column;
-    max-width: 450px;
+    min-width: 450px;
 }
+
 
 p, figure {
     margin: 0;
     padding: 0
 }
 
-/* .card-uncategorized {
-    min-height: 40px;
-} */
+.list-group-item-action {
+    color: #007bff;
+}
 
-/* --- create listing --- */
+.listing-figure img {
+    max-height: 302px;
+}
 
-/* --- !create listing --- */
+.footer-wrapper {
+    margin: 10px 15px;
+}
+
+/* don't have time for playing with the custom django checkbox templates on the Sunday evening. Quick solution because the task isn't about it */
+label[for="id_in_watchlist"] + input {
+    position: absolute;
+    top: 15px;
+    left: 114px;
+}
+
+.listing-comments {
+    max-height: 280px;
+    overflow: auto;
+}
+
+.nav-link.active {
+    color: gray;
+    cursor: default;
+}

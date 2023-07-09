@@ -34,7 +34,8 @@ class ProceedListingForm(forms.Form):
 def index(request):
     listings = Listing.objects.filter(is_active=True)
     return render(request, "auctions/index.html", {
-        "listings": listings
+        "listings": listings,
+        "nav": "index"
     })
 
 
@@ -52,10 +53,11 @@ def login_view(request):
             return HttpResponseRedirect(reverse("index"))
         else:
             return render(request, "auctions/login.html", {
-                "message": "Invalid username and/or password."
+                "message": "Invalid username and/or password.",
+                "nav": "login"
             })
     else:
-        return render(request, "auctions/login.html")
+        return render(request, "auctions/login.html", {"nav": "login"})
 
 
 def logout_view(request):
@@ -68,12 +70,32 @@ def register(request):
         username = request.POST["username"]
         email = request.POST["email"]
 
+        if not username:
+            return render(request, "auctions/register.html", {
+                "message": "Please, enter Username.",
+                "nav": "register"
+            })
+
+        if not email:
+            return render(request, "auctions/register.html", {
+                "message": "Please, enter Email.",
+                "nav": "register"
+            })
+
         # Ensure password matches confirmation
         password = request.POST["password"]
+
+        if not password:
+            return render(request, "auctions/register.html", {
+                "message": "Please, enter password.",
+                "nav": "register"
+            })
+
         confirmation = request.POST["confirmation"]
         if password != confirmation:
             return render(request, "auctions/register.html", {
-                "message": "Passwords must match."
+                "message": "Passwords must match.",
+                "nav": "register"
             })
 
         # Attempt to create new user
@@ -82,12 +104,15 @@ def register(request):
             user.save()
         except IntegrityError:
             return render(request, "auctions/register.html", {
-                "message": "Username already taken."
+                "message": "Username already taken.",
+                "nav": "register"
             })
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
     else:
-        return render(request, "auctions/register.html")
+        return render(request, "auctions/register.html", {
+            "nav": "register"
+        })
     
 
 def create_listing(request):
@@ -113,7 +138,8 @@ def create_listing(request):
 
     else:
         return render(request, "auctions/create_listing.html", {
-            "create_listing_form": CreateListingForm()
+            "create_listing_form": CreateListingForm(),
+            "nav": "create_listing"
         })
     
 def listing(request, id):
@@ -160,7 +186,8 @@ def listing(request, id):
                         return render(request, "auctions/listing.html", {
                             "listing": listing,
                             "proceed_listing_form": ProceedListingForm(initial={ 'in_watchlist': is_listing_in_user_watchlist, "bid": bid_price, 'comment': comment_text}),
-                            "bid_error": f"Bid must be bigger than the current price: {listing.current_price}"
+                            "bid_error": f"Bid must be bigger than the current price: {listing.current_price}",
+                            "nav": "listing"
                         })
                    else: 
                        bid = Bid(target_listing=listing, price=bid_price, owner=request.user)
@@ -186,13 +213,15 @@ def listing(request, id):
     
     return render(request, "auctions/listing.html", {
         "listing": listing,
-        "proceed_listing_form": proceed_listing_form
+        "proceed_listing_form": proceed_listing_form,
+        "nav": "listing"
     })
 
 def categories(request):
     categories = Category.objects.all()
     return render(request, "auctions/categories.html", {
-        "categories": categories
+        "categories": categories,
+        "nav": "categories"
     })
 
 def category(request, id):
@@ -200,11 +229,13 @@ def category(request, id):
     category_listings = Listing.objects.filter(category=id)
     return render(request, "auctions/category.html", {
         "category": category,
-        "listings": category_listings
+        "listings": category_listings,
+        "nav": "category"
     })
 
 def watchlist(request):
     watched_listings = request.user.watched_listings.all()
     return render(request, "auctions/watchlist.html", {
-        "watched_listings": watched_listings
+        "watched_listings": watched_listings,
+        "nav": "watchlist"
     })
