@@ -60,18 +60,3 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.author.username}: {self.text}: {self.listing}"
-
-# id = models.IntegerField(primary_key=True)
-
-# class Person(models.Model):
-#     id = models.IntegerField(primary_key=True)
-#     name = models.CharField(max_length=20)
-
-#     def __str__(self):
-#         return self.id+self.name
-
-
-# class Companies(models.Model):
-#     title = models.CharField(max_length=20)
-#     description=models.CharField(max_length=10)
-#     person= models.ForeignKey(Person,related_name='persons',on_delete=models.CASCADE)

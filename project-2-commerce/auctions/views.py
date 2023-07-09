@@ -11,14 +11,6 @@ from .models import *
 import logging
 logger = logging.getLogger('django')
 
-GEEKS_CHOICES =(
-    ("1", "One"),
-    ("2", "Two"),
-    ("3", "Three"),
-    ("4", "Four"),
-    ("5", "Five"),
-)
-
 class CreateListingForm(forms.Form):
     title = forms.CharField(label="Title", widget=forms.TextInput(attrs={'class':'field create-title'}))
     description = forms.CharField(label="Description", widget=forms.Textarea(attrs={"rows":"5"}))
