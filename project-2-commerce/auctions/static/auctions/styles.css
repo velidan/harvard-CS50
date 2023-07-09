@@ -8,10 +8,14 @@ form {
     max-width: 450px;
 }
 
-.card-no-image-placeholder {
-    min-height: 50%;
-    
+p, figure {
+    margin: 0;
+    padding: 0
 }
+
+/* .card-uncategorized {
+    min-height: 40px;
+} */
 
 /* --- create listing --- */
 

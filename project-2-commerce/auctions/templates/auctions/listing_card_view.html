@@ -1,15 +1,17 @@
 <div class="col-md-6 col-lg-6 col-xl-4 mb-4">
     <div class="card text-black h-100">
+      <figure class="h-50 d-flex m-0">
       {% if listing.image_url %}
-      <figure>
+   
         <img src="{{listing.image_url}}"
         class="card-img-top" alt="{{listing.title}}" />
-      </figure>
+
       {% else %}
-        <p class="d-flex bg-light align-items-center justify-content-center card-img-top card-no-image-placeholder text-center">
+        <p class="d-flex flex-1 bg-light align-items-center justify-content-center card-img-top card-no-image-placeholder text-center">
           <b>No Image</b>
         </p>
       {% endif %}
+      </figure>
 
 
       <div class="card-body d-flex flex-column">
@@ -31,12 +33,12 @@
       
           </ul>
           {% else %}
-            <p class="text-muted text-center mb-4">Uncategorized</p>
+            <p class="text-muted text-center mb-4 card-uncategorized">Uncategorized</p>
           {% endif %}
      
  
         </div>
-        <div class="d-flex justify-content-between total font-weight-bold mt-4">
+        <div class="d-flex flex-grow-1 align-items-end justify-content-between total font-weight-bold mt-4">
           <span>Current Price:</span><span>${{listing.current_price}}</span>
         </div>
       </div>
