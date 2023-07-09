@@ -8,6 +8,11 @@ form {
     max-width: 450px;
 }
 
+.card-no-image-placeholder {
+    min-height: 50%;
+    
+}
+
 /* --- create listing --- */
 
 /* --- !create listing --- */

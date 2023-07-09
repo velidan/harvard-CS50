@@ -1,0 +1,44 @@
+<div class="col-md-6 col-lg-6 col-xl-4 mb-4">
+    <div class="card text-black h-100">
+      {% if listing.image_url %}
+      <figure>
+        <img src="{{listing.image_url}}"
+        class="card-img-top" alt="{{listing.title}}" />
+      </figure>
+      {% else %}
+        <p class="d-flex bg-light align-items-center justify-content-center card-img-top card-no-image-placeholder text-center">
+          <b>No Image</b>
+        </p>
+      {% endif %}
+
+
+      <div class="card-body d-flex flex-column">
+        <div class="text-center">
+          <h5 class="card-title"><a href="{% url 'listing' listing.id %}">Listing {{ listing.title }}</a></h5>
+          <p class="text-muted mb-4">{{listing.description}}</p>
+        </div>
+        <div>
+
+          
+          <p class="text-center mb-4">Categories</p>
+
+          {% if listing.category.exists  %}
+            <ul class="d-flex flex-wrap card-categories list-group-horizontal">
+              
+              {% for category in listing.category.all %}
+                <li class="list-group-item border flex-grow-1 text-center">{{category.title}}</li>
+              {% endfor %}
+      
+          </ul>
+          {% else %}
+            <p class="text-muted text-center mb-4">Uncategorized</p>
+          {% endif %}
+     
+ 
+        </div>
+        <div class="d-flex justify-content-between total font-weight-bold mt-4">
+          <span>Current Price:</span><span>${{listing.current_price}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
