@@ -42,3 +42,10 @@ label[for="id_in_watchlist"] + input {
     color: gray;
     cursor: default;
 }
+
+.nav-item .badge {
+    background-color: rgb(13, 110, 253);
+    position: relative;
+    color: white;
+    right: 10px;
+}

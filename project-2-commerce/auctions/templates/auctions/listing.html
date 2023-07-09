@@ -63,6 +63,14 @@
             
                                 <p class="mb-1">Owner:  <b>{{listing.owner.username}}</b></p>
             
+                                <p class="mb-1"> {{bids_count}} bid(s) so far:</p> 
+                                {% if is_latest_bid_yours %}
+                                <div class="alert alert-info" role="alert">
+                                    Your bid is the current bid
+                                  </div>
+                                {% endif %}
+                                    
+
                                 <p class="mb-1">Current price: <b>$ {{listing.current_price}}</b></p>
             
                                 <p class="mb-1">Created: <b>{{listing.created_at}}</b></p>
@@ -133,7 +141,7 @@
                             {% csrf_token %}
                             <input type="hidden" name="form_type" value="proceed-listing-form">
                             {{ proceed_listing_form }}
-                            <input class="save-button mt-4 save-button btn btn-md btn-primary" type="submit" value="Proceed">
+                            <input class="save-button mt-4 save-button btn btn-md btn-primary" type="submit" value="Submit">
                         </form>
     
                     {% endif %}

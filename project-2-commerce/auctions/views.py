@@ -25,9 +25,14 @@ class ProceedListingForm(forms.Form):
 
 def index(request):
     listings = Listing.objects.filter(is_active=True)
+    user = request.user
+
+    watched_listings_count = user.watched_listings.count() if user.is_authenticated else None  
+
     return render(request, "auctions/index.html", {
         "listings": listings,
-        "nav": "index"
+        "nav": "index",
+        "watched_listings_count": watched_listings_count
     })
 
 
@@ -202,11 +207,20 @@ def listing(request, id):
             listing.save()
 
     proceed_listing_form = ProceedListingForm(initial={ 'in_watchlist': is_listing_in_user_watchlist})
+
+    bids_count = listing.bids.count()
+    is_latest_bid_yours = False
+    
+    if bids_count > 0:
+        is_latest_bid_yours = True if listing.bids.last().owner.id == user.id else False
+    
     
     return render(request, "auctions/listing.html", {
         "listing": listing,
         "proceed_listing_form": proceed_listing_form,
-        "nav": "listing"
+        "nav": "listing",
+        "bids_count": bids_count,
+        "is_latest_bid_yours": is_latest_bid_yours
     })
 
 def categories(request):

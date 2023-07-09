@@ -26,8 +26,11 @@
                 </li>
             {% endif %}
             {% if user.is_authenticated %}
-                <li class="nav-item">
+                <li class="nav-item d-flex align-items-center">
                     <a class="nav-link {% if nav == 'watchlist' %} active {% endif %}" href="{% url 'watchlist' %}">Watchlist</a>
+                    {% if watched_listings_count %}
+                        <span class="badge text-bg-primary">{{watched_listings_count}}</span>
+                    {% endif %}
                 </li>
             {% endif %}
             {% if user.is_authenticated %}
