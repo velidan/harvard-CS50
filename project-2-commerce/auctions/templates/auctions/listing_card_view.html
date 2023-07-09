@@ -23,7 +23,7 @@
           <p class="text-center mb-4">Categories</p>
 
           {% if listing.category.exists  %}
-            <ul class="d-flex flex-wrap card-categories list-group-horizontal">
+            <ul class="d-flex flex-wrap p-0 card-categories list-group-horizontal">
               
               {% for category in listing.category.all %}
                 <li class="list-group-item border flex-grow-1 text-center">{{category.title}}</li>
