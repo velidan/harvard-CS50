@@ -1,0 +1,29 @@
+<ul>
+    {% for listing in listings %}
+        <li>
+            <a href="{% url 'listing' listing.id %}">Listing {{ listing.title }}</a>
+            <p>
+                {{ listing.description }}
+            </p>
+
+            {% if listing.image_url %}
+              <figure>
+                <img src="{{listing.image_url}}" alt="{{listing.title}}" />
+              </figure>
+            {% else %}
+              <p>No Image</p>
+            {% endif %}
+           
+            {% if listing.category.exists %}
+              <p>Categories</p>
+              <ol>
+                {% for category in listing.category.all %}
+                    <li>{{ category.title }}</li>
+                {% endfor %}
+              </ol>
+
+            {% endif %}
+            
+        </li>
+    {% endfor %}
+</ul>

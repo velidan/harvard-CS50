@@ -63,17 +63,60 @@
         {% if listing.comments.exists %}
   
   
-        <ol>
-        {% for comments in listing.comments.all %}
-            <li>{{ comments.text }}</li>
-        {% endfor %}
-        </ol>
+            <ol>
+            {% for comments in listing.comments.all %}
+                <li><b>{{ comments.author.username }}</b>: {{ comments.text }}</li>
+            {% endfor %}
+            </ol>
 
         {% else %}
             <p>No Comments Yet</p>
      
-    {% endif %}
+        {% endif %}
+        
+
+        {% if listing.is_active %}
+
+
+                {% if user.is_authenticated %}
+
+                    {% if bid_error %}
+                        <h2>{{ bid_error }}</h2>
+                    {% endif %}
+        
+                    <form class="proceed-listing-form" action="{% url 'listing' id=listing.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="proceed-listing-form">
+                        {{ proceed_listing_form }}
+                        <input class="save-button save-button btn btn-md btn-primary" type="submit" value="Proceed">
+                    </form>
+
+                {% endif %}
+
+                {% if user.id == listing.owner.id %}
+                    <form class="close-listing" action="{% url 'listing' id=listing.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="close-listing-form">
+                        <input class="save-button save-button btn btn-md btn-primary" type="submit" value="Close Listing">
+                    </form>
+                {% endif %}
+
+
+        {% else %}
+
+                <h1>LISTING IS CLOSED</h1>
+                <b>WIN BID IS</b>: {{ listing.win_bid.owner.username }}: {{ listing.win_bid.price }}
+
+                {% if listing.win_bid.owner.id == request.user.id %}
+                    <h1>CONGRATULATION!!! YOU WIN THE BID</h1>
+                {% endif %}
+        {% endif %}
+     
+        
     <hr />
+
+    
+
     <!-- Content here -->
   </div>
     

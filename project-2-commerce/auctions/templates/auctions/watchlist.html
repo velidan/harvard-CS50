@@ -1,0 +1,13 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Watchlist</h2>
+
+    {% if watched_listings %}
+        {% include "auctions/listings_list_view.html" with listings=watched_listings %}
+    {% else %}
+        <b>No watched listings</b>
+    {% endif %}
+
+
+{% endblock %}

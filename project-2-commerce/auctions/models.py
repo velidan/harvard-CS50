@@ -13,7 +13,7 @@ class Listing(models.Model):
     start_bid = models.IntegerField()
     image_url = models.URLField(blank=True)
     current_price = models.IntegerField(blank=True, null=True)
-    is_in_watchlist = models.BooleanField(default=False)
+    watched_users = models.ManyToManyField(User, blank=True, related_name='watched_listings')
     is_active = models.BooleanField(default=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     win_bid = models.ForeignKey('Bid', on_delete=models.CASCADE, blank=True, null=True)
@@ -36,7 +36,7 @@ post_save.connect(Listing.post_create, sender=Listing)
 
 class Bid(models.Model):
     target_listing = models.ForeignKey(Listing, blank=True, on_delete=models.CASCADE, related_name="bids")
-    created_at = models.DateField()
+    created_at = models.DateField(auto_now_add=True)
     price = models.IntegerField()
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids")
 
@@ -56,7 +56,7 @@ class Comment(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments")
     author = models.ForeignKey(User,  on_delete=models.CASCADE, related_name="comments")
     text = models.TextField()
-    created_at = models.DateField()
+    created_at = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.author.username}: {self.text}: {self.listing}"
