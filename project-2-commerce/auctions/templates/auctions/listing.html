@@ -10,11 +10,13 @@
 
     </div>
 
+    {% if listing.win_bid.owner.id == request.user.id %}
+    <div class="alert alert-success mb-4" role="alert">CONGRATULATION: <i>{{request.user.username}}</i>. You are the winner!</div>
+    {% endif %}
+
 {% endif %}
 
-{% if listing.win_bid.owner.id == request.user.id %}
-    <div class="alert alert-success mb-4" role="alert">CONGRATULATION: <i>{{request.user.username}}</i>. You are the winner!</div>
-{% endif %}
+
 
 
 {% if bid_error %}

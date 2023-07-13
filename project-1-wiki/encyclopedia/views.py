@@ -67,8 +67,8 @@ def md_to_html(md_text):
     result = md_paragraph(result)
     result = md_li(result)
     result = md_ul(result)
-    logger.info(md_text)
-    logger.info(result)
+    # logger.info(md_text)
+    # logger.info(result)
     return result
 
 class SearchForm(forms.Form):
@@ -83,7 +83,6 @@ class EditForm(forms.Form):
 
 
 def index(request):
-    logger.info("Test application")
     return render(request, "encyclopedia/index.html", {
         "entries": util.list_entries(),
         "form": SearchForm()

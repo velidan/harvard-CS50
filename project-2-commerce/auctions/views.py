@@ -113,6 +113,10 @@ def register(request):
     
 
 def create_listing(request):
+    user = request.user
+
+    watched_listings_count = user.watched_listings.count() if user.is_authenticated else None  
+
     if request.method == "POST":
         form = CreateListingForm(request.POST)
         if form.is_valid():
@@ -136,12 +140,15 @@ def create_listing(request):
     else:
         return render(request, "auctions/create_listing.html", {
             "create_listing_form": CreateListingForm(),
-            "nav": "create_listing"
+            "nav": "create_listing",
+            "watched_listings_count": watched_listings_count
         })
     
 def listing(request, id):
     listing = Listing.objects.get(pk=id)
     user = request.user
+
+ 
 
     is_listing_in_user_watchlist = user in listing.watched_users.all()
  
@@ -180,11 +187,15 @@ def listing(request, id):
                 if bid_price:
                     # Handle min bid error
                    if listing.current_price >= bid_price:
+                        
+                        watched_listings_count = user.watched_listings.count() if user.is_authenticated else None 
+
                         return render(request, "auctions/listing.html", {
                             "listing": listing,
                             "proceed_listing_form": ProceedListingForm(initial={ 'in_watchlist': is_listing_in_user_watchlist, "bid": bid_price, 'comment': comment_text}),
                             "bid_error": f"Bid must be bigger than the current price: {listing.current_price}",
-                            "nav": "listing"
+                            "nav": "listing",
+                            "watched_listings_count": watched_listings_count
                         })
                    else: 
                        bid = Bid(target_listing=listing, price=bid_price, owner=request.user)
@@ -213,35 +224,51 @@ def listing(request, id):
     
     if bids_count > 0:
         is_latest_bid_yours = True if listing.bids.last().owner.id == user.id else False
-    
+    watched_listings_count = user.watched_listings.count() if user.is_authenticated else None 
     
     return render(request, "auctions/listing.html", {
         "listing": listing,
         "proceed_listing_form": proceed_listing_form,
         "nav": "listing",
         "bids_count": bids_count,
-        "is_latest_bid_yours": is_latest_bid_yours
+        "is_latest_bid_yours": is_latest_bid_yours,
+        "watched_listings_count": watched_listings_count
     })
 
 def categories(request):
+    user = request.user
+
+    watched_listings_count = user.watched_listings.count() if user.is_authenticated else None
+
     categories = Category.objects.all()
     return render(request, "auctions/categories.html", {
         "categories": categories,
-        "nav": "categories"
+        "nav": "categories",
+        "watched_listings_count": watched_listings_count
     })
 
 def category(request, id):
+    user = request.user
+
+    watched_listings_count = user.watched_listings.count() if user.is_authenticated else None
+
     category = Category.objects.get(pk=id)
     category_listings = Listing.objects.filter(category=id)
     return render(request, "auctions/category.html", {
         "category": category,
         "listings": category_listings,
-        "nav": "category"
+        "nav": "category",
+        "watched_listings_count": watched_listings_count
     })
 
 def watchlist(request):
+    user = request.user
+
+    watched_listings_count = user.watched_listings.count() if user.is_authenticated else None
+
     watched_listings = request.user.watched_listings.all()
     return render(request, "auctions/watchlist.html", {
         "watched_listings": watched_listings,
-        "nav": "watchlist"
+        "nav": "watchlist",
+        "watched_listings_count": watched_listings_count
     })
