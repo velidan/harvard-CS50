@@ -7,8 +7,13 @@ textarea {
     display: flex;
     border: 1px solid black;
     background-color: white;
+    cursor: pointer;
 }
 
 .mail-wrapper.read {
     background-color: gray;
 }
+
+/* .emails-view .mail-wrapper {
+    cursor: pointer;
+} */

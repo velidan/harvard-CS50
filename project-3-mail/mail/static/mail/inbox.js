@@ -57,8 +57,9 @@ function compose_email() {
 
 function load_mailbox(mailbox) {
 
-  const mailboxInstance = mailboxFactory.getInstance(mailbox, {selector: '#emails-view', EmailModel: Email})
-  mailboxInstance.clear()
+  const mailboxInstance = mailboxFactory.getInstance(mailbox, {
+    emailsViewSelector: '#emails-view', EmailModel: Email, emailViewSelector: '#email-view', httpService})
+    .clear()
 
   loadMailboxEmails(mailbox);
   
@@ -71,7 +72,6 @@ function load_mailbox(mailbox) {
   mailboxInstance.renderTitle()
 }
 
-
 // --- load mailbox 
 function loadMailboxEmails(mailbox) {
     
@@ -80,13 +80,16 @@ function loadMailboxEmails(mailbox) {
   httpService.getMailboxEmails(mailbox)
     .then(res => {
       console.log('res', res)
-      const inbox = mailboxFactory.getInstance('inbox')
+      const inbox = mailboxFactory.getInstance(mailbox)
       inbox.setEmails(res)
-      .render()
+      .renderEmailPreviews()
     })
     .catch(handleErrors)
  
 }
+
+
+//// -----------------------------------------------------------
 
 class Renderer {
 
@@ -120,40 +123,139 @@ class Renderer {
     const finalContent = content || this.noResultContent;
     
     el.appendChild(finalContent);
+    return this;
   }
+
+  getDOMElementBySelector = selector => document.querySelector(selector);
 
   renderMany(el, ...children) {
     if (!this.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
 
     el.append(...children);
+    return this;
   }
+
+  
+  attachEvent(el, eventName, cb) {
+    if (!this.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
+
+    if (!eventName) throw new Error('Please, pass the event name');
+
+    if (typeof cb !== 'function') throw new Error('Callback must be a function');
+
+    // ignore options
+    el.addEventListener(eventName, cb);
+    return this;
+  }
+
+  hideEl = el => {
+    el.style.display = 'none';
+    return this;
+  };
+  showEl = el => {
+    el.style.display = 'block';
+    return this;
+  };
 
   clear(el) {
     if (!this.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
 
     el.replaceChildren();
+    return this;
   }
 }
 
 class Mailbox extends Renderer {
-  rootEl;
+  // save views EL to avoid repetative operation get from DOM
+  emailsViewEl;
+  emailViewEl;
+
+
+
+  mode;
+
+  // selectors = {
+  //   emailsViewSelector: null,
+  //   emailViewSelector: null
+  // }
 
   emails;
 
   EmailModel;
 
+  httpService;
+
+  activeEmail;
+
+  get rootEl() {
+    let res;
+
+    switch(this.mode) {
+      case 'emails':
+        res = this.emailsViewEl;
+        break;
+      case 'email':
+       res = this.emailViewEl;
+        break;
+      default:
+        break;
+    }
+
+
+    return res;
+  };
+
+
   constructor(params) {
-    super();
-    const { selector, EmailModel } = params;
-    this.rootEl = document.querySelector(selector);
+
+    const { emailsViewSelector, emailViewSelector, EmailModel, httpService } = params;
+  
+    super()
+
+    this.httpService = httpService;
+  
+    this.emailsViewEl = this.getDOMElementBySelector(emailsViewSelector);
+    this.emailViewEl = this.getDOMElementBySelector(emailViewSelector);
+
+    // by default
+    this.setViewMode('emails');
+
     this.EmailModel = EmailModel;
   }
 
-  setEmails(emailsData) {
-    this.emails = emailsData.map(o => new this.EmailModel(o));
-    return this;
+  setHttpService = (httpService) => {
+    this.httpService = httpService;
   }
 
+  // setRootEl(el) {
+  //   this.rootEl = el;
+  //   return this;
+  // }
+
+  setViewMode(mode) {
+    if (this.mode === mode) return;
+    
+    
+    this.mode = mode;
+    
+    if (mode === 'emails') {
+      this.renderActiveModeEl(this.emailsViewEl, this.emailViewEl);
+    } else {
+      this.renderActiveModeEl(this.emailViewEl, this.emailsViewEl);
+    }
+    
+  }
+
+  renderActiveModeEl = (elToRender, elToHide) => {
+    this.hideEl(elToHide);
+    this.showEl(elToRender)
+  }
+
+  setEmails(emailsData, ) {
+    this.emails = emailsData.map(o => new this.EmailModel(o)
+      .setOnPreviewClickCb(this.onEmailPreviewClick));
+    return this;
+  }
 
   renderTitle(content) {
     if (!content) return null;
@@ -166,23 +268,51 @@ class Mailbox extends Renderer {
 
   }
 
-  render() {
 
-    
-    console.log(' MAILBOX RENDER', this.emails)
+  renderEmailPreviews() {
+    this.setViewMode('emails');
 
     this.emails.forEach(emailModel => {
       const emailPreviewNode = emailModel.getPreviewNode();
       super.render(this.rootEl, emailPreviewNode);
     });
+  }
 
-    
+  renderEmail() {
+    this.setViewMode('email');
+    const emailFullNode = this.activeEmail.getFullNode();
+
+    super.render(this.rootEl, emailFullNode);
+    console.log("--- RENDER EMAIL ---", this.activeEmail);
   }
 
   clear() {
     super.clear(this.rootEl);
     return this;
   }
+
+
+  onEmailPreviewClick = (emailJson) => {
+    console.log("MailboxInbox emailJson =>>>> ", emailJson)
+    /* 
+       Here I will use the http service to fetch the email detail
+       but basically it's redundant as we already have all the required data 
+       that comes from the emails array. Furthermore I could just pass the
+       whole email model and reduce O(n) by substraction serialize/fetch/new model generation/assign
+    */
+
+    this.httpService
+      .getMailboxEmail(emailJson.id)
+      .then(res => {
+        // res === emailJson so we could use it without the request
+        this.activeEmail = new this.EmailModel(res);
+       this.renderEmail();
+      })
+      .catch(handleErrors)
+  }
+
+
+
 }
 
 class MailboxInbox extends Mailbox {
@@ -196,6 +326,8 @@ class MailboxInbox extends Mailbox {
   renderTitle() {
     super.renderTitle(this.title);
   }
+
+
 
   render() {
     console.log(' MAIL BOX INBOX RENDER')
@@ -214,6 +346,13 @@ class MailboxSent extends Mailbox {
     super.renderTitle(this.title);
   }
 
+  // onEmailPreviewClick = (emailJson) => {
+  //   console.log("MailboxSent emailJson =>>>> ", emailJson)
+
+
+  // }
+
+
   render() {
     console.log(' MAIL BOX INBOX RENDER')
     super.render();
@@ -226,6 +365,11 @@ class MailboxArchive extends Mailbox {
   constructor(params) {
     super(params); 
   }
+
+  // onEmailPreviewClick = (emailJson) => {
+  //   console.log("MailboxArchive emailJson =>>>> ", emailJson)
+  // }
+
 
   renderTitle() {
     super.renderTitle(this.title);
@@ -245,6 +389,18 @@ class Email extends Renderer {
   read;
   archived;
 
+  __onPreviewClickCb;
+
+  get fullNodeConfig() {
+    return {
+      sender: this.sender,
+      recipients: this.recepients,
+      subject: this.subject,
+      timestamp: this.timestamp,
+      body: this.body,
+    }
+  }
+
   constructor(data) {
     super();
 
@@ -262,6 +418,27 @@ class Email extends Renderer {
     this.archived = archived;
   }
 
+  setOnPreviewClickCb(onPreviewClickCb) {
+    if (typeof onPreviewClickCb !== 'function') {
+      throw new Error('Callback must be a function');
+    }
+    this.__onPreviewClickCb = (_clickEvent) => onPreviewClickCb(this.serialize());
+
+    return this;
+  }
+
+  serialize() {
+    return {
+      id: this.id,
+      sender: this.sender,
+      recipients: this.recipients,
+      subject: this.subject,
+      body: this.body,
+      timestamp: this.timestamp,
+      read: this.read,
+      archived: this.archived
+    }
+  }
   
   
   getPreviewNode() {
@@ -269,39 +446,67 @@ class Email extends Renderer {
     const wrapperEl = super.createElement('div', wrapperClasses);
 
   
+    super.attachEvent(wrapperEl, 'click', this.__onPreviewClickCb);
 
 
     const authorEl = super.createElement('b', 'mail-author');
-    const senderTextNode = super.createTextNode(this.sender);
-    super.render(authorEl, senderTextNode);
+    this.fillElByTextNode(authorEl, this.sender);
+
 
     const subjectEl = super.createElement('p', 'mail-subject');
-    const subjectTextNode = super.createTextNode(this.subject);
-    super.render(subjectEl, subjectTextNode);
+    this.fillElByTextNode(subjectEl, this.subject);
 
     const timestampEl = super.createElement('span', 'mail-timestamp');
-    const timestampTextNode = super.createTextNode(this.timestamp);
-    super.render(timestampEl, timestampTextNode);
+    this.fillElByTextNode(timestampEl, this.timestamp);
 
     super.renderMany(wrapperEl, authorEl, subjectEl, timestampEl);
-
-    // super.render(wrapperEl, authorEl);
-    // super.render(wrapperEl, subjectEl);
-    // super.render(wrapperEl, timestampEl);
-
-    // super.render(this.rootEl, wrapperEl);
     
     return wrapperEl;
+  }
 
-  
+  getFullNode() {
+    const wrapperEl = super.createElement('div', 'mail-wrapper');
+
+    // const leftEL = super.createElement('b', 'mail-left-col');
+    // this.fillElByTextNode(leftEL, 'From');
+    // const rightEl = super.createElement('span', 'mail-right-col');
+    // this.fillElByTextNode(rightEl, this.sender);
 
 
+    for (const [label, content] of Object.entries(this.fullNodeConfig)) {
+      const rowEl = this.getRowEl(label, content);
+      super.render(wrapperEl, rowEl)
+    }
+    
+    // todo: it should fill wrapper in cycle
 
-    // super.render();
+   
+    return wrapperEl;
   }
   
-  render() {
 
+  getRowEl(label, content) {
+
+    const leftEL = super.createElement('b', 'mail-left-col');
+    this.fillElByTextNode(leftEL, label);
+    const rightEl = super.createElement('span', 'mail-right-col');
+    this.fillElByTextNode(rightEl, content);
+
+    const rowEl = super.createElement('div', 'mail-row');
+    super.renderMany(rowEl, leftEL, rightEl);
+
+    return rowEl;
+  }
+  // getRowEl(...children) {
+  //   const rowEl = super.createElement('div', 'mail-row');
+  //   super.renderMany(rowEl, ...children);
+
+  //   return rowEl;
+  // }
+
+  fillElByTextNode(el, text) {
+    const textNode = super.createTextNode(text);
+    super.render(el, textNode);
   }
 }
 
@@ -368,6 +573,17 @@ httpService = ((httpClient, API_PATHS) => {
   if (!httpClient) throw new Error('Please, pass the preffered HTTP client');
   if (!API_PATHS) throw new Error('Please, pass the API paths');
 
+
+  const reponseHandler = res => {
+    const error = res.error;
+
+    if (error) {
+      throw error;
+    }
+
+    return res;
+  }
+
   function sendEmail(recepients, subject, message) {
 
     return httpClient(API_PATHS.emails, {
@@ -379,35 +595,29 @@ httpService = ((httpClient, API_PATHS) => {
       })
     })
     .then(response =>  response.json())
-    .then(res => {
-      const error = res.error;
-
-      if (error) {
-        throw error;
-      }
-    })
+    .then(reponseHandler)
   }
 
   function getMailboxEmails(mailbox) {
 
     return httpClient(API_PATHS.getMailboxPath(mailbox))
     .then(response => response.json())
-    .then(res => {
-      const error = res.error;
+    .then(reponseHandler)
+  }
 
-      if (error) {
-        throw error;
-      }
+  function getMailboxEmail(emailId) {
 
-      return res;
-    })
+    return httpClient(API_PATHS.getEmailPath(emailId))
+    .then(response => response.json())
+    .then(reponseHandler)
   }
 
 
 
   return {
     sendEmail,
-    getMailboxEmails
+    getMailboxEmails,
+    getMailboxEmail
   }
 })(fetch, API_PATHS)
 
