@@ -106,12 +106,20 @@ class Renderer {
     if (!tag) throw new Error('Tag must be passed!');
 
     const res = document.createElement(tag);
-    res.className = className;
+    if (typeof className === 'string') {
+      res.className = className;
+    }
+
     return res;
   }
   createTextNode(text) {
     const res = document.createTextNode(text);
     return res;
+  }
+
+  fillElByTextNode(el, text) {
+    const textNode = this.createTextNode(text);
+    this.render(el, textNode);
   }
 
   checkIfDomEl = el => el instanceof Element;
@@ -294,6 +302,7 @@ class Mailbox extends Renderer {
 
   onEmailPreviewClick = (emailJson) => {
     console.log("MailboxInbox emailJson =>>>> ", emailJson)
+    const {id, read} = emailJson;
     /* 
        Here I will use the http service to fetch the email detail
        but basically it's redundant as we already have all the required data 
@@ -302,11 +311,16 @@ class Mailbox extends Renderer {
     */
 
     this.httpService
-      .getMailboxEmail(emailJson.id)
+      .getMailboxEmail(id)
       .then(res => {
         // res === emailJson so we could use it without the request
         this.activeEmail = new this.EmailModel(res);
        this.renderEmail();
+       
+       if (!read) {
+        this.httpService.updateEmailReadStatus(id, true)
+       }
+       
       })
       .catch(handleErrors)
   }
@@ -391,13 +405,12 @@ class Email extends Renderer {
 
   __onPreviewClickCb;
 
-  get fullNodeConfig() {
+  get fullNodeHeaderConfig() {
     return {
       sender: this.sender,
-      recipients: this.recepients,
+      recipients: this.recipients,
       subject: this.subject,
       timestamp: this.timestamp,
-      body: this.body,
     }
   }
 
@@ -450,14 +463,14 @@ class Email extends Renderer {
 
 
     const authorEl = super.createElement('b', 'mail-author');
-    this.fillElByTextNode(authorEl, this.sender);
+    super.fillElByTextNode(authorEl, this.sender);
 
 
     const subjectEl = super.createElement('p', 'mail-subject');
-    this.fillElByTextNode(subjectEl, this.subject);
+    super.fillElByTextNode(subjectEl, this.subject);
 
     const timestampEl = super.createElement('span', 'mail-timestamp');
-    this.fillElByTextNode(timestampEl, this.timestamp);
+    super.fillElByTextNode(timestampEl, this.timestamp);
 
     super.renderMany(wrapperEl, authorEl, subjectEl, timestampEl);
     
@@ -465,49 +478,76 @@ class Email extends Renderer {
   }
 
   getFullNode() {
-    const wrapperEl = super.createElement('div', 'mail-wrapper');
+    const wrapperEl = super.createElement('section', 'mail-wrapper');
+    const headerEl = this.getFullNodeHeaderEl();
+    const bodyEl = this.getFullNodeBodyEl()
 
-    // const leftEL = super.createElement('b', 'mail-left-col');
-    // this.fillElByTextNode(leftEL, 'From');
-    // const rightEl = super.createElement('span', 'mail-right-col');
-    // this.fillElByTextNode(rightEl, this.sender);
+    super.renderMany(wrapperEl, headerEl, bodyEl);
 
-
-    for (const [label, content] of Object.entries(this.fullNodeConfig)) {
-      const rowEl = this.getRowEl(label, content);
-      super.render(wrapperEl, rowEl)
-    }
-    
-    // todo: it should fill wrapper in cycle
-
-   
     return wrapperEl;
+  }
+
+  getFullNodeHeaderEl() {
+    const headerEl = super.createElement('div', 'mail-header');
+    for (const [label, content] of Object.entries(this.fullNodeHeaderConfig)) {
+      let finalContent = content;
+
+      if (label === 'recipients') {
+
+        // recipients is array so should handle it separatedly
+        finalContent = this.getRecipientsNode(content);
+      }
+
+      const rowEl = this.getRowEl(label, finalContent);
+      super.render(headerEl, rowEl)
+    }
+
+    return headerEl;
+  }
+
+  getFullNodeBodyEl() {
+    const bodyEl = super.createElement('div', 'mail-body');
+    super.fillElByTextNode(bodyEl, this.body);
+
+    return bodyEl;
   }
   
 
   getRowEl(label, content) {
 
     const leftEL = super.createElement('b', 'mail-left-col');
-    this.fillElByTextNode(leftEL, label);
-    const rightEl = super.createElement('span', 'mail-right-col');
-    this.fillElByTextNode(rightEl, content);
+    super.fillElByTextNode(leftEL, label);
+    
+    let rightEl;
+    if (typeof content === 'string') {
+      rightEl = super.createElement('span', 'mail-right-col');
+      super.fillElByTextNode(rightEl, content);
+    } else {
+      // recipients is DOM node
+      rightEl = content;
+    }
 
     const rowEl = super.createElement('div', 'mail-row');
     super.renderMany(rowEl, leftEL, rightEl);
 
     return rowEl;
   }
-  // getRowEl(...children) {
-  //   const rowEl = super.createElement('div', 'mail-row');
-  //   super.renderMany(rowEl, ...children);
 
-  //   return rowEl;
-  // }
+  getRecipientsNode(recipients) {
+    if (!recipients.length) throw new Error('Email can not be without any recipient');
 
-  fillElByTextNode(el, text) {
-    const textNode = super.createTextNode(text);
-    super.render(el, textNode);
+    const wrapperEl = super.createElement('p', 'recipients-wrapper');
+
+    for (const recipient of recipients) {
+      const recipientEl = super.createElement('span');
+      super.fillElByTextNode(recipientEl, recipient);
+      super.render(wrapperEl, recipientEl)
+    }
+
+    return wrapperEl;
   }
+
+
 }
 
 // --- compose form send
@@ -515,7 +555,7 @@ function handleComposeForm(id) {
   if (!id) throw new Error('Please, pass the id of the compose form');
   
   const formEl = document.forms['compose-form'];
-  const recepientsInput = formEl.querySelector('#compose-recipients')
+  const recipientsInput = formEl.querySelector('#compose-recipients')
   const subjectInput = document.getElementById('compose-subject')
   const composeBodyTextArea = formEl.getElementsByTagName('textarea')?.[0];
 
@@ -525,19 +565,19 @@ function handleComposeForm(id) {
   formEl.addEventListener('submit', e => {
     e.preventDefault();
 
-    let recepients;
+    let recipients;
     let subject;
     let message;
 
     try {
-      recepients = recepientsInput.value;
+      recipients = recipientsInput.value;
       subject = subjectInput.value;
       message = composeBodyTextArea.value;
     } catch (e) {
       throw new Error(e);
     }
 
-    httpService.sendEmail(recepients, subject, message)
+    httpService.sendEmail(recipients, subject, message)
     .then(res => {
       console.log('res -> ', res);
       load_mailbox('sent')
@@ -584,12 +624,12 @@ httpService = ((httpClient, API_PATHS) => {
     return res;
   }
 
-  function sendEmail(recepients, subject, message) {
+  function sendEmail(recipients, subject, message) {
 
     return httpClient(API_PATHS.emails, {
       method: 'POST',
       body: JSON.stringify({
-          recipients: recepients,
+          recipients: recipients,
           subject: subject,
           body: message
       })
@@ -612,12 +652,25 @@ httpService = ((httpClient, API_PATHS) => {
     .then(reponseHandler)
   }
 
+  function updateEmailReadStatus(emailId, read) {
+
+    return httpClient(API_PATHS.getEmailPath(emailId), {
+      method: 'PUT',
+      body: JSON.stringify({
+          read
+      })
+    })
+    .then(response => response.json())
+    .then(reponseHandler)
+  }
+
 
 
   return {
     sendEmail,
     getMailboxEmails,
-    getMailboxEmail
+    getMailboxEmail,
+    updateEmailReadStatus
   }
 })(fetch, API_PATHS)
 

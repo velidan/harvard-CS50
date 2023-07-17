@@ -5,13 +5,32 @@ textarea {
 
 .mail-wrapper {
     display: flex;
-    border: 1px solid black;
+   
     background-color: white;
+}
+
+#emails-view .mail-wrapper {
+    border: 1px solid black;
     cursor: pointer;
 }
 
-.mail-wrapper.read {
+#emails-view .mail-wrapper.read {
     background-color: gray;
+}
+
+#email-view .mail-wrapper {
+    flex-direction: column;
+}
+.mail-row {
+    display: flex;
+    margin-bottom: 12px;
+}
+.mail-left-col {
+    min-width: 100px;
+}
+
+.mail-header {
+    border-bottom: 1px solid black;
 }
 
 /* .emails-view .mail-wrapper {
