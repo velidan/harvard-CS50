@@ -1,7 +1,24 @@
-
-// INIT  -------- TODO init function would be nice
+//  ----- Initial
 let httpService;
+let router;
 let mailboxFactory;
+
+const ROUTES = {
+  inbox: 'inbox',
+  sent: 'sent',
+  archive: 'archive',
+  compose: 'compose',
+  email: 'email'
+}
+
+
+const MAILBOX_TYPES = {
+  [ROUTES.inbox]: 'inbox',
+  sent: 'sent',
+  archive: 'archive'
+}
+
+
 
 const API_PATHS = {
   emails: '/emails',
@@ -23,75 +40,44 @@ const ERRORS = {
   invalidMailbox: "Invalid mailbox."
 }
 
-// !INIT  --------
+function init() {
+  router = createRouter()
+  httpService = createHttpService(fetch, API_PATHS);
+  mailboxFactory = createMailboxFactory();
+
+  // listen to the compose send event
+  listenComposeForm();
+}
+
+
 
 document.addEventListener('DOMContentLoaded', function() {
 
+  init();
+
   // Use buttons to toggle between views
-  document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
-  document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
-  document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
-  document.querySelector('#compose').addEventListener('click', compose_email);
+  document.querySelector('#inbox').addEventListener('click', () => {
+    router.moveTo(ROUTES.inbox);
+  });
+  document.querySelector('#sent').addEventListener('click', () => {
+    router.moveTo(ROUTES.sent);
+  });
+  document.querySelector('#archived').addEventListener('click', () => {
+    router.moveTo(ROUTES.archive);
+  });
+  document.querySelector('#compose').addEventListener('click', () => {
+    router.moveTo(ROUTES.compose);
+  });
 
-  // By default, load the inbox
-  load_mailbox('inbox');
 
-  // compose send
-  handleComposeForm('compose-form');
+  router.moveTo(ROUTES.inbox);
 });
+//  ----- !Initial 
 
 
-
-
-function compose_email() {
-
-  // Show compose view and hide other views
-  document.querySelector('#emails-view').style.display = 'none';
-  document.querySelector('#compose-view').style.display = 'block';
-
-  // Clear out composition fields
-  document.querySelector('#compose-recipients').value = '';
-  document.querySelector('#compose-subject').value = '';
-  document.querySelector('#compose-body').value = '';
-}
-
-function load_mailbox(mailbox) {
-
-  const mailboxInstance = mailboxFactory.getInstance(mailbox, {
-    emailsViewSelector: '#emails-view', EmailModel: Email, emailViewSelector: '#email-view', httpService})
-    .clear()
-
-  loadMailboxEmails(mailbox);
-  
-  // Show the mailbox and hide other views
-  document.querySelector('#emails-view').style.display = 'block';
-  document.querySelector('#compose-view').style.display = 'none';
-
-  // Show the mailbox name
-  // document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
-  mailboxInstance.renderTitle()
-}
-
-// --- load mailbox 
-function loadMailboxEmails(mailbox) {
-    
-  if (!mailbox) throw new Error('Please, pass the correct mailbox')
-
-  httpService.getMailboxEmails(mailbox)
-    .then(res => {
-      console.log('res', res)
-      const inbox = mailboxFactory.getInstance(mailbox)
-      inbox.setEmails(res)
-      .renderEmailPreviews()
-    })
-    .catch(handleErrors)
- 
-}
-
-
-//// -----------------------------------------------------------
-
+//  ----- View Domain 
 class Renderer {
+  
 
 
   get noResultContent() {
@@ -101,6 +87,24 @@ class Renderer {
 
     return p;
   };
+
+  static hideEl = el => {
+    el.style.display = 'none';
+  };
+  static showEl = el => {
+    el.style.display = 'block';
+  };
+
+  static checkIfDomEl = el => el instanceof Element;
+
+  static getDOMElementBySelector = selector => document.querySelector(selector);
+
+  static clear(el) {
+    if (!Renderer.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
+
+    el.replaceChildren();
+  }
+
 
   createElement(tag, className) {
     if (!tag) throw new Error('Tag must be passed!');
@@ -122,11 +126,8 @@ class Renderer {
     this.render(el, textNode);
   }
 
-  checkIfDomEl = el => el instanceof Element;
-  // checkIfTextNode = node => node?.nodeType === Node.TEXT_NODE
-
   render(el, content) {
-    if (!this.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
+    if (!Renderer.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
 
     const finalContent = content || this.noResultContent;
     
@@ -134,10 +135,9 @@ class Renderer {
     return this;
   }
 
-  getDOMElementBySelector = selector => document.querySelector(selector);
 
   renderMany(el, ...children) {
-    if (!this.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
+    if (!Renderer.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
 
     el.append(...children);
     return this;
@@ -145,7 +145,7 @@ class Renderer {
 
   
   attachEvent(el, eventName, cb) {
-    if (!this.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
+    if (!Renderer.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
 
     if (!eventName) throw new Error('Please, pass the event name');
 
@@ -156,77 +156,36 @@ class Renderer {
     return this;
   }
 
-  hideEl = el => {
-    el.style.display = 'none';
-    return this;
-  };
-  showEl = el => {
-    el.style.display = 'block';
-    return this;
-  };
-
-  clear(el) {
-    if (!this.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
-
-    el.replaceChildren();
-    return this;
-  }
 }
 
 class Mailbox extends Renderer {
-  // save views EL to avoid repetative operation get from DOM
-  emailsViewEl;
-  emailViewEl;
-
-
-
-  mode;
-
-  // selectors = {
-  //   emailsViewSelector: null,
-  //   emailViewSelector: null
-  // }
+  type = 'inbox';
 
   emails;
 
   EmailModel;
 
   httpService;
+  router;
 
   activeEmail;
 
   get rootEl() {
-    let res;
-
-    switch(this.mode) {
-      case 'emails':
-        res = this.emailsViewEl;
-        break;
-      case 'email':
-       res = this.emailViewEl;
-        break;
-      default:
-        break;
-    }
-
-
-    return res;
+    return this.router.getActiveRouteViewEl();
   };
 
 
   constructor(params) {
 
-    const { emailsViewSelector, emailViewSelector, EmailModel, httpService } = params;
+    const { emailsViewSelector, emailViewSelector, EmailModel, httpService, router } = params;
   
     super()
 
     this.httpService = httpService;
+    this.router = router;
   
-    this.emailsViewEl = this.getDOMElementBySelector(emailsViewSelector);
-    this.emailViewEl = this.getDOMElementBySelector(emailViewSelector);
-
-    // by default
-    this.setViewMode('emails');
+    this.emailsViewEl = Renderer.getDOMElementBySelector(emailsViewSelector);
+    this.emailViewEl = Renderer.getDOMElementBySelector(emailViewSelector);
 
     this.EmailModel = EmailModel;
   }
@@ -234,42 +193,42 @@ class Mailbox extends Renderer {
   setHttpService = (httpService) => {
     this.httpService = httpService;
   }
-
-  // setRootEl(el) {
-  //   this.rootEl = el;
-  //   return this;
-  // }
-
-  setViewMode(mode) {
-    if (this.mode === mode) return;
-    
-    
-    this.mode = mode;
-    
-    if (mode === 'emails') {
-      this.renderActiveModeEl(this.emailsViewEl, this.emailViewEl);
-    } else {
-      this.renderActiveModeEl(this.emailViewEl, this.emailsViewEl);
-    }
-    
+  setRouter = (router) => {
+    this.router = router;
   }
 
   renderActiveModeEl = (elToRender, elToHide) => {
-    this.hideEl(elToHide);
-    this.showEl(elToRender)
+    Renderer.hideEl(elToHide);
+    Renderer.showEl(elToRender)
   }
 
-  setEmails(emailsData, ) {
-    this.emails = emailsData.map(o => new this.EmailModel(o)
-      .setOnPreviewClickCb(this.onEmailPreviewClick));
+  setEmails(emailsData ) {
+    this.emails = emailsData.map(o => this.createNewEmailModel(o))
+
     return this;
   }
 
-  renderTitle(content) {
+  createNewEmailModel = (data) => {
+    return new this.EmailModel(data)
+    .setMailboxType(this.type)
+    .setOnPreviewClickCb(this.onEmailPreviewClick)
+    .setOnArchiveClickCb(this.onArchiveClick)
+    .setOnReplyClickCb(this.onReplyClick);
+  }
+
+  renderTitle() {
+    const content = this.title;
     if (!content) return null;
+    let titleEl = Renderer.getDOMElementBySelector('h3.mailbox-title')
 
+    // already exists so just need to replace node
+    if (titleEl) {
+      Renderer.clear(titleEl);
+    } else {
+      // doesn't need - need to create
+      titleEl = super.createElement('h3', 'mailbox-title');
+    }
 
-    const titleEl = super.createElement('h3', 'mailbox-title');
     const text = super.createTextNode(content);
     super.render(titleEl, text);
     super.render(this.rootEl, titleEl);
@@ -278,7 +237,8 @@ class Mailbox extends Renderer {
 
 
   renderEmailPreviews() {
-    this.setViewMode('emails');
+
+    this.renderTitle()
 
     this.emails.forEach(emailModel => {
       const emailPreviewNode = emailModel.getPreviewNode();
@@ -287,21 +247,16 @@ class Mailbox extends Renderer {
   }
 
   renderEmail() {
-    this.setViewMode('email');
+    this.router.moveTo(ROUTES.email);
+   
     const emailFullNode = this.activeEmail.getFullNode();
-
+    this.renderTitle()
     super.render(this.rootEl, emailFullNode);
-    console.log("--- RENDER EMAIL ---", this.activeEmail);
   }
 
-  clear() {
-    super.clear(this.rootEl);
-    return this;
-  }
 
 
   onEmailPreviewClick = (emailJson) => {
-    console.log("MailboxInbox emailJson =>>>> ", emailJson)
     const {id, read} = emailJson;
     /* 
        Here I will use the http service to fetch the email detail
@@ -314,15 +269,41 @@ class Mailbox extends Renderer {
       .getMailboxEmail(id)
       .then(res => {
         // res === emailJson so we could use it without the request
-        this.activeEmail = new this.EmailModel(res);
+        this.activeEmail = this.createNewEmailModel(res);
        this.renderEmail();
        
        if (!read) {
-        this.httpService.updateEmailReadStatus(id, true)
+        this.httpService.updateEmail(id, {
+          ...emailJson,
+          read: true
+        })
        }
        
       })
       .catch(handleErrors)
+  }
+
+  onArchiveClick = (emailJson) => {
+    const id = emailJson.id;
+    
+    let payload = {...emailJson};
+
+    if (this.type === MAILBOX_TYPES.archive) {
+      payload.archived = false;
+    } else {
+      payload.archived = true;
+    }
+
+
+
+    this.httpService.updateEmail(id, payload)
+      .then(() => {
+        this.router.moveTo(ROUTES.inbox)
+      });
+  }
+
+  onReplyClick = (emailJson) => {
+    console.log('MAILBOX onReplyClick => ', emailJson); 
   }
 
 
@@ -332,40 +313,20 @@ class Mailbox extends Renderer {
 class MailboxInbox extends Mailbox {
 
   title = "Inbox"
+  type = MAILBOX_TYPES.inbox;
 
   constructor(params) {
    super(params); 
-  }
-
-  renderTitle() {
-    super.renderTitle(this.title);
-  }
-
-
-
-  render() {
-    console.log(' MAIL BOX INBOX RENDER')
-    super.render();
   }
 }
 class MailboxSent extends Mailbox {
 
   title = "Sent"
+  type = MAILBOX_TYPES.sent;
 
   constructor(params) {
     super(params); 
   }
-
-  renderTitle() {
-    super.renderTitle(this.title);
-  }
-
-  // onEmailPreviewClick = (emailJson) => {
-  //   console.log("MailboxSent emailJson =>>>> ", emailJson)
-
-
-  // }
-
 
   render() {
     console.log(' MAIL BOX INBOX RENDER')
@@ -375,23 +336,13 @@ class MailboxSent extends Mailbox {
 class MailboxArchive extends Mailbox {
 
   title = "Archived"
+  type = MAILBOX_TYPES.archive;
 
   constructor(params) {
     super(params); 
   }
 
-  // onEmailPreviewClick = (emailJson) => {
-  //   console.log("MailboxArchive emailJson =>>>> ", emailJson)
-  // }
-
-
-  renderTitle() {
-    super.renderTitle(this.title);
-  }
-
 }
-
-// --- !load mailbox 
 
 class Email extends Renderer {
   id;
@@ -403,7 +354,11 @@ class Email extends Renderer {
   read;
   archived;
 
+  mailboxType;
+
   __onPreviewClickCb;
+  __onReplyClickCb;
+  __onArchiveClickCb;
 
   get fullNodeHeaderConfig() {
     return {
@@ -433,12 +388,35 @@ class Email extends Renderer {
 
   setOnPreviewClickCb(onPreviewClickCb) {
     if (typeof onPreviewClickCb !== 'function') {
+
       throw new Error('Callback must be a function');
     }
     this.__onPreviewClickCb = (_clickEvent) => onPreviewClickCb(this.serialize());
 
     return this;
   }
+  setOnReplyClickCb(onReplyClickCb) {
+    if (typeof onReplyClickCb !== 'function') {
+      throw new Error('Callback must be a function');
+    }
+    this.__onReplyClickCb = (_clickEvent) => onReplyClickCb(this.serialize());
+
+    return this;
+  }
+  setOnArchiveClickCb(onArchiveClickCb) {
+    if (typeof onArchiveClickCb !== 'function') {
+
+      throw new Error('Callback must be a function');
+    }
+    this.__onArchiveClickCb = (_clickEvent) => onArchiveClickCb(this.serialize());
+
+    return this;
+  }
+
+  setMailboxType = (type) => {
+    this.mailboxType = type;
+    return this;
+  };
 
   serialize() {
     return {
@@ -480,11 +458,47 @@ class Email extends Renderer {
   getFullNode() {
     const wrapperEl = super.createElement('section', 'mail-wrapper');
     const headerEl = this.getFullNodeHeaderEl();
+    const actionsPanelEl = this.getActionsPanelEl();
     const bodyEl = this.getFullNodeBodyEl()
 
-    super.renderMany(wrapperEl, headerEl, bodyEl);
+    super.renderMany(wrapperEl, headerEl, actionsPanelEl, bodyEl);
 
     return wrapperEl;
+  }
+
+  getActionsPanelEl = () => {
+    const panelEl = super.createElement('div', 'mail-actions');
+    const replyBtnEl = this.getReplyBtnEl();
+
+    super.render(panelEl, replyBtnEl);
+
+
+    if (this.mailboxType !== MAILBOX_TYPES.sent) {
+      const archiveBtnEl = this.getArchiveBtnEl();
+      super.render(panelEl, archiveBtnEl)
+    }
+
+    return panelEl;
+  }
+
+  getReplyBtnEl() {
+    const btnEl = super.createElement('button', 'mail-reply btn btn-primary')
+    super.fillElByTextNode(btnEl, 'Reply');
+    
+    super.attachEvent(btnEl, 'click', this.__onReplyClickCb);
+
+    return btnEl;
+  }
+
+
+  getArchiveBtnEl() {
+    const btnEl = super.createElement('button', 'mail-archive btn btn-primary')
+    const text = this.mailboxType === MAILBOX_TYPES.archive ? 'Unarchive' : 'Archive'
+    super.fillElByTextNode(btnEl, text);
+
+    super.attachEvent(btnEl, 'click', this.__onArchiveClickCb);
+
+    return btnEl;
   }
 
   getFullNodeHeaderEl() {
@@ -546,15 +560,13 @@ class Email extends Renderer {
 
     return wrapperEl;
   }
-
-
 }
 
-// --- compose form send
-function handleComposeForm(id) {
+function listenComposeForm() {
+  const id = 'compose-form';
   if (!id) throw new Error('Please, pass the id of the compose form');
   
-  const formEl = document.forms['compose-form'];
+  const formEl = document.forms[id];
   const recipientsInput = formEl.querySelector('#compose-recipients')
   const subjectInput = document.getElementById('compose-subject')
   const composeBodyTextArea = formEl.getElementsByTagName('textarea')?.[0];
@@ -580,35 +592,42 @@ function handleComposeForm(id) {
     httpService.sendEmail(recipients, subject, message)
     .then(res => {
       console.log('res -> ', res);
-      load_mailbox('sent')
+      router.moveTo(ROUTES.sent)
     })
     .catch(handleErrors)
 
   })
 }
-// --- !compose form send
+//  ----- !View Domain 
 
-// ------ CORE -------- //
+//  ----- Error handling
 function handleErrors(error) {
   switch (error) {
     case ERRORS.noRecepient:
       alert('NO RECEPIENT');
+      console.error(error);
       break;
     case ERRORS.userNotExists:
       alert('USER DOES NOT EXISTS');
+      console.error(error);
       break;
     case ERRORS.invalidMailbox:
       alert('INVALID MAILBOX');
+      console.error(error);
       break;
     default:
       alert('SOME ERRRO HAPPENED: ' + error)
+      console.error(error);
       break;
     }
 }
+//  ----- !Error handling
 
 
-// http client should have post/get interfaces but let's just omit it
-httpService = ((httpClient, API_PATHS) => { 
+
+//  ----- Api layer
+//  Http client should have post/get interfaces but let's just omit it
+let createHttpService = ((httpClient, API_PATHS) => { 
 
   if (!httpClient) throw new Error('Please, pass the preffered HTTP client');
   if (!API_PATHS) throw new Error('Please, pass the API paths');
@@ -652,35 +671,48 @@ httpService = ((httpClient, API_PATHS) => {
     .then(reponseHandler)
   }
 
-  function updateEmailReadStatus(emailId, read) {
+  function updateEmail(emailId, data) {
 
     return httpClient(API_PATHS.getEmailPath(emailId), {
       method: 'PUT',
-      body: JSON.stringify({
-          read
-      })
+      body: JSON.stringify(data)
     })
-    .then(response => response.json())
     .then(reponseHandler)
   }
-
 
 
   return {
     sendEmail,
     getMailboxEmails,
     getMailboxEmail,
-    updateEmailReadStatus
+    updateEmail
   }
-})(fetch, API_PATHS)
+});
 
+function loadMailboxEmails(mailbox) {
+    
+  if (!mailbox) throw new Error('Please, pass the correct mailbox')
 
-mailboxFactory = (() => {
+  httpService.getMailboxEmails(mailbox)
+    .then(res => {
+      console.log('res', res)
+      const inbox = mailboxFactory.getInstance(mailbox, {
+        emailsViewSelector: '#emails-view', EmailModel: Email, emailViewSelector: '#email-view', httpService, router})
+      inbox.setEmails(res)
+      .renderEmailPreviews()
+    })
+    .catch(handleErrors)
+ 
+}
+//  ----- !Api layer
+
+//  ----- Core
+let createMailboxFactory = (() => {
 
   const registry = {
-    inbox: MailboxInbox,
-    sent: MailboxSent,
-    archive: MailboxArchive,
+    [MAILBOX_TYPES.inbox]: MailboxInbox,
+    [MAILBOX_TYPES.sent]: MailboxSent,
+    [MAILBOX_TYPES.archive]: MailboxArchive,
   }
 
   const cache = {}
@@ -702,8 +734,152 @@ mailboxFactory = (() => {
   }
 
 
-})();
+});
+
+let createRouter = (() => {
+
+  let activeRouteName;
+
+  const viewElCache = {
+    [ROUTES.inbox]: {
+      selector: '#emails-view',
+      element: null
+    },
+    [ROUTES.sent]: {
+      selector: '#emails-view',
+      element: null
+    },
+    [ROUTES.archive]: {
+      selector: '#emails-view',
+      element: null
+    },
+    [ROUTES.compose]: {
+      selector: '#compose-view',
+      element: null
+    },
+    [ROUTES.email]: {
+      selector: '#email-view',
+      element: null
+    },
+  }
+
+  const getViewEl = (viewName) => {
+    let {element, selector} = viewElCache[viewName];
+    if (!element) {
+      element = viewElCache[viewName].element = Renderer.getDOMElementBySelector(selector)
+
+      return element;
+    }
+
+    return element;
+  }
+
+  const showEl = (routeName) => {
+    const viewEl = getViewEl(routeName);
+    Renderer.showEl(viewEl);
+  }
+  
+  /**
+   * routeName {string} - name of the route
+   * skipClear {boolean} - if true the clear won't happen. Need for the static content as ComposeMail
+   */
+  const generateDestroyHandler = (routeName, skipClear) => () => {
+    const viewEl = getViewEl(routeName);
+    if (!skipClear) {
+      Renderer.clear(viewEl);
+    }
+
+    Renderer.hideEl(viewEl);
+
+  }
+  
+
+  const CONFIG = {
+    // for the future feature: history
+    [ROUTES.inbox]: {
+      path: '/inbox',
+      getViewEl: () => getViewEl(ROUTES.inbox),
+      component: {
+        render: () => {
+          showEl(ROUTES.inbox);
+          loadMailboxEmails(ROUTES.inbox);
+        },
+        destroy: generateDestroyHandler(ROUTES.inbox),
+      }
+    },
+    [ROUTES.sent]: {
+      path: '/inbox',
+      getViewEl: () => getViewEl(ROUTES.sent),
+      component: {
+        render: () => {
+          showEl(ROUTES.sent);
+          loadMailboxEmails(ROUTES.sent);
+        },
+        destroy: generateDestroyHandler(ROUTES.sent),
+      }
+    },
+    [ROUTES.archive]: {
+      path: '/inbox',
+      getViewEl: () => getViewEl(ROUTES.archive),
+      component: {
+        render: () => {
+          showEl(ROUTES.archive);
+          loadMailboxEmails(ROUTES.archive);
+        },
+        destroy: generateDestroyHandler(ROUTES.archive),
+      }
+    },
+    [ROUTES.compose]: {
+      path: '/compose',
+      getViewEl: () => getViewEl(ROUTES.compose),
+      component: {
+        render: () => {
+          showEl(ROUTES.compose);
+        },
+        destroy: generateDestroyHandler(ROUTES.compose, true),
+      }
+    },
+    [ROUTES.email]: {
+      path: '/email',
+      getViewEl: () => getViewEl(ROUTES.email),
+      component: {
+        render: () => {
+          showEl(ROUTES.email);
+        },
+        destroy: generateDestroyHandler(ROUTES.email),
+      }
+    }
+  }
+  
+
+  const moveTo = (routeName) => {
+    const routeConfig = CONFIG[routeName];
+    if (!routeConfig) {
+      throw new Error(`There is no such route ${routeName}`);
+    }
 
 
+    // should remove the prev component if exists
+    if (activeRouteName) {
+      CONFIG[activeRouteName].component.destroy();
+    }
+   
+    activeRouteName = routeName;
+    routeConfig.component.render();
 
-// ------ !CORE -------- //
+  }
+
+
+  const getActiveRouteViewEl = () => {
+    return CONFIG[activeRouteName].getViewEl()
+  }
+
+  return {
+    activeRouteName,
+    getActiveRouteViewEl,
+    moveTo
+  }
+})
+
+
+//  ----- !Core

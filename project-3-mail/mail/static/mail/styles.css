@@ -33,6 +33,11 @@ textarea {
     border-bottom: 1px solid black;
 }
 
+
+#emails-view, #compose-view, #email-view {
+    display: none;
+}
+
 /* .emails-view .mail-wrapper {
     cursor: pointer;
 } */
