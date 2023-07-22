@@ -38,6 +38,10 @@ textarea {
     display: none;
 }
 
+pre {
+    white-space: pre-wrap;
+}
+
 /* .emails-view .mail-wrapper {
     cursor: pointer;
 } */

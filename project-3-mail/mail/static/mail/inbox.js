@@ -2,6 +2,7 @@
 let httpService;
 let router;
 let mailboxFactory;
+let composeForm;
 
 const ROUTES = {
   inbox: 'inbox',
@@ -44,9 +45,7 @@ function init() {
   router = createRouter()
   httpService = createHttpService(fetch, API_PATHS);
   mailboxFactory = createMailboxFactory();
-
-  // listen to the compose send event
-  listenComposeForm();
+  composeForm = new ComposeForm(httpService, router);
 }
 
 
@@ -76,9 +75,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 //  ----- View Domain 
+/**
+ * It should be an abstraction over the rendering engine
+ * thus it would be possible to support multiplatform engine
+ */
 class Renderer {
-  
-
 
   get noResultContent() {
     const p = this.createElement('p', 'no-result-msg');
@@ -97,7 +98,17 @@ class Renderer {
 
   static checkIfDomEl = el => el instanceof Element;
 
-  static getDOMElementBySelector = selector => document.querySelector(selector);
+  static getDOMElementBySelector = (selector, scopeEl) => {
+    let res;
+    if (Renderer.checkIfDomEl(scopeEl)) {
+      res = scopeEl.querySelector(selector)
+    } else {
+      res = document.querySelector(selector)
+    };
+
+    return res;
+  };
+  static getFormById = id => document.forms[id];
 
   static clear(el) {
     if (!Renderer.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
@@ -105,7 +116,19 @@ class Renderer {
     el.replaceChildren();
   }
 
+  static attachEvent(el, eventName, cb) {
+    if (!Renderer.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
 
+    if (!eventName) throw new Error('Please, pass the event name');
+
+    if (typeof cb !== 'function') throw new Error('Callback must be a function');
+
+    // ignore options
+    el.addEventListener(eventName, cb);
+  }
+
+
+  // basically all other stuff could be static
   createElement(tag, className) {
     if (!tag) throw new Error('Tag must be passed!');
 
@@ -125,6 +148,9 @@ class Renderer {
     const textNode = this.createTextNode(text);
     this.render(el, textNode);
   }
+  setInnerHTML(el, text) {
+    el.innerHTML = text;
+  }
 
   render(el, content) {
     if (!Renderer.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
@@ -140,19 +166,6 @@ class Renderer {
     if (!Renderer.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
 
     el.append(...children);
-    return this;
-  }
-
-  
-  attachEvent(el, eventName, cb) {
-    if (!Renderer.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
-
-    if (!eventName) throw new Error('Please, pass the event name');
-
-    if (typeof cb !== 'function') throw new Error('Callback must be a function');
-
-    // ignore options
-    el.addEventListener(eventName, cb);
     return this;
   }
 
@@ -304,6 +317,7 @@ class Mailbox extends Renderer {
 
   onReplyClick = (emailJson) => {
     console.log('MAILBOX onReplyClick => ', emailJson); 
+    this.router.moveTo(ROUTES.compose, emailJson)
   }
 
 
@@ -437,7 +451,7 @@ class Email extends Renderer {
     const wrapperEl = super.createElement('div', wrapperClasses);
 
   
-    super.attachEvent(wrapperEl, 'click', this.__onPreviewClickCb);
+    Renderer.attachEvent(wrapperEl, 'click', this.__onPreviewClickCb);
 
 
     const authorEl = super.createElement('b', 'mail-author');
@@ -485,7 +499,7 @@ class Email extends Renderer {
     const btnEl = super.createElement('button', 'mail-reply btn btn-primary')
     super.fillElByTextNode(btnEl, 'Reply');
     
-    super.attachEvent(btnEl, 'click', this.__onReplyClickCb);
+    Renderer.attachEvent(btnEl, 'click', this.__onReplyClickCb);
 
     return btnEl;
   }
@@ -496,7 +510,7 @@ class Email extends Renderer {
     const text = this.mailboxType === MAILBOX_TYPES.archive ? 'Unarchive' : 'Archive'
     super.fillElByTextNode(btnEl, text);
 
-    super.attachEvent(btnEl, 'click', this.__onArchiveClickCb);
+    Renderer.attachEvent(btnEl, 'click', this.__onArchiveClickCb);
 
     return btnEl;
   }
@@ -521,8 +535,10 @@ class Email extends Renderer {
 
   getFullNodeBodyEl() {
     const bodyEl = super.createElement('div', 'mail-body');
-    super.fillElByTextNode(bodyEl, this.body);
+    // to save formatting
+    const preStr = '<pre>' +   this.body  + '</pre>'
 
+    super.setInnerHTML(bodyEl, preStr);
     return bodyEl;
   }
   
@@ -562,42 +578,130 @@ class Email extends Renderer {
   }
 }
 
-function listenComposeForm() {
-  const id = 'compose-form';
-  if (!id) throw new Error('Please, pass the id of the compose form');
+/**
+ * It's possible to generate and re-create all the elements on the fly
+ * but I just want to save some time as I've already spent a lot for this
+ */
+class ComposeForm {
+  id = 'compose-form';
+  httpService;
+  router;
+
+  formEl;
+  recipientsInputEl;
+  subjectInputEl;
+  composeBodyTextAreaEl;
+
+  months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+  constructor(httpService, router) {
+    this.httpService = httpService;
+    this.router = router;
+    const formEl = Renderer.getFormById(this.id);
+    this.formEl = formEl;
+
+    if (!formEl) throw new Error(`Can't find in DOM the form with id: ${id}`)
+
+    this.recipientsInputEl = Renderer.getDOMElementBySelector('#compose-recipients', formEl);
+    // by default it's the most faster way to get the element from DOM
+    this.subjectInputEl = document.getElementById('compose-subject')
+    // just to demostrate other way to get the el from DOM
+    this.composeBodyTextAreaEl = formEl.getElementsByTagName('textarea')?.[0];
+
+    Renderer.attachEvent(formEl, 'submit', this.onSubmit);
+  }
+
+  onSubmit = (e) => {
+      e.preventDefault();
   
-  const formEl = document.forms[id];
-  const recipientsInput = formEl.querySelector('#compose-recipients')
-  const subjectInput = document.getElementById('compose-subject')
-  const composeBodyTextArea = formEl.getElementsByTagName('textarea')?.[0];
+      let recipients;
+      let subject;
+      let message;
+  
+      try {
+        recipients = this.recipientsInputEl.value
+
+        subject = this.subjectInputEl.value;
+        message = this.composeBodyTextAreaEl.value;
+      } catch (e) {
+        throw new Error(e);
+      }
+
 
   
-  if (!formEl) throw new Error(`Can't find in DOM the form with id: ${id}`)
- 
-  formEl.addEventListener('submit', e => {
-    e.preventDefault();
+      this.httpService.sendEmail(recipients, subject, message)
+      .then(() => {
+        this.router.moveTo(ROUTES.sent)
+      })
+      .catch(handleErrors)
+  }
 
-    let recipients;
-    let subject;
-    let message;
+  fill = (data) => {
+    if (!data) return;
+    const { sender, subject, timestamp, body } = data;
+    this.recipientsInputEl.value = sender;
+    this.subjectInputEl.value = this.getSubject(subject);
+    this.composeBodyTextAreaEl.value = this.getBody(body, timestamp, sender);
+    console.log('%c PREFILLED DATA', 'background-color: violet', data);
+  }
 
-    try {
-      recipients = recipientsInput.value;
-      subject = subjectInput.value;
-      message = composeBodyTextArea.value;
-    } catch (e) {
-      throw new Error(e);
+  getSubject = (subject) => subject.includes("Re: ") ? subject : `Re: ${subject}`;
+  getBody = (body, timestamp, sender) => {
+    return `On ${timestamp} ${sender} wrote:\n${body}`;
+  }
+
+  getEmailDate = () => {
+    const date = new Date(Date.now());
+    const year = date.getFullYear()
+    const monthNumber = date.getMonth();
+    const dayNumberInMonth = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+
+    const monthShortName = this.getMonthShortName(monthNumber);
+    const amPmHours = this.getHoursAndMinsInAmPmFormat(hours, minutes);
+    
+    const result = `${monthShortName} ${dayNumberInMonth} ${year}, ${amPmHours}`;
+
+    return result;
+  }
+
+  getHoursAndMinsInAmPmFormat = (hours, minutes) => {
+    let res;
+    if (hours <= 12) {
+      res = `${hours}:${minutes} AM`;
+    } else {
+      const pmHours = hours - 12;
+      res = `${pmHours}:${minutes} PM`;
     }
 
-    httpService.sendEmail(recipients, subject, message)
-    .then(res => {
-      console.log('res -> ', res);
-      router.moveTo(ROUTES.sent)
-    })
-    .catch(handleErrors)
+    return res;
+  }
 
-  })
+  getMonthShortName = (monthNumber) => this.months[monthNumber].substring(0, 3); 
+
+  // just in case
+  getRecipientsStrFromArray = recipients => {
+   let str = '';
+   const ln = recipients.length;
+   let counter = 0;
+   while(counter < ln) {
+    const recipient = recipients[counter];
+    // if not the last el and there is more than 1 el
+    if (counter < ln - 1 && ln > 1) {
+      str += `${recipient}, `;
+    } else {
+      str += recipient;
+    }
+    counter++;
+   }
+
+   return str;
+  }
+
+
 }
+
 //  ----- !View Domain 
 
 //  ----- Error handling
@@ -833,8 +937,15 @@ let createRouter = (() => {
       path: '/compose',
       getViewEl: () => getViewEl(ROUTES.compose),
       component: {
-        render: () => {
+        render: (data) => {
+          console.log("%c COMPOSE_DATA", 'background-color: green' ,data)
+          // it's a reply. Should prefill
+          if (data) {
+            composeForm.fill(data);
+          }
+         
           showEl(ROUTES.compose);
+
         },
         destroy: generateDestroyHandler(ROUTES.compose, true),
       }
@@ -852,7 +963,7 @@ let createRouter = (() => {
   }
   
 
-  const moveTo = (routeName) => {
+  const moveTo = (routeName, data) => {
     const routeConfig = CONFIG[routeName];
     if (!routeConfig) {
       throw new Error(`There is no such route ${routeName}`);
@@ -865,7 +976,7 @@ let createRouter = (() => {
     }
    
     activeRouteName = routeName;
-    routeConfig.component.render();
+    routeConfig.component.render(data);
 
   }
 
