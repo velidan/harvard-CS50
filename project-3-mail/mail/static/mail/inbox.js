@@ -3,6 +3,7 @@ let httpService;
 let router;
 let mailboxFactory;
 let composeForm;
+let navigation;
 
 const ROUTES = {
   inbox: 'inbox',
@@ -45,36 +46,95 @@ function init() {
   router = createRouter()
   httpService = createHttpService(fetch, API_PATHS);
   mailboxFactory = createMailboxFactory();
-  composeForm = new ComposeForm(httpService, router);
+  composeForm = new ComposeForm(httpService, navigation);
+  navigation = new Navigation(router);
+
+  navigation.activateNavRoute(ROUTES.inbox);
 }
 
+document.addEventListener('DOMContentLoaded', init);
 
-
-document.addEventListener('DOMContentLoaded', function() {
-
-  init();
-
-  // Use buttons to toggle between views
-  document.querySelector('#inbox').addEventListener('click', () => {
-    router.moveTo(ROUTES.inbox);
-  });
-  document.querySelector('#sent').addEventListener('click', () => {
-    router.moveTo(ROUTES.sent);
-  });
-  document.querySelector('#archived').addEventListener('click', () => {
-    router.moveTo(ROUTES.archive);
-  });
-  document.querySelector('#compose').addEventListener('click', () => {
-    router.moveTo(ROUTES.compose);
-  });
-
-
-  router.moveTo(ROUTES.inbox);
-});
 //  ----- !Initial 
 
 
 //  ----- View Domain 
+
+class Navigation {
+  
+  navItemsSelectorsRegistry = {
+    [ROUTES.inbox]: '#inbox',
+    [ROUTES.sent]: '#sent',
+    [ROUTES.archive]: '#archived',
+    [ROUTES.compose]: '#compose',
+  }
+
+  activeClassName = 'active';
+
+  router;
+
+  activeEl;
+  activeRouteName;
+
+  constructor(router) {
+    this.router = router;
+    this.attachListeners();
+  }
+
+  attachListeners() {
+    for (const [key, selector] of Object.entries(this.navItemsSelectorsRegistry)) {
+      const navEl = Renderer.getDOMElementBySelector(selector);
+      Renderer.attachEvent(navEl, 'click', this.onNavItemClick.bind(this, key));
+    }
+  }
+
+  onNavItemClick = (routeName, _event) => {
+    this.activateNavRoute(routeName);
+  }
+
+
+  activateNavItemByRouteName = (routeName) => {
+    const selector = this.navItemsSelectorsRegistry[routeName];
+    if (!selector) {
+      throw new Error(`route does not exists ${routeName}`);
+    }
+    const navEl = Renderer.getDOMElementBySelector(selector);
+
+    // deactivate previously active item
+    if (this.activeEl) {
+      Renderer.removeClassListFromEl(this.activeEl, this.activeClassName);
+    }
+
+    Renderer.addClassListToEl(navEl, this.activeClassName);
+    this.activeEl = navEl;
+    this.activeRouteName = routeName;
+  }
+
+  activateNavRoute = (routeName, routeData) => {
+   
+    this.activateNavItemByRouteName(routeName);
+    this.router.moveTo(routeName, routeData)
+  }
+
+  deactivateCurrentActiveNavItem = () => {
+    this.deactivateNavItem(this.activeRouteName);
+  }
+
+  deactivateNavItem =  (routeName) => {
+    const selector = this.navItemsSelectorsRegistry[routeName];
+    if (!selector) {
+      throw new Error(`route does not exists ${routeName}`);
+    }
+    const navEl = Renderer.getDOMElementBySelector(selector);
+
+    // deactivate previously active item
+    if (this.activeEl) {
+      Renderer.removeClassListFromEl(this.activeEl, this.activeClassName);
+    }
+
+    Renderer.removeClassListFromEl(navEl, this.activeClassName);
+  }
+}
+
 /**
  * It should be an abstraction over the rendering engine
  * thus it would be possible to support multiplatform engine
@@ -94,6 +154,12 @@ class Renderer {
   };
   static showEl = el => {
     el.style.display = 'block';
+  };
+  static addClassListToEl = (el, className) => {
+    el.classList.add(className);
+  };
+  static removeClassListFromEl = (el, className) => {
+    el.classList.remove(className);
   };
 
   static checkIfDomEl = el => el instanceof Element;
@@ -180,6 +246,7 @@ class Mailbox extends Renderer {
 
   httpService;
   router;
+  navigation;
 
   activeEmail;
 
@@ -190,12 +257,14 @@ class Mailbox extends Renderer {
 
   constructor(params) {
 
-    const { emailsViewSelector, emailViewSelector, EmailModel, httpService, router } = params;
+    // should be DI
+    const { emailsViewSelector, emailViewSelector, EmailModel, httpService, router, navigation } = params;
   
     super()
 
     this.httpService = httpService;
     this.router = router;
+    this.navigation = navigation;
   
     this.emailsViewEl = Renderer.getDOMElementBySelector(emailsViewSelector);
     this.emailViewEl = Renderer.getDOMElementBySelector(emailViewSelector);
@@ -203,12 +272,6 @@ class Mailbox extends Renderer {
     this.EmailModel = EmailModel;
   }
 
-  setHttpService = (httpService) => {
-    this.httpService = httpService;
-  }
-  setRouter = (router) => {
-    this.router = router;
-  }
 
   renderActiveModeEl = (elToRender, elToHide) => {
     Renderer.hideEl(elToHide);
@@ -260,6 +323,7 @@ class Mailbox extends Renderer {
   }
 
   renderEmail() {
+    this.navigation.deactivateCurrentActiveNavItem();
     this.router.moveTo(ROUTES.email);
    
     const emailFullNode = this.activeEmail.getFullNode();
@@ -311,13 +375,12 @@ class Mailbox extends Renderer {
 
     this.httpService.updateEmail(id, payload)
       .then(() => {
-        this.router.moveTo(ROUTES.inbox)
+        navigation.activateNavRoute(ROUTES.inbox)
       });
   }
 
   onReplyClick = (emailJson) => {
-    console.log('MAILBOX onReplyClick => ', emailJson); 
-    this.router.moveTo(ROUTES.compose, emailJson)
+    navigation.activateNavRoute(ROUTES.compose, emailJson)
   }
 
 
@@ -340,11 +403,6 @@ class MailboxSent extends Mailbox {
 
   constructor(params) {
     super(params); 
-  }
-
-  render() {
-    console.log(' MAIL BOX INBOX RENDER')
-    super.render();
   }
 }
 class MailboxArchive extends Mailbox {
@@ -585,7 +643,7 @@ class Email extends Renderer {
 class ComposeForm {
   id = 'compose-form';
   httpService;
-  router;
+  navigation;
 
   formEl;
   recipientsInputEl;
@@ -594,9 +652,9 @@ class ComposeForm {
 
   months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-  constructor(httpService, router) {
+  constructor(httpService, navigation) {
     this.httpService = httpService;
-    this.router = router;
+    this.navigation = navigation;
     const formEl = Renderer.getFormById(this.id);
     this.formEl = formEl;
 
@@ -631,7 +689,7 @@ class ComposeForm {
   
       this.httpService.sendEmail(recipients, subject, message)
       .then(() => {
-        this.router.moveTo(ROUTES.sent)
+        navigation.activateNavRoute(ROUTES.sent)
       })
       .catch(handleErrors)
   }
@@ -642,7 +700,6 @@ class ComposeForm {
     this.recipientsInputEl.value = sender;
     this.subjectInputEl.value = this.getSubject(subject);
     this.composeBodyTextAreaEl.value = this.getBody(body, timestamp, sender);
-    console.log('%c PREFILLED DATA', 'background-color: violet', data);
   }
 
   getSubject = (subject) => subject.includes("Re: ") ? subject : `Re: ${subject}`;
@@ -799,9 +856,8 @@ function loadMailboxEmails(mailbox) {
 
   httpService.getMailboxEmails(mailbox)
     .then(res => {
-      console.log('res', res)
       const inbox = mailboxFactory.getInstance(mailbox, {
-        emailsViewSelector: '#emails-view', EmailModel: Email, emailViewSelector: '#email-view', httpService, router})
+        emailsViewSelector: '#emails-view', EmailModel: Email, emailViewSelector: '#email-view', httpService, router, navigation})
       inbox.setEmails(res)
       .renderEmailPreviews()
     })
@@ -938,7 +994,6 @@ let createRouter = (() => {
       getViewEl: () => getViewEl(ROUTES.compose),
       component: {
         render: (data) => {
-          console.log("%c COMPOSE_DATA", 'background-color: green' ,data)
           // it's a reply. Should prefill
           if (data) {
             composeForm.fill(data);
