@@ -3,8 +3,9 @@ body {
 }
 
 textarea {
-    min-height: 400px;
+    min-height: 240px;
 }
+
 
 p, ul {
     margin: 0;
@@ -35,13 +36,17 @@ nav {
     margin-left: 12px;
 }
 
-.mailbox-title {
+.form-group input {
+    margin-top: 4px;
+}
+
+.mailbox-title, #compose-view h3 {
     text-align: center;
     margin-bottom: 12px;
 }
 
 
-
+/* emails */
 .mail-wrapper {
     display: flex;
     background-color: white;
@@ -51,16 +56,14 @@ nav {
     
 }
 
-.mail-wrapper:hover {
+#emails-view .mail-wrapper:hover {
     box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
     z-index: 2;
     background-color: #d2d2d2;
 }
 
 #emails-view .mail-wrapper {
-    /* border: 1px solid black; */
     cursor: pointer;
-
     padding-left: 24px;
     padding-right: 24px;
 }
@@ -77,6 +80,9 @@ nav {
 
 #emails-view .mail-wrapper.read {
     background-color: gray;
+}
+#emails-view .mail-wrapper.read:hover {
+    background-color: #bababa;
 }
 
 #emails-view .mail-author {
@@ -96,33 +102,75 @@ nav {
 }
 
 
-/* ! emails */
+/* !emails */
 
+/* email */
 #email-view .mail-wrapper {
     flex-direction: column;
+    border-radius: 10px;
 }
 
+.recipients-wrapper {
+    display: flex;
+}
 
+.recipients-wrapper .badge {
+    font-size: 100%;
+}
+
+.recipients-wrapper *:not(:first-child) {
+    margin-left: 12px;
+}
 
 .mail-row {
     display: flex;
     margin-bottom: 12px;
 }
 .mail-left-col {
-    min-width: 100px;
+    width: 15%;
+    word-break: break-all;
+    text-transform: capitalize;
 }
-
+.mail-right-col {
+    width: 85%;
+    padding-left: 0.4em;
+}
 .mail-header {
     border-bottom: 1px solid black;
 }
 
-
-
+.mail-actions {
+    display: flex;
+    margin: 24px 0;
+    justify-content: space-between;
+}
 
 pre {
     white-space: pre-wrap;
 }
 
-/* .emails-view .mail-wrapper {
-    cursor: pointer;
-} */
+/* !email */
+
+/*  compose form  */
+#compose-form input[type="submit"] {
+    margin: 18px 0 16px;
+    float: right;
+}
+/*  !compose form  */
+
+/*  auth  */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.auth-form .btn-primary {
+    margin-bottom: 12px;
+}
+
+.info {
+    text-align: center;
+}
+/*  !auth  */

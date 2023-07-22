@@ -141,14 +141,6 @@ class Navigation {
  */
 class Renderer {
 
-  get noResultContent() {
-    const p = this.createElement('p', 'no-result-msg');
-    const textNode = document.createTextNode('No result');
-    p.appendChild(textNode);
-
-    return p;
-  };
-
   static hideEl = el => {
     el.style.display = 'none';
   };
@@ -221,7 +213,7 @@ class Renderer {
   render(el, content) {
     if (!Renderer.checkIfDomEl(el)) throw new Error(`Please, pass the valid DOM el. Received: ${el}, ${typeof el} `);
 
-    const finalContent = content || this.noResultContent;
+    const finalContent = content;
     
     el.appendChild(finalContent);
     return this;
@@ -292,8 +284,8 @@ class Mailbox extends Renderer {
     .setOnReplyClickCb(this.onReplyClick);
   }
 
-  renderTitle() {
-    const content = this.title;
+  renderTitle(title) {
+    const content = title || this.title;
     if (!content) return null;
     let titleEl = Renderer.getDOMElementBySelector('h3.mailbox-title')
 
@@ -316,10 +308,16 @@ class Mailbox extends Renderer {
 
     this.renderTitle()
 
-    this.emails.forEach(emailModel => {
-      const emailPreviewNode = emailModel.getPreviewNode();
-      super.render(this.rootEl, emailPreviewNode);
-    });
+    if (this.emails.length) {
+      this.emails.forEach(emailModel => {
+        const emailPreviewNode = emailModel.getPreviewNode();
+        super.render(this.rootEl, emailPreviewNode);
+      });
+    } else {
+      this.renderNoResultContent();
+    }
+
+
   }
 
   renderEmail() {
@@ -327,7 +325,7 @@ class Mailbox extends Renderer {
     this.router.moveTo(ROUTES.email);
    
     const emailFullNode = this.activeEmail.getFullNode();
-    this.renderTitle()
+    this.renderTitle('Email details')
     super.render(this.rootEl, emailFullNode);
   }
 
@@ -383,22 +381,34 @@ class Mailbox extends Renderer {
     navigation.activateNavRoute(ROUTES.compose, emailJson)
   }
 
+  renderNoResultContent() {
+    const noResultEl = super.createElement('p', 'no-result-msg alert alert-info');
+    const textNode = document.createTextNode(this.noResultText);
+    noResultEl.appendChild(textNode);
 
+    super.render(this.rootEl, noResultEl);
+  };
 
 }
 
 class MailboxInbox extends Mailbox {
 
   title = "Inbox"
+  noResultText = "You have no emails yet";
   type = MAILBOX_TYPES.inbox;
 
   constructor(params) {
    super(params); 
   }
+
+
+
+
 }
 class MailboxSent extends Mailbox {
 
   title = "Sent"
+  noResultText = "You haven't sent any email yet";
   type = MAILBOX_TYPES.sent;
 
   constructor(params) {
@@ -408,6 +418,7 @@ class MailboxSent extends Mailbox {
 class MailboxArchive extends Mailbox {
 
   title = "Archived"
+  noResultText = "You haven't archived any email yet";
   type = MAILBOX_TYPES.archive;
 
   constructor(params) {
@@ -542,7 +553,12 @@ class Email extends Renderer {
     const panelEl = super.createElement('div', 'mail-actions');
     const replyBtnEl = this.getReplyBtnEl();
 
-    super.render(panelEl, replyBtnEl);
+    // if we the author of the email - no need to render reply btn
+    if (replyBtnEl) {
+      super.render(panelEl, replyBtnEl);
+    }
+
+
 
 
     if (this.mailboxType !== MAILBOX_TYPES.sent) {
@@ -554,6 +570,14 @@ class Email extends Renderer {
   }
 
   getReplyBtnEl() {
+   const userEmailEl = Renderer.getDOMElementBySelector('#user-email');
+   const userEmail = userEmailEl.dataset.userEmail;
+   
+   // no much reason to reply for yourself
+   if (this.sender === userEmail) {
+    return null;
+   }
+
     const btnEl = super.createElement('button', 'mail-reply btn btn-primary')
     super.fillElByTextNode(btnEl, 'Reply');
     
@@ -627,7 +651,7 @@ class Email extends Renderer {
     const wrapperEl = super.createElement('p', 'recipients-wrapper');
 
     for (const recipient of recipients) {
-      const recipientEl = super.createElement('span');
+      const recipientEl = super.createElement('span', 'badge badge-light');
       super.fillElByTextNode(recipientEl, recipient);
       super.render(wrapperEl, recipientEl)
     }
