@@ -24,8 +24,8 @@ Using JavaScript, HTML, and CSS, complete the implementation of your single-page
  - Recall that you can send a PUT request to /emails/<email_id> to mark an email as archived or unarchived.
  - Once an email has been archived or unarchived, load the user's inbox.
 
-**Reply:** Allow users to reply to an email.
-
+**Reply:** 
+ - Allow users to reply to an email.
  - When viewing an email, the user should be presented with a “Reply” button that lets them reply to the email.
  - When the user clicks the “Reply” button, they should be taken to the email composition form.
  - Pre-fill the composition form with the recipient field set to whoever sent the original email.
