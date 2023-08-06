@@ -1,0 +1,11 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <div class="d-flex flex-column align-items-center">
+        <form class="create-post-form flex-form" action="{% url 'new_post' %}" method="post">
+            {% csrf_token %}
+            {{ create_post_form }}
+            <input class="save-button btn btn-md btn-primary mt-4" type="submit" value="Create">
+        </form>
+    </div>
+{% endblock %}

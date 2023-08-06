@@ -1,0 +1,32 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+
+<section class="container-fluid">
+
+    <div class="row">
+      {% for post in posts %}
+        <div>
+          <b>Author:</b>
+          <a class="nav-link" href="{% url 'profile' post.author.id %}"> {{post.author.username}}</a>
+         
+        </div>
+        <div>
+          <b>content:</b>
+          {{post.text}}
+        </div>
+        <div>
+            <b>created at:</b>
+            {{post.created_at_date_time|date:'D d M Y'}}
+            {{post.created_at_date_time|time:'H:i'}}
+        </div>
+        <div>
+            <b>likes:</b>
+            {{post.liked_users__count}}
+        </div>
+        <hr />
+      {% endfor %}
+    </div>
+  </section>
+  
+{% endblock %}

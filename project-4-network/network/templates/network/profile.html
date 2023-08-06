@@ -1,0 +1,47 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+
+<section class="container-fluid">
+
+    <ul>
+        <li>
+            <b>id</b>: {{ profiled_user.id }}
+        </li>
+        <li>
+            <b>usernsme</b>: {{ profiled_user.username }}
+        </li>
+        <li>
+            <b>user_followers</b>: {{ profiled_user.user_followers__count }}
+        </li>
+        <li>
+            <b>user_following</b>: {{ profiled_user.user_following__count }}
+        </li>
+    </ul>
+    <h5>Posts</h5>
+    {% for user_post in user_posts %}
+        <b>Post text</b>: {{user_post.text}}
+    {% endfor %}
+
+    {% if user.is_authenticated and user.id != profiled_user.id %}
+
+       
+        {% if is_following %}
+        <form class="d-flex flex-column" action="{% url 'profile' id=profiled_user.id %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="follow_input" value="unfollow">
+            <input class="" type="submit" value="Unfollow">
+        </form>
+      
+        {% else %}
+        <form class="d-flex flex-column" action="{% url 'profile' id=profiled_user.id %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="follow_input" value="follow">
+            <input class="" type="submit" value="Follow">
+        </form>
+        {% endif %}
+
+    {% endif %}
+    
+  
+{% endblock %}
