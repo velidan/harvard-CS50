@@ -4,8 +4,9 @@
 
 <section class="container-fluid">
 
-    <div class="row">
+   
       {% for post in following_posts %}
+      <div class="row">
         <div>
           <b>Author:</b>
           <a class="nav-link" href="{% url 'profile' post.author.id %}"> {{post.author.username}}</a>
@@ -25,8 +26,9 @@
             {{post.liked_users__count}}
         </div>
         <hr />
+      </div>
       {% endfor %}
-    </div>
+
   </section>
   
 {% endblock %}

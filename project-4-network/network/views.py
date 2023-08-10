@@ -24,7 +24,7 @@ class CreatePost(forms.Form):
 
 def index(request):
     # q = Post.objects.annotate(Count('liked_users'))
-    posts = Post.objects.annotate(Count('liked_users'))
+    posts = Post.objects.order_by('-created_at_date_time').annotate(Count('liked_users'))
     
     user = request.user
 
@@ -35,17 +35,23 @@ def index(request):
 
 def following(request):
     user = request.user
+
+    if not user.is_authenticated:
+        return HttpResponseRedirect(reverse("index"))
+
     posts = Post.objects.annotate(Count('liked_users'))
-    following_posts = Post.objects.filter(author__in=user.user_following.all())
-    logger.info('-------')
-    logger.info(following_posts)
+    following_posts = Post.objects.filter(author__in=user.user_following.all()).order_by('-created_at_date_time')
+
     following = user.user_following.all()
-    logger.info(following)
+
+
+
 
     return render(request, "network/following.html", {
-        "following_posts": following_posts,
-        "nav": "following",
-    })
+            "following_posts": following_posts,
+            "nav": "following",
+        })
+
 
 def profile(request, id):
     user = request.user
