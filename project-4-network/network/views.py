@@ -9,6 +9,8 @@ from django.db.models import Count
 
 from .models import *
 
+from django.db.models import Q
+
 import logging
 logger = logging.getLogger('django')
 
@@ -31,25 +33,51 @@ def index(request):
         "nav": "index",
     })
 
+def following(request):
+    user = request.user
+    posts = Post.objects.annotate(Count('liked_users'))
+    following_posts = Post.objects.filter(author__in=user.user_following.all())
+    logger.info('-------')
+    logger.info(following_posts)
+    following = user.user_following.all()
+    logger.info(following)
+
+    return render(request, "network/following.html", {
+        "following_posts": following_posts,
+        "nav": "following",
+    })
+
 def profile(request, id):
     user = request.user
     profiled_user = User.objects.annotate(Count('user_followers'), Count('user_following')).get(pk=id)
     # posts = profiled_user.annotate(Count('user_followers'))
 
     user_posts = Post.objects.filter(author=profiled_user).order_by('-created_at_date_time')
-   
+    
+  
 
 
     if request.method == 'POST':
         follow_query = request.POST.get("follow_input", None)
         if follow_query == 'follow':
             logger.warning('should follow')
+            # user.user_following.add(profiled_user)
+            # user.save()
             profiled_user.user_followers.add(user)
             profiled_user.save()
+
+            user.user_following.add(profiled_user)
+            user.save()
+
         elif follow_query == 'unfollow':
             logger.warning('should follow')
+            # user.user_following.remove(profiled_user)
+            # user.save()
             profiled_user.user_followers.remove(user)
             profiled_user.save()
+
+            user.user_following.remove(profiled_user)
+            user.save()
 
         is_following = profiled_user.user_followers.contains(user)
         return render(request, "network/profile.html", {
@@ -63,6 +91,10 @@ def profile(request, id):
     is_following = profiled_user.user_followers.contains(user)
     logger.warning("-------")
     logger.warning(is_following)
+    logger.warning("user_followers")
+    logger.warning(profiled_user.user_followers.all())
+    logger.warning("user_following")
+    logger.warning(profiled_user.user_following.all())
     return render(request, "network/profile.html", {
         
         "profiled_user": profiled_user,
@@ -96,6 +128,7 @@ def new_post(request):
             "create_post_form": CreatePost(),
             "nav": "create_post",
         })
+
 
 
 def login_view(request):
