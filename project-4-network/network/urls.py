@@ -13,5 +13,6 @@ urlpatterns = [
     path("register", views.register, name="register"),
     path("profile/<id>/", views.profile, name="profile"),
     path("following", login_required(views.FollowingListView.as_view()), name="following"),
-    path("update-post", views.update_post, name="update_post")
+    path("update-post", views.update_post, name="update_post"),
+    path("like-post", views.like_post, name="like_post"),
 ]

@@ -38,8 +38,10 @@ class PostsListView(ListView):
         posts_with_likes_count= super().get_queryset(*args, **kwargs).order_by('-created_at_date_time').annotate(Count('liked_users'))
         logger.info(posts_with_likes_count)
 
+        user = self.request.user
         for post in posts_with_likes_count:
-            post.can_edit = post.author.id == self.request.user.id
+            post.can_edit = post.author.id == user.id
+            post.liked = post.liked_users.contains(user)
 
         return posts_with_likes_count
 
@@ -82,6 +84,45 @@ def update_post(request):
 
 
     return JsonResponse({"message": "Post had been updated.", "content": content}, status=200)
+
+@csrf_exempt
+@login_required
+def like_post(request):
+
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+    data = json.loads(request.body)
+    # like = data.get("like")
+    like = False
+
+    post_id = data.get("postId")
+
+    if post_id is None:
+        return JsonResponse({"error": "post_id must be passed"}, status=400)
+    
+    post = Post.objects.get(id=post_id)
+    user = request.user
+
+    if post.liked_users.contains(user):
+        post.liked_users.remove(user)
+    else:
+        post.liked_users.add(user)
+        like = True
+    
+    post.save()
+    post_likes_count = post.liked_users.count()
+    
+    # post.text = content
+    # post.save()
+
+    logger.info('--------')
+    logger.info(type(data.get("like")))
+    # logger.info(post)
+
+
+    # opposite toggle like value
+    return JsonResponse({"like": like, "post_likes_count": post_likes_count}, status=200)
 
 # def index(request):
 #     # q = Post.objects.annotate(Count('liked_users'))
