@@ -15,6 +15,8 @@ class Post(models.Model):
         verbose_name=("Creation date"), auto_now_add=True, null=True
     )
     liked_users = models.ManyToManyField(User, blank=True, default=0, related_name='liked_posts')
+    class Meta:
+        ordering = ['id']
 
     def __str__(self):
         return f"Post from {self.author.username}: {self.text}"
