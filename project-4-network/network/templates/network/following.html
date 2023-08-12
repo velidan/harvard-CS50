@@ -5,6 +5,8 @@
 <section class="container">
       {% for post in following_posts %}
       {% include "network/post_list_item.html" with show_actions=False post=post %}
+      {% empty %}
+      <h5 class="text-center">You are not following for someone!</h5>
       {% endfor %}
 
       {% include "network/pagination.html" with is_paginated=is_paginated page_obj=page_obj paginator=paginator aria_label="Following posts navigation" %}
