@@ -281,7 +281,9 @@ def login_view(request):
                 "message": "Invalid username and/or password."
             })
     else:
-        return render(request, "network/login.html")
+        return render(request, "network/login.html", {
+            "nav": "login"
+        })
 
 
 def logout_view(request):
@@ -313,4 +315,6 @@ def register(request):
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
     else:
-        return render(request, "network/register.html")
+        return render(request, "network/register.html", {
+            "nav": "register"
+        })

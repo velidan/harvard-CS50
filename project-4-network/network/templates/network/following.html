@@ -6,7 +6,7 @@
 
    
       {% for post in following_posts %}
-      <div class="row">
+      <div class="row post-row">
         <div>
           <b>Author:</b>
           <a class="nav-link" href="{% url 'profile' post.author.id %}"> {{post.author.username}}</a>
@@ -26,50 +26,19 @@
             {{post.liked_users__count}}
         </div>
         <hr />
+
+        {% include "network/like_btn.html" with post=post %}
+
+
+
+
+
+
       </div>
       {% endfor %}
 
+      {% include "network/pagination.html" with is_paginated=is_paginated page_obj=page_obj paginator=paginator aria_label="Following posts navigation" %}
 
-      <nav aria-label="Following posts navigation">
-        {% if is_paginated %}
-        <ul class="pagination">
-          {% if page_obj.has_previous %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{page_obj.previous_page_number}}"
-              >Prev</a
-            >
-          </li>
-          {% else %}
-          <li class="page-item disabled">
-            <a class="page-link" href="#">Prev</a>
-          </li>
-          {% endif %} 
-          
-          {% for i in paginator.page_range %} 
-          
-            {% if page_obj.number == i %}
-            <li class="page-item"><a class="page-link active">{{ i }}</a></li>
-            {% else %}
-            <li class="page-item">
-              <a class="page-link" href="?page={{ i }}">{{ i }}</a>
-            </li>
-            {% endif %} 
-          {% endfor %} 
-          
-          {% if page_obj.has_next %}
-          <li class="page-item">
-            <a href="?page={{page_obj.next_page_number}}" class="page-link"
-              >Next</a
-            >
-          </li>
-          {% else %}
-          <li class="page-item disabled">
-            <a class="page-link">Next</a>
-          </li>
-          {% endif %}
-        </ul>
-        {% endif %}
-      </nav>
   </section>
   
   

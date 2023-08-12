@@ -1,4 +1,86 @@
+/* --- ux color schema --- */
+.first-color { 
+	background: #d5def5; 
+}
+	
+.second-color { 
+	background: #8594e4; 
+}
+
+.third-color { 
+	background: #6643b5; 
+}
+
+.fourth-color { 
+	background: #430f58; 
+}
+/* --- !ux color schema --- */
+
+p {
+    margin: 0;
+    padding: 0;
+}
+
+/* --- header --- */
+header .nav-item:not(:first-child) {
+    margin-left: 12px;
+}
+
+header .nav-item {
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    text-underline-offset: 6px;
+    text-decoration-color: white;
+}
+
+header .nav-item:hover {
+    text-decoration: underline;
+    line-height: 30px;
+    transition: all ease-in-out 0.3s;
+    text-decoration-color: #8594e4;
+}
+
+header .nav-item.active {
+    text-decoration: underline;
+    text-decoration-color: #8594e4;
+}
+
+.navbar {
+    padding: 0 24px;
+}
+
+header .nav-item .nav-link, 
+.navbar-brand {
+    color: white;
+}
+
+.navbar-brand:hover, 
+.nav-item:hover .nav-link,
+header .nav-item.active .nav-link {
+    color: #d5def5;
+}
+
+.brand-wrapper {
+    flex: 1;
+}
+
+.nav-link:hover {
+    transition: all ease-in-out .3s;
+}
+
+/* --- !header --- */
+
+
 .post-root.liked .like-btn svg {
     fill: red;
-    
+}
+
+.hover:hover {
+    opacity: 0.5;
+    transition: all ease-in-out .3s;
+}
+
+.main {
+    overflow: auto;
 }

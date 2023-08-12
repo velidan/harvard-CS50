@@ -7,49 +7,65 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link href="{% static 'network/styles.css' %}" rel="stylesheet">
     </head>
-    <body>
+    <body class="first-color">
 
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Network</a>
-          
-            <div>
-              <ul class="navbar-nav mr-auto">
-                {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><strong>{{ user.username }}</strong></a>
-                    </li>
-                {% endif %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'index' %}">All Posts</a>
-                </li>
-                {% if user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link"  href="{% url 'new_post' %}"><strong>Create New Post</strong></a>
-                </li>
-                {% endif %}
-                {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link"  href="{% url 'following' %}">Following</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Log In</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">Register</a>
-                    </li>
-                {% endif %}
-              </ul>
-            </div>
-          </nav>
+        <div class="container-fluid">
+     
+    
+
+
+                    <header class="third-color row">
+                        <nav class="navbar navbar-expand-lg col-12">
+                            <p class="brand-wrapper"><a class="navbar-brand hover" href="#">Network</a></p>
+                          
+                            <div>
+                              <ul class="navbar-nav mr-auto">
+                                {% if user.is_authenticated %}
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{% url 'profile' user.id %}"><strong>{{ user.username }}</strong></a>
+                                    </li>
+                                {% endif %}
+           
+
+                                <li class="nav-item  {% if nav == 'index' %} active {% endif %}">
+                                  <a class="nav-link" href="{% url 'index' %}">All Posts</a>
+                                </li>
+
+                                {% if user.is_authenticated %}
+                                <li class="nav-item {% if nav == 'create_post' %} active {% endif %}">
+                                    <a class="nav-link"  href="{% url 'new_post' %}">Create New Post</a>
+                                </li>
+                                {% endif %}
+           
+                                {% if user.is_authenticated %}
+                                    <li class="nav-item {% if nav == 'following' %} active {% endif %}">
+                                        <a class="nav-link "  href="{% url 'following' %}">Following</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                                    </li>
+                                {% else %}
+                                    <li class="nav-item {% if nav == 'login' %} active {% endif %}">
+                                        <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                                    </li>
+                                    <li class="nav-item {% if nav == 'register' %} active {% endif %}">
+                                        <a class="nav-link" href="{% url 'register' %}">Register</a>
+                                    </li>
+                                {% endif %}
+                              </ul>
+                            </div>
+                          </nav>
+                        </header>
+
+         
+       
+
+    </div>
         
-        <div class="body">
+        <main>
             {% block body %}
             {% endblock %}
-        </div>
+        </main>
 
         <script type="text/javascript" src="{% static 'network/main.js' %}"></script>
     </body>
