@@ -25,6 +25,10 @@ function init() {
     new LikePost(httpService);
 }
 
+function handleErrors(err) {
+    alert(err);
+}
+
 class EditPost {
     btnSelector = '.editBtn';
     rootElSelector = '.editBtn';
@@ -226,7 +230,7 @@ let createHttpService = ((httpClient, API_PATHS) => {
       const error = res.error;
   
       if (error) {
-        throw error;
+        handleErrors(error);
       }
   
       return res;

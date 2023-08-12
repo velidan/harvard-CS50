@@ -2,46 +2,57 @@
 
 {% block body %}
 
-<section class="container-fluid">
+<section class="container">
+    <h2 class="col-12 text-center">Profile of <b>{{profiled_user.username}}</b></h2>
+    <div class="row user-data-row">
 
-    <ul>
-        <li>
-            <b>id</b>: {{ profiled_user.id }}
-        </li>
-        <li>
-            <b>usernsme</b>: {{ profiled_user.username }}
-        </li>
-        <li>
-            <b>user_followers</b>: {{ profiled_user.user_followers__count }}
-        </li>
-        <li>
-            <b>user_following</b>: {{ profiled_user.user_following__count }}
-        </li>
-    </ul>
-    <h5>Posts</h5>
-    {% for user_post in user_posts %}
-        <b>Post text</b>: {{user_post.text}}
+        <div class="col-6">
+            
+            <div class="profile-data-wrapper">
+                <b>ID</b><span> {{ profiled_user.id }}</span>
+                <b>Username</b><span> {{ profiled_user.username }}</span>
+                <b>Followers count</b><span> {{ profiled_user.user_followers__count }}</span>
+                <b>Following users count</b><span> {{ profiled_user.user_following__count }}</span>
+            </div>
+
+        </div>
+        <div class="col-6 d-flex align-items-end justify-content-end">
+            {% if user.is_authenticated and user.id != profiled_user.id %}
+
+        
+            {% if is_following %}
+                <form class="d-flex flex-column" action="{% url 'profile' id=profiled_user.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="follow_input" value="unfollow">
+                    <input class="follow-btn btn primary" type="submit" value="Unfollow">
+                </form>
+            
+                {% else %}
+                <form class="d-flex flex-column" action="{% url 'profile' id=profiled_user.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="follow_input" value="follow">
+                    <input class="follow-btn btn primary" type="submit" value="Follow">
+                </form>
+                {% endif %}
+
+        {% endif %}
+        </div>
+     </div>
+        
+    </div>
+
+
+
+
+
+    <h4 class="text-center"><b>{{profiled_user.username}}</b>'s posts</h4>
+    {% for user_post in page_obj %}
+    {% include "network/post_list_item.html" with show_actions=False post=user_post %}
     {% endfor %}
 
-    {% if user.is_authenticated and user.id != profiled_user.id %}
-
-       
-        {% if is_following %}
-        <form class="d-flex flex-column" action="{% url 'profile' id=profiled_user.id %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="follow_input" value="unfollow">
-            <input class="" type="submit" value="Unfollow">
-        </form>
-      
-        {% else %}
-        <form class="d-flex flex-column" action="{% url 'profile' id=profiled_user.id %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="follow_input" value="follow">
-            <input class="" type="submit" value="Follow">
-        </form>
-        {% endif %}
-
-    {% endif %}
     
   
+    {% include "network/pagination.html" with is_paginated=is_paginated page_obj=page_obj paginator=paginator aria_label="Profile user posts navigation" %}
+
+
 {% endblock %}

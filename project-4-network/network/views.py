@@ -3,6 +3,7 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.core.paginator import Paginator
 
 from django.http import JsonResponse
 import json
@@ -20,9 +21,11 @@ logger = logging.getLogger('django')
 from django.views.generic import ListView
 
 
+POSTS_PER_PAGE = 10
+
 # test class view
 class PostsListView(ListView):
-    paginate_by = 10
+    paginate_by = POSTS_PER_PAGE
     model = Post
     template_name='network/index.html'
     context_object_name = "posts"
@@ -38,12 +41,21 @@ class PostsListView(ListView):
         posts_with_likes_count= super().get_queryset(*args, **kwargs).order_by('-created_at_date_time').annotate(Count('liked_users'))
         logger.info(posts_with_likes_count)
 
+    
+
+
         user = self.request.user
+
+        if user.is_anonymous:
+            return posts_with_likes_count
+   
+        logger.info(user)
         for post in posts_with_likes_count:
             post.can_edit = post.author.id == user.id
             post.liked = post.liked_users.contains(user)
 
         return posts_with_likes_count
+
 
 class FollowForm(forms.Form):
     follow = forms.BooleanField(required=False)
@@ -141,7 +153,7 @@ def like_post(request):
 
 
 class FollowingListView(ListView):
-    paginate_by = 10
+    paginate_by = POSTS_PER_PAGE
     model = Post
     template_name='network/following.html'
     context_object_name = "following_posts"
@@ -154,9 +166,16 @@ class FollowingListView(ListView):
         return context
 
     def get_queryset(self, *args, **kwargs):
-        following_posts= super().get_queryset(*args, **kwargs).filter(author__in=self.request.user.user_following.all()).annotate(Count('liked_users')).order_by('-created_at_date_time')
+        user = self.request.user
+        following_posts= super().get_queryset(*args, **kwargs).filter(author__in=user.user_following.all()).annotate(Count('liked_users')).order_by('-created_at_date_time')
+
+
+        for post in following_posts:
+            post.can_edit = post.author.id == user.id
+            post.liked = post.liked_users.contains(user)
 
         return following_posts
+    
 
 # def following(request):
 #     user = request.user
@@ -183,9 +202,31 @@ def profile(request, id):
     profiled_user = User.objects.annotate(Count('user_followers'), Count('user_following')).get(pk=id)
     # posts = profiled_user.annotate(Count('user_followers'))
 
-    user_posts = Post.objects.filter(author=profiled_user).order_by('-created_at_date_time')
+    user_posts = Post.objects.filter(author=profiled_user).annotate(Count('liked_users')).order_by('-created_at_date_time')
     
-  
+    if user.is_authenticated:
+
+        for post in user_posts:
+            post.can_edit = post.author.id == user.id
+            post.liked = post.liked_users.contains(user)
+
+
+    paginator = Paginator(user_posts, POSTS_PER_PAGE)  # Show 25 contacts per page.
+
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    is_paginated =  paginator.num_pages > 1
+
+    logger.info('---------')
+    logger.info(paginator.num_pages)
+    logger.info(paginator.count)
+    logger.info(user_posts)
+
+    for post in user_posts:
+        logger.info(f"post: {post}, liked: {post.liked_users}")
+
+    logger.info(page_obj)
+    logger.info(paginator)
 
 
     if request.method == 'POST':
@@ -211,26 +252,29 @@ def profile(request, id):
             user.save()
 
         is_following = profiled_user.user_followers.contains(user)
+
+        # ehh, just update the count stuff from annotate as the update was happened
+        profiled_user.user_followers__count = profiled_user.user_followers.count()
+
         return render(request, "network/profile.html", {
         
             "profiled_user": profiled_user,
-            "user_posts": user_posts,
             "is_following": is_following,
+            "page_obj": page_obj,
+            "paginator": paginator,
+            "is_paginated": is_paginated
 
         })
     
-    is_following = profiled_user.user_followers.contains(user)
-    logger.warning("-------")
-    logger.warning(is_following)
-    logger.warning("user_followers")
-    logger.warning(profiled_user.user_followers.all())
-    logger.warning("user_following")
-    logger.warning(profiled_user.user_following.all())
+    is_following = profiled_user.user_followers.contains(user) if user.is_authenticated else False
+
     return render(request, "network/profile.html", {
         
         "profiled_user": profiled_user,
-        "user_posts": user_posts,
         "is_following": is_following,
+        "page_obj": page_obj,
+        "paginator": paginator,
+        "is_paginated": is_paginated
 
     })
 
