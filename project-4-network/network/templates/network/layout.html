@@ -10,57 +10,49 @@
     <body class="first-color">
 
         <div class="container-fluid">
-     
+            <header class="third-color row">
+                <nav class="navbar navbar-expand-lg col-12">
+                    <p class="brand-wrapper"><a class="navbar-brand hover" href="#">Network</a></p>
+                    
+                    <div>
+                        <ul class="navbar-nav mr-auto">
+                        {% if user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'profile' user.id %}"><strong>{{ user.username }}</strong></a>
+                            </li>
+                        {% endif %}
     
 
+                        <li class="nav-item  {% if nav == 'index' %} active {% endif %}">
+                            <a class="nav-link" href="{% url 'index' %}">All Posts</a>
+                        </li>
 
-                    <header class="third-color row">
-                        <nav class="navbar navbar-expand-lg col-12">
-                            <p class="brand-wrapper"><a class="navbar-brand hover" href="#">Network</a></p>
-                          
-                            <div>
-                              <ul class="navbar-nav mr-auto">
-                                {% if user.is_authenticated %}
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{% url 'profile' user.id %}"><strong>{{ user.username }}</strong></a>
-                                    </li>
-                                {% endif %}
-           
-
-                                <li class="nav-item  {% if nav == 'index' %} active {% endif %}">
-                                  <a class="nav-link" href="{% url 'index' %}">All Posts</a>
-                                </li>
-
-                                {% if user.is_authenticated %}
-                                <li class="nav-item {% if nav == 'create_post' %} active {% endif %}">
-                                    <a class="nav-link"  href="{% url 'new_post' %}">Create New Post</a>
-                                </li>
-                                {% endif %}
-           
-                                {% if user.is_authenticated %}
-                                    <li class="nav-item {% if nav == 'following' %} active {% endif %}">
-                                        <a class="nav-link "  href="{% url 'following' %}">Following</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
-                                    </li>
-                                {% else %}
-                                    <li class="nav-item {% if nav == 'login' %} active {% endif %}">
-                                        <a class="nav-link" href="{% url 'login' %}">Log In</a>
-                                    </li>
-                                    <li class="nav-item {% if nav == 'register' %} active {% endif %}">
-                                        <a class="nav-link" href="{% url 'register' %}">Register</a>
-                                    </li>
-                                {% endif %}
-                              </ul>
-                            </div>
-                          </nav>
-                        </header>
-
-         
-       
-
-    </div>
+                        {% if user.is_authenticated %}
+                        <li class="nav-item {% if nav == 'create_post' %} active {% endif %}">
+                            <a class="nav-link"  href="{% url 'new_post' %}">Create New Post</a>
+                        </li>
+                        {% endif %}
+    
+                        {% if user.is_authenticated %}
+                            <li class="nav-item {% if nav == 'following' %} active {% endif %}">
+                                <a class="nav-link "  href="{% url 'following' %}">Following</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item {% if nav == 'login' %} active {% endif %}">
+                                <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                            </li>
+                            <li class="nav-item {% if nav == 'register' %} active {% endif %}">
+                                <a class="nav-link" href="{% url 'register' %}">Register</a>
+                            </li>
+                        {% endif %}
+                        </ul>
+                    </div>
+                    </nav>
+                </header>
+        </div>
         
         <main>
             {% block body %}

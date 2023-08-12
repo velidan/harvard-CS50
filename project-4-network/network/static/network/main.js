@@ -3,17 +3,6 @@ let httpService;
 const API_PATHS = {
     updatePost: '/update-post',
     likePost: '/like-post'
-    // emails: '/emails',
-    // getMailboxPath(mailbox) {
-    //   if (!mailbox) throw new Error('Please, pass the mailbox type you want to get');
-  
-    //   return `${this.emails}/${mailbox}`
-    // },
-    // getEmailPath(id) {
-    //   if (!id) throw new Error('Please, pass the id of the mail you want to get');
-  
-    //   return `${this.emails}/${id}`
-    // }
   };
 
 document.addEventListener('DOMContentLoaded', init);
@@ -50,7 +39,6 @@ class EditPost {
     constructor(httpClient) {
         this.httpService = httpClient;
 
-        // this.attachEvents()
         document.addEventListener('click', this.handleDocumentClick);
     }
 
@@ -126,8 +114,6 @@ class EditPost {
     }
 
     handleEditSaveClick = (e) => {
-        console.log('SAVING', e, this.activeEditPostData.textAreaEl.value)
-
         this.httpService.updatePost({
             content: this.activeEditPostData.textAreaEl.value,
             authorId: this.activeEditPostData.authorId,
@@ -254,30 +240,6 @@ let createHttpService = ((httpClient, API_PATHS) => {
       .then(response =>  response.json())
       .then(reponseHandler)
     }
-  
-    // function getMailboxEmails(mailbox) {
-  
-    //   return httpClient(API_PATHS.getMailboxPath(mailbox))
-    //   .then(response => response.json())
-    //   .then(reponseHandler)
-    // }
-  
-    // function getMailboxEmail(emailId) {
-  
-    //   return httpClient(API_PATHS.getEmailPath(emailId))
-    //   .then(response => response.json())
-    //   .then(reponseHandler)
-    // }
-  
-    // function updateEmail(emailId, data) {
-  
-    //   return httpClient(API_PATHS.getEmailPath(emailId), {
-    //     method: 'PUT',
-    //     body: JSON.stringify(data)
-    //   })
-    //   .then(reponseHandler)
-    // }
-  
   
     return {
         updatePost,

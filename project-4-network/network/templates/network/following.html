@@ -3,8 +3,6 @@
 {% block body %}
 
 <section class="container">
-
-   
       {% for post in following_posts %}
       {% include "network/post_list_item.html" with show_actions=False post=post %}
       {% endfor %}

@@ -42,12 +42,10 @@
     </div>
 
 
-
-
-
     <h4 class="text-center"><b>{{profiled_user.username}}</b>'s posts</h4>
+
     {% for user_post in page_obj %}
-    {% include "network/post_list_item.html" with show_actions=False post=user_post %}
+        {% include "network/post_list_item.html" with show_actions=False post=user_post %}
     {% endfor %}
 
     
