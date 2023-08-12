@@ -2,41 +2,79 @@
 
 {% block body %}
 
-<section class="container-fluid">
+<section class="container">
 
 
       {% for post in posts %}
       <div class="row post-root {% if post.liked %} liked {% endif %}" id="post-{{ post.id }}" data-author-id="{{post.author.id}}">
-        <div >
-          <b>Author:</b>
-          <a class="nav-link" href="{% url 'profile' post.author.id %}"> {{post.author.username}}</a>
-         
-        </div>
-        <div class="postBody">
-          {{post.text}}
-        </div>
-        <div>
-            <b>created at:</b>
-            {{post.created_at_date_time|date:'D d M Y'}}
-            {{post.created_at_date_time|time:'H:i'}}
-        </div>
-        <div>
-            <b>likes:</b>
-            <span class="like-count">{{post.liked_users__count}}</span>
-        </div>
-        {% if post.can_edit %}
-        <div class="action-panel">
-          <button class="editBtn" data-post-id="{{ post.id }}">Edit</button>
-        </div>
-          
-        {% endif %} 
-        <hr />
+        <div class="col-12">
+
+
+          <div class="postBody">
+            {{post.text}}
+          </div>
+          <hr />
+          <div class="container-fluid">
+            <div class="row">
+              
+              <div class="col-4 p-0 d-flex align-items-center">
+                <p class="d-flex align-items-center">
+                  <b>Author:</b>
+                  <a class="nav-link" href="{% url 'profile' post.author.id %}"> {{post.author.username}}</a>
+                </p>
+
+       
+
+                 
+             
+
+              </div>
+
+              <div class="col-4 d-flex align-items-center">
+
+                <p class="d-flex align-items-center">
+                  <b class="d-inline-block mr-2">created at:</b>
+                  {{post.created_at_date_time|date:'D d M Y'}}
+                  {{post.created_at_date_time|time:'H:i'}}
+                </p>
+ 
+       
+
+              </div>
+
+              <div class="col-4 d-flex align-items-center">
+
+              
+                <div class="d-flex justify-content-between align-items-center w-100">
+                  <div>
+                    <span class="like-count d-inline-block mr-2">{{post.liked_users__count}}</span>
+                    {% include "network/like_btn.html" with post=post %}
+                    
+                  </div>
+                  {% if post.can_edit %}
+
+                  <div class="action-panel ">
+                    <button class="editBtn btn primary" data-post-id="{{ post.id }}">Edit</button>
+                    
+                  </div>
+
+                    
+                  {% endif %} 
+                </div>
+    
+    
+
+              </div>
 
 
 
+            </div>
+          </div>
 
-        {% include "network/like_btn.html" with post=post %}
 
+  
+        </div>
+ 
 
       </div>
       {% endfor %}

@@ -21,6 +21,27 @@ p {
     padding: 0;
 }
 
+
+.hover:hover {
+    opacity: 0.5;
+    transition: all ease-in-out .3s;
+}
+
+main {
+    padding: 24px 24px 0;
+}
+
+.gelatine {
+    animation: gelatine 0.5s;
+  }
+  @keyframes gelatine {
+    from, to { transform: scale(1, 1); }
+    25% { transform: scale(0.9, 1.1); }
+    50% { transform: scale(1.1, 0.9); }
+    75% { transform: scale(0.95, 1.05); }
+  }
+
+
 /* --- header --- */
 header .nav-item:not(:first-child) {
     margin-left: 12px;
@@ -71,16 +92,115 @@ header .nav-item.active .nav-link {
 
 /* --- !header --- */
 
-
+/* --- main --- */
 .post-root.liked .like-btn svg {
     fill: red;
 }
 
-.hover:hover {
-    opacity: 0.5;
-    transition: all ease-in-out .3s;
+.post-root {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    margin-top: 12px;
+    background-color:#eaeeff;
+    border-radius: 2px;
+    overflow: hidden;
+    padding:12px;
 }
 
-.main {
-    overflow: auto;
+.cancelBtn {
+    display: none;
 }
+
+.post-root textarea {
+    width: 100%;
+    height: 100px;
+}
+
+.post-root.edit-mode .cancelBtn {
+    display: block;
+}
+
+.postBody {
+    padding: 12px 0;
+}
+
+.post-root .btn.primary {
+    color: white;
+    background-color: #6643b5;
+    border-color: #6643b5;
+    margin-right: 4px;
+    
+}
+
+.post-root .btn.primary:hover {
+
+    background-color: #8594e4;
+    border-color: #8594e4;
+}
+.post-root .btn.secondary {
+    color: white;
+    background-color: #8594e4;
+    border-color: #8594e4;
+    transition: opacity ease-in-out 0.3s;
+}
+
+.post-root .btn.secondary:hover {
+    opacity: 0.5;
+
+}
+
+.like-btn {
+    border: 0;
+    transition: all ease-in-out .05s;
+    transform-origin: bottom;
+}
+
+.like-btn:hover {
+    transform: scale(1.1);
+}
+
+.like-btn:focus {
+    outline: none;
+}
+/* --- !main --- */
+
+/* --- pagination --- */
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.pagination-wrapper .pagination {
+    
+}
+.pagination-wrapper .pagination .page-item {
+
+}
+.pagination-wrapper .pagination .page-item.disabled .page-link {
+
+    background-color: #aeb8e9;
+
+}
+.pagination-wrapper .pagination .page-link {
+    position: relative;
+    display: block;
+    padding: 12px 16px;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: white;
+    background-color: #6643b5;
+    border: 1px solid #dee2e6;
+    transition: background-color ease-in-out .3s;
+
+}
+.pagination-wrapper .pagination .page-link:not(.active):hover {
+    z-index: 2;
+    color: #d5def5;
+    text-decoration: none;
+    background-color: #8594e4;
+    border-color: #dee2e6;
+}
+.pagination-wrapper .pagination .page-link.active {
+    background-color: #8594e4;
+}
+/* --- !pagination --- */

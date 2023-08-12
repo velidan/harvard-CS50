@@ -57,24 +57,14 @@ class EditPost {
 
         const postId = editBtnEl.dataset.postId;
 
-        console.log('>>> handle edit btn click <<< ', e, postId);
-
         const parentEl = document.getElementById(`post-${postId}`)
         const authorId = parentEl.dataset.authorId;
         parentEl.classList.add('edit-mode');
         const parentPostBodyEl = parentEl.querySelector('.postBody')
+        const oldPostValue = parentPostBodyEl.textContent.trim();
 
-        const textAreaEl = document.createElement('textarea')
-
-        const oldPostValue = parentPostBodyEl.textContent;
-
-        textAreaEl.value = oldPostValue;
-
-        const actionPanelEl = parentEl.querySelector('.action-panel');
-        const saveBtnEl = document.createElement('button');
-        saveBtnEl.textContent = 'Save';
-        saveBtnEl.onclick = this.handleEditSaveClick;
-        actionPanelEl.replaceChildren(saveBtnEl);
+        const textAreaEl = this.getTextAreaEl(oldPostValue);
+        const actionPanelEl = this.getActionsPanelEl(parentEl);
 
         parentPostBodyEl.replaceChildren(textAreaEl);
 
@@ -90,49 +80,46 @@ class EditPost {
         }
     }
 
-    // attachEvents = () => {
-    //     const btns = document.querySelectorAll(this.btnSelector);
-    //     console.log("btns -> ", btns);
-    //     Array.from(btns).forEach(element => {
-    //         element.onclick = this.handleEditBtnClick;
-    //     });
-    // }
+    getTextAreaEl = (oldPostValue) => {
+        const textAreaEl = document.createElement('textarea')
+        
 
-    // handleEditBtnClick = (e) => {
-    //     const postId = e.target.dataset.postId;
-    //     console.log('>>> handle edit btn click <<< ', e, postId);
+        textAreaEl.value = oldPostValue;
 
-    //     const parentEl = document.getElementById(`post-${postId}`)
-    //     const authorId = parentEl.dataset.authorId;
-    //     parentEl.classList.add('edit-mode');
-    //     const parentPostBodyEl = parentEl.querySelector('.postBody')
+        return textAreaEl;
+    }
 
-    //     const textAreaEl = document.createElement('textarea')
+    getActionsPanelEl = (parentEl) => {
+        const actionPanelEl = parentEl.querySelector('.action-panel');
+        const saveBtnEl = document.createElement('button');
+        saveBtnEl.textContent = 'Save';
+        saveBtnEl.classList.add('btn', 'primary');
+        saveBtnEl.onclick = this.handleEditSaveClick;
 
-    //     const oldPostValue = parentPostBodyEl.textContent;
+        const cancelBtnEl = document.createElement('button');
+        cancelBtnEl.textContent = 'Cancel';
+        cancelBtnEl.classList.add('btn', 'secondary');
+        cancelBtnEl.onclick = this.handleCancelBtnClick;
 
-    //     textAreaEl.value = oldPostValue;
+        actionPanelEl.replaceChildren(saveBtnEl, cancelBtnEl);
 
-    //     const actionPanelEl = parentEl.querySelector('.action-panel');
-    //     const saveBtnEl = document.createElement('button');
-    //     saveBtnEl.textContent = 'Save';
-    //     saveBtnEl.onclick = this.handleEditSaveClick;
-    //     actionPanelEl.replaceChildren(saveBtnEl);
+        return actionPanelEl;
+    }
 
-    //     parentPostBodyEl.replaceChildren(textAreaEl);
 
-    //     this.activeEditPostData = {
-    //         rootEl: parentEl,
-    //         bodyEl: parentPostBodyEl,
-    //         textAreaEl,
-    //         actionPanelEl,
-    //         oldValue: oldPostValue,
-    //         currentValue: oldPostValue,
-    //         authorId,
-    //         postId
-    //     }
 
-    // }
+    handleCancelBtnClick = () => {
+        const postBodyEl = this.activeEditPostData.bodyEl;
+        postBodyEl.innerHTML = this.activeEditPostData.oldValue; 
+
+
+        const editBtnEL = document.createElement('button');
+        editBtnEL.classList.add('editBtn', 'btn', 'primary')
+        editBtnEL.dataset.postId = this.activeEditPostData.postId;
+        editBtnEL.textContent = 'Edit';
+        editBtnEL.onclick = this.handleEditBtnClick;
+        this.activeEditPostData.actionPanelEl.replaceChildren(editBtnEL); 
+    }
 
     handleEditSaveClick = (e) => {
         console.log('SAVING', e, this.activeEditPostData.textAreaEl.value)
@@ -144,18 +131,23 @@ class EditPost {
         })
             .then((res) => {
                 const postBodyEl = this.activeEditPostData.bodyEl;
-                postBodyEl.innerHTML = res.content; 
-
-
-                const editBtnEL = document.createElement('button');
-                editBtnEL.classList.add('editBtn')
-                editBtnEL.dataset.postId = this.activeEditPostData.postId;
-                editBtnEL.textContent = 'Edit';
-                editBtnEL.onclick = this.handleEditBtnClick;
-                this.activeEditPostData.actionPanelEl.replaceChildren(editBtnEL); 
+                postBodyEl.innerHTML = res.content;                
             })
+            .catch(err => {
+                throw new Error(err);
+            })
+            .finally(this.onFinish)
 
         
+    }
+
+    onFinish = () => {
+        const editBtnEL = document.createElement('button');
+        editBtnEL.classList.add('editBtn', 'btn', 'primary')
+        editBtnEL.dataset.postId = this.activeEditPostData.postId;
+        editBtnEL.textContent = 'Edit';
+        editBtnEL.onclick = this.handleEditBtnClick;
+        this.activeEditPostData.actionPanelEl.replaceChildren(editBtnEL); 
     }
 
 
@@ -184,26 +176,40 @@ class LikePost {
     handleDocumentClick = e => {
         const targetEl = e.target;
         this.likeBtnEl = targetEl.closest(this.likeBtnSelector)
+
+
         if (!this.likeBtnEl) return;
+        this.proceedAnimation();
 
         const postId = this.likeBtnEl.dataset.postId;
 
         this.httpService.likePost({
             postId,
-            // like: true
-        }).then(res => {
-            const parentEl = this.likeBtnEl.closest(this.rootPostElSelector);
-            const likeCountEl = parentEl.querySelector(this.likeCountElSelector);
-            if (res.like) {
-                parentEl.classList.add(this.likedClassName)
-            } else {
-                parentEl.classList.remove(this.likedClassName)
-            }
-            likeCountEl.textContent = res.post_likes_count;
         })
+        .then(this.onSuccessRequest)
+        .catch(err => {
+                throw new Error(err);
+            })
 
 
-        console.log(`target el =>> ${postId}`);
+    }
+
+    onSuccessRequest = res => {
+        const parentEl = this.likeBtnEl.closest(this.rootPostElSelector);
+        const likeCountEl = parentEl.querySelector(this.likeCountElSelector);
+        if (res.like) {
+            parentEl.classList.add(this.likedClassName)
+        } else {
+            parentEl.classList.remove(this.likedClassName)
+        }
+        likeCountEl.textContent = res.post_likes_count;
+    }
+
+    proceedAnimation = () => {
+        this.likeBtnEl.onanimationend = () => {
+            this.likeBtnEl.classList.remove('gelatine')
+        }
+        this.likeBtnEl.classList.add('gelatine')
     }
 }
 
