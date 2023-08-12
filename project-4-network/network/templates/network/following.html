@@ -2,39 +2,11 @@
 
 {% block body %}
 
-<section class="container-fluid">
+<section class="container">
 
    
       {% for post in following_posts %}
-      <div class="row post-row">
-        <div>
-          <b>Author:</b>
-          <a class="nav-link" href="{% url 'profile' post.author.id %}"> {{post.author.username}}</a>
-         
-        </div>
-        <div>
-          <b>content:</b>
-          {{post.text}}
-        </div>
-        <div>
-            <b>created at:</b>
-            {{post.created_at_date_time|date:'D d M Y'}}
-            {{post.created_at_date_time|time:'H:i'}}
-        </div>
-        <div>
-            <b>likes:</b>
-            {{post.liked_users__count}}
-        </div>
-        <hr />
-
-        {% include "network/like_btn.html" with post=post %}
-
-
-
-
-
-
-      </div>
+      {% include "network/post_list_item.html" with show_actions=False post=post %}
       {% endfor %}
 
       {% include "network/pagination.html" with is_paginated=is_paginated page_obj=page_obj paginator=paginator aria_label="Following posts navigation" %}

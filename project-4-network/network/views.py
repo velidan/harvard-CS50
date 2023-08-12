@@ -53,7 +53,11 @@ class EditPostForm(forms.Form):
     
 
 class CreatePost(forms.Form):
-    content = forms.CharField(label="Post content", widget=forms.Textarea(attrs={"rows":"5"}))
+    content = forms.CharField(label="Make them hear you", widget=forms.Textarea(attrs={"rows":"5"}))
+
+    def __init__(self, *args, **kwargs):
+        kwargs["label_suffix"] = ""
+        super().__init__(*args, **kwargs)
 
 @csrf_exempt
 @login_required
