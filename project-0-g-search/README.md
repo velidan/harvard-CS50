@@ -26,5 +26,5 @@ Your website must meet the following requirements:
 
  - The CSS you write should resemble Google’s own aesthetics.
 
-
+---
 **SOLUTION DEMO** [YouTube 5min video](https://youtu.be/AwAELsIxvUM) with all requirements coverage 
