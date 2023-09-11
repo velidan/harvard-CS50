@@ -14,8 +14,11 @@
         <main>
             {% block body %}
             {% endblock %}
+           
         </main>
+   
+        {% block script %}
+        {% endblock %}
 
-        <script type="text/javascript" src="{% static 'main.js' %}"></script>
     </body>
 </html>
