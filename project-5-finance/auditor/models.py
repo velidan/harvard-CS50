@@ -19,7 +19,7 @@ class CostRecord(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     total = models.DecimalField(decimal_places=2, max_digits=8)
-    categories = models.ManyToManyField(User, blank=True, related_name='costs')
+    categories = models.ManyToManyField(CostCategory, blank=True, related_name='costs')
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name="cost_records")
     timestamp = models.DateTimeField(auto_now_add=True)
 

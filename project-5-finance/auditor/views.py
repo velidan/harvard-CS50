@@ -16,6 +16,12 @@ User = get_user_model()
 import logging
 logger = logging.getLogger('django')
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from auditor.serializers import UserSerializer, CostCategorySerializer, CostRecordSerializer
+from rest_framework import viewsets
+from .models import CostCategory, CostRecord
+
 
 '''
 messages.debug(request, '%s SQL statements were executed.' % count)
@@ -24,6 +30,48 @@ messages.success(request, 'Profile details updated.')
 messages.warning(request, 'Your account expires in three days.')
 messages.error(request, 'Document deleted.')
 '''
+
+
+@api_view(['GET'])
+def api_root(request, format=None):
+    return Response({
+        'users': reverse('user-list', request=request, format=format),
+        'cost-category': reverse('const-category-list', request=request, format=format),
+        'cost-record': reverse('cost-record-list', request=request, format=format),
+    })
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    This viewset automatically provides `list` and `retrieve` actions.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    # lookup_field = 'username'  # Set the lookup field to 'username'
+
+
+class CostCategoryViewSet(viewsets.ModelViewSet):
+    """
+    This viewset automatically provides `list`, `create`, `retrieve`,
+    `update` and `destroy` actions.
+
+    Additionally we also provide an extra `highlight` action.
+    """
+    queryset = CostCategory.objects.all()
+    serializer_class = CostCategorySerializer
+
+
+class CostRecordViewSet(viewsets.ModelViewSet):
+    """
+    This viewset automatically provides `list`, `create`, `retrieve`,
+    `update` and `destroy` actions.
+
+    Additionally we also provide an extra `highlight` action.
+    """
+    queryset = CostRecord.objects.all()
+    serializer_class = CostRecordSerializer
+
+
 
 class IndexView(View):
 	def get(self, request):
