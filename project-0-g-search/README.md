@@ -25,3 +25,6 @@ Your website must meet the following requirements:
  - You may encounter a redirect notice when using the “I’m Feeling Lucky” button. Not to worry! This is an expected consequence of a security feature implemented by Google.
 
  - The CSS you write should resemble Google’s own aesthetics.
+
+---
+**SOLUTION DEMO** [YouTube 5min video](https://youtu.be/AwAELsIxvUM) with all requirements coverage 

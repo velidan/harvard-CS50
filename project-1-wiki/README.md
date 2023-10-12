@@ -35,3 +35,6 @@ Complete the implementation of your Wiki encyclopedia. You must fulfill the foll
  
 **Markdown to HTML Conversion:**
  - On each entry’s page, any Markdown content in the entry file should be converted to HTML before being displayed to the user. Do it without libraries
+
+---
+**SOLUTION DEMO** [YouTube 5min video](https://youtu.be/URFL1ECNS5s) with all requirements coverage 

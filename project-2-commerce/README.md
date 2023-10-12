@@ -27,3 +27,6 @@ Complete the implementation of your auction site. You must fulfill the following
  
 **Django Admin Interface:**
  - Via the Django admin interface, a site administrator should be able to view, add, edit, and delete any listings, comments, and bids made on the site.
+
+---
+**SOLUTION DEMO** [Youtube 5min video](https://youtu.be/J0F8lWwTdCs) with the coverage of all the requirements
