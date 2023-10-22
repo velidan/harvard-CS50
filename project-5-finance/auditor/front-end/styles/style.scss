@@ -1,3 +1,8 @@
-body {
-    background-color: red;
+html, body {
+    height: 100%;
+    min-height: 100vh;
+}
+
+.primary-layout {
+    padding-top: 84px;
 }

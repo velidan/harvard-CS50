@@ -12,7 +12,15 @@ module.exports = {
     path: path.resolve(__dirname, '../static'), 
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.css', '.scss']
+    extensions: ['.js', '.jsx', '.css', '.scss'],
+    alias: {
+      '@appSrc': path.resolve(__dirname, 'src/'),
+      '@appComponents': path.resolve(__dirname, 'src/components/'),
+      '@appCore': path.resolve(__dirname, 'src/core/'),
+      '@appHocs': path.resolve(__dirname, 'src/hocs/'),
+      '@appUtils': path.resolve(__dirname, 'src/utils/'),
+      '@appHooks': path.resolve(__dirname, 'src/hooks/'),
+    },
   },
   
   module: {

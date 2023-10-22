@@ -2,7 +2,7 @@
   "name": "auditor-front-end",
   "version": "1.0.0",
   "description": "A react front-end for the finance/auditor project",
-  "main": "index.js",
+  "main": "./src/index.js",
   "scripts": {
     "dev": "webpack --mode development --watch"
   },
@@ -28,6 +28,11 @@
     "webpack-fix-style-only-entries": "^0.6.1"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@fontsource/roboto": "^5.0.8",
+    "@mui/icons-material": "^5.14.14",
+    "@mui/material": "^5.14.14",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   }

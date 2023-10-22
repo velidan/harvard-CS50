@@ -1,14 +1,18 @@
 
 import React from 'react';
 import ReactDOM from "react-dom";
+import { createRoot } from 'react-dom/client';
 
-import { Component } from "./Component";
+// import '@fontsource/roboto/300.css';
+// import '@fontsource/roboto/400.css';
+// import '@fontsource/roboto/500.css';
+// import '@fontsource/roboto/700.css';
 
 
-ReactDOM.render(
-  <div>
-    <h1>Hello, react!</h1>
-    <Component />
-    </div>,
-  document.getElementById('react-root')
-);
+import { App } from "./App";
+
+
+const container = document.getElementById('react-root');
+const root = createRoot(container);
+root.render(<App />);
+
