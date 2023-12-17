@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
+    'django_filters',
     'crispy_bootstrap4',
     'rest_framework',
 ]
@@ -66,7 +67,15 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 10,
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+'DEFAULT_PAGINATION_CLASS': 'auditor.pagination.Pagination',
+'PAGE_SIZE': 5,
+'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 
 MIDDLEWARE = [
@@ -109,6 +118,8 @@ DATABASES = {
     }
 }
 
+CSRF_COOKIE_SECURE = True  # If your site is served over HTTPS
+CSRF_COOKIE_SAMESITE = 'Strict'  # Adjust as needed
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

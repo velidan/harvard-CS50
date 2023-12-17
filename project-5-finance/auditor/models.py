@@ -1,5 +1,7 @@
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
 
 
 class User(AbstractUser):
@@ -22,6 +24,7 @@ class CostRecord(models.Model):
     categories = models.ManyToManyField(CostCategory, blank=True, related_name='costs')
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name="cost_records")
     timestamp = models.DateTimeField(auto_now_add=True)
+    template = models.BooleanField(default=False)
 
 
     def __str__(self):

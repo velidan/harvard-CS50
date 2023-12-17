@@ -11,14 +11,57 @@ import Button from '@mui/material/Button';
 import { useAppContext } from '@appCore';
 import { Drawer } from './Drawer';
 
-const navItems = ['Home', 'About', 'Contact'];
+import {  routes } from '@appCore';
+import { useNavigate } from 'react-router-dom';
+
+const navItems = [
+  {
+    label: 'Home',
+    path: routes.home
+  }, 
+  {
+    label: 'Create Category',
+    path: routes.createCategory
+  },
+  {
+    label: 'Categories',
+    path: routes.categories
+  }, 
+  {
+    label: 'Costs',
+    path: routes.costRecords
+  }, 
+  {
+    label: 'Cost Templates',
+    path: routes.costRecordTemplates
+  }, 
+  {
+    label: 'Create Cost Record',
+    path: routes.createCostRecord
+  }, 
+  {
+    label: 'About',
+    path: routes.about
+  }, 
+  {
+    label: 'Contact',
+    path: routes.contact
+  }, 
+  {
+    label: 'Logout',
+    path: routes.logout
+  }, 
+
+];
 
 export function AppBar() {
 
-  const { dispatch } = useAppContext();
+  const { system: { dispatch } } = useAppContext();
+  const navigate = useNavigate();
+
 
   const openDrawer = () => {
-      dispatch({ type: 'SET_DRAWER_OPEN', payload: true });
+    dispatch({type: 'SET_DRAWER_OPEN', payload: true});
   };
 
 
@@ -45,8 +88,10 @@ export function AppBar() {
           </Typography>
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
             {navItems.map((item) => (
-              <Button key={item} sx={{ color: '#fff' }}>
-                {item}
+              <Button key={item.label} sx={{ color: '#fff' }} onClick={() =>  {
+                navigate(item.path)
+              }}>
+                {item.label}
               </Button>
             ))}
           </Box>

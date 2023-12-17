@@ -1,28 +1,35 @@
 import React, { createContext, useContext, useReducer } from 'react';
 
+import { systemReducer, costReducer, categoryReducer } from './reducers';
+
 const AppContext = createContext();
 
+
 export const AppContextProvider = ({ children }) => {
-  const initialState = {
-    isDrawerOpen: false,
-  };
 
-  const reducer = (state, action) => {
-    switch (action.type) {
-      case 'SET_DRAWER_OPEN':
-        return {
-          ...state,
-          isDrawerOpen: action.payload,
-        };
-      default:
-        return state;
-    }
-  };
+  const [systemState, systemStateDispatch] = useReducer(systemReducer.reducer, systemReducer.initialState);
+  const [costState, costStateDispatch] = useReducer(costReducer.reducer, costReducer.initialState);
+  const [categoryState, categoryStateDispatch] = useReducer(categoryReducer.reducer, categoryReducer.initialState);
 
-  const [state, dispatch] = useReducer(reducer, initialState);
 
   return (
-    <AppContext.Provider value={{ state, dispatch }}>
+    <AppContext.Provider 
+      value={{ 
+        system: {
+          state: systemState, 
+          dispatch: systemStateDispatch 
+        },
+        cost: {
+          state: costState, 
+          dispatch: costStateDispatch 
+        },
+        category: {
+          state: categoryState, 
+          dispatch: categoryStateDispatch 
+        },
+      }}
+    
+    >
       {children}
     </AppContext.Provider>
   );

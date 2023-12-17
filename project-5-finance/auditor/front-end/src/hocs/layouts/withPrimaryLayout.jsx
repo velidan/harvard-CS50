@@ -7,11 +7,14 @@ export function withPrimaryLayout(Component) {
 
     function WithPrimaryLayoutHOC(props) {
         return (
-            <main className='primary-layout'>
+        <main className='primary-layout'>
     
             <AppBar />
             
+            <div className='mt'>
             <Component {...props} />
+            </div>
+           
              </main>
         );
     }

@@ -3,6 +3,9 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import  render, redirect
 from django.urls import reverse
+from django_filters.rest_framework import DjangoFilterBackend
+import django_filters.rest_framework
+from rest_framework.decorators import action
 
 from .forms import SignUpForm, SignInForm
 from django.contrib.auth import login, logout
@@ -17,11 +20,15 @@ import logging
 logger = logging.getLogger('django')
 
 from rest_framework.decorators import api_view
+
 from rest_framework.response import Response
+from rest_framework import status
 from auditor.serializers import UserSerializer, CostCategorySerializer, CostRecordSerializer
 from rest_framework import viewsets
 from .models import CostCategory, CostRecord
 
+from .permissions import CustomIsAuthorizedPermission
+from .pagination import Pagination
 
 '''
 messages.debug(request, '%s SQL statements were executed.' % count)
@@ -60,6 +67,50 @@ class CostCategoryViewSet(viewsets.ModelViewSet):
     queryset = CostCategory.objects.all()
     serializer_class = CostCategorySerializer
 
+    permission_classes = (CustomIsAuthorizedPermission, )
+    #filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    #filterset_class = CostCategoryFilter
+    filterset_fields = ('description', )
+	
+
+
+    def create(self, request, *args, **kwargs):
+        print('>>> CREATE <<< ')
+		# Assuming your serializer is named CostCategorySerializer
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+	
+    def update(self, request, *args, **kwargs):
+
+      request.data['user'] = self.request.user.id
+      instance = self.get_object()
+     
+      serializer = self.serializer_class(instance=instance,
+                                           data=request.data,
+                                           )
+      serializer.is_valid(raise_exception=True)
+      self.perform_update(serializer)
+      headers = self.get_success_headers(serializer.data)
+      return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
+	
+    @action(detail=False, methods=['GET'])
+    def all_unpaginated_categories(self, request):
+        """
+        Retrieve all unpaginated categories.
+        """
+        categories = CostCategory.objects.all()
+
+
+        # Serialize paginated data
+        serializer = self.get_serializer(categories, many=True)
+        headers = self.get_success_headers(serializer.data)
+        # Return paginated response
+        return Response(serializer.data, status=status.HTTP_200_OK, headers=headers) 
+
+
 
 class CostRecordViewSet(viewsets.ModelViewSet):
     """
@@ -68,13 +119,86 @@ class CostRecordViewSet(viewsets.ModelViewSet):
 
     Additionally we also provide an extra `highlight` action.
     """
-    queryset = CostRecord.objects.all()
+    # queryset = CostRecord.objects.all()
     serializer_class = CostRecordSerializer
 
+    permission_classes = (CustomIsAuthorizedPermission, )
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases
+        for the currently authenticated user.
+        """
+        user = self.request.user
+        return CostRecord.objects.filter(user=user)
+
+    def create(self, request, *args, **kwargs):
+      print('>>> CREATE <<< ')
+
+      request.data['user'] = self.request.user.id
+     
+      serializer = self.get_serializer(data=request.data)
+      serializer.is_valid(raise_exception=True)
+      self.perform_create(serializer)
+      headers = self.get_success_headers(serializer.data)
+      return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+	
+    def update(self, request, *args, **kwargs):
+
+      request.data['user'] = self.request.user.id
+      instance = self.get_object()
+     
+      serializer = self.serializer_class(instance=instance,
+                                           data=request.data,
+                                           )
+      serializer.is_valid(raise_exception=True)
+      self.perform_update(serializer)
+      headers = self.get_success_headers(serializer.data)
+      return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
+	
+    @action(detail=False, methods=['GET'])
+    def templates(self, request):
+        """
+        Retrieve all CostRecords with template=True.
+        """
+        templates = CostRecord.objects.filter(template=True, user=request.user)
+
+        # Apply pagination
+        paginator = Pagination()
+        result_page = paginator.paginate_queryset(templates, request)
+
+        # Serialize paginated data
+        serializer = self.get_serializer(result_page, many=True)
+        
+        # Return paginated response
+        return paginator.get_paginated_response(serializer.data)
+	
+    @action(detail=False, methods=['GET'])
+    def all_unpaginated_templates(self, request):
+        """
+        Retrieve all unpaginated CostRecords with template=True
+        """
+        templates = CostRecord.objects.filter(template=True, user=request.user)
+
+
+        # Serialize paginated data
+        serializer = self.get_serializer(templates, many=True)
+        
+        # Return paginated response
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
+
+
+# class CostRecordTemplateViewSet(viewsets.ViewSet):
+#     def list(self, request):
+#         # Your logic for handling templates
+#         return Response({'detail': 'Handling templates'})
 
 
 class IndexView(View):
-	def get(self, request):
+
+	
+	def get(self, request, path=''):
 		return render(request, "auditor/index.html")
 
 # def index(request):

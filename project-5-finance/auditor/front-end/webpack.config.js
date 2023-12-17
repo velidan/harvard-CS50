@@ -20,6 +20,7 @@ module.exports = {
       '@appHocs': path.resolve(__dirname, 'src/hocs/'),
       '@appUtils': path.resolve(__dirname, 'src/utils/'),
       '@appHooks': path.resolve(__dirname, 'src/hooks/'),
+      '@appMachines': path.resolve(__dirname, 'src/machines/'),
     },
   },
   

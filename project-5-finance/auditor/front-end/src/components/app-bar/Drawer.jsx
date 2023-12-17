@@ -9,7 +9,9 @@ import ListItemText from '@mui/material/ListItemText';
 
 import Typography from '@mui/material/Typography';
 
+
 import { useAppContext } from '@appCore';
+
 
 const drawerWidth = 240;
 
@@ -18,11 +20,11 @@ const navItems = ['Home', 'About', 'Contact'];
 export function Drawer(props) {
     const { window } = props;
 
-    const { state, dispatch } = useAppContext();
-   
+    const { system: { state, dispatch } } = useAppContext();
+
 
     const closeDrawer = () => {
-        dispatch({ type: 'SET_DRAWER_OPEN', payload: false });
+      dispatch({ type: 'SET_DRAWER_OPEN', payload: false });
     };
 
 

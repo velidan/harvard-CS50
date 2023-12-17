@@ -6,3 +6,23 @@ html, body {
 .primary-layout {
     padding-top: 84px;
 }
+
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+body {
+    .common-form {
+        margin: 0 auto;
+        max-width: 650px;
+
+        * {
+            margin-bottom: 12px;
+        }
+    }
+}

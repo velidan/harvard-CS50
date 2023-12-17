@@ -1,6 +1,28 @@
-/*!********************************************************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/.pnpm/css-loader@6.8.1_webpack@5.88.2/node_modules/css-loader/dist/cjs.js!./node_modules/.pnpm/sass-loader@13.3.2_sass@1.66.1_webpack@5.88.2/node_modules/sass-loader/dist/cjs.js!./styles/style.scss ***!
-  \********************************************************************************************************************************************************************************************************************************/
-body {
-  background-color: red;
+/*!************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./styles/style.scss ***!
+  \************************************************************************************************************/
+html, body {
+  height: 100%;
+  min-height: 100vh;
+}
+
+.primary-layout {
+  padding-top: 84px;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+body .common-form {
+  margin: 0 auto;
+  max-width: 650px;
+}
+body .common-form * {
+  margin-bottom: 12px;
 }
