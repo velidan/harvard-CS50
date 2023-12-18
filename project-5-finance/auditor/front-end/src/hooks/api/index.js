@@ -8,3 +8,5 @@ export * from './useUpdateCategory';
 export * from './useUpdateCostRecord';
 export * from './useGetAllCostRecordTemplates';
 export * from './useGetAllUnpaginatedCostTemplates';
+export * from './useGetCostsTotal';
+export * from './useGetCostsTotalGroupedByCategory';

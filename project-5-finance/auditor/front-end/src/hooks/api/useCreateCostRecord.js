@@ -6,6 +6,7 @@ import {
   } from '@tanstack/react-query'
 
 import { getAxiosHeaders } from '@appUtils';
+import { queryClient } from '@appCore';
 
 
   export function useCreateCostRecord() {
@@ -16,6 +17,9 @@ import { getAxiosHeaders } from '@appUtils';
             headers: getAxiosHeaders()
           })
         },
+        onSuccess: () => {
+          queryClient.refetchQueries('allUnpaginatedCostTemplates');
+        }
       })
 
 }

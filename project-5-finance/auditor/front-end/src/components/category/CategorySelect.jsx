@@ -25,8 +25,9 @@ export function CategorySelect(props) {
                 <Select
                     labelId="category-select"
                     id="category-select"
-                    value={value}
+                    value={value ? value : ''}
                     label="Category"
+                    InputLabelProps={{ shrink: true }}
                     onChange={
                         (event) => {
                             onChange(event.target.value);

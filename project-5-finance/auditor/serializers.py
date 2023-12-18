@@ -14,7 +14,6 @@ class UserSerializer(serializers.ModelSerializer):
         # lookup_field = "username"
 
 class CostCategorySerializer(serializers.ModelSerializer):
-    # owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = CostCategory
@@ -28,20 +27,21 @@ class CostCategorySerializer(serializers.ModelSerializer):
         return instance
 
 class CostRecordSerializer(serializers.ModelSerializer):
-    # owner = serializers.ReadOnlyField(source='owner.username')
-
-    categories = CostCategorySerializer(many=True, read_only=True)
 
     class Meta:
         model = CostRecord
         fields = "__all__"
 
     def update(self, instance, validated_data):
+
         instance.title = validated_data.get('title', instance.title)
         instance.user = validated_data.get('user')
+        instance.category = validated_data.get('category')
         instance.description = validated_data.get('description', instance.description)
         instance.total = validated_data.get('total', instance.total)
         instance.template = validated_data.get('template', instance.total)
         instance.save()
+
+
         return instance
 

@@ -7,10 +7,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 import django_filters.rest_framework
 from rest_framework.decorators import action
 
+
 from .forms import SignUpForm, SignInForm
 from django.contrib.auth import login, logout
 from django.contrib import messages
-
+from django.db.models import F, Sum, DecimalField, IntegerField, Case, When, Value
+from django.db.models.functions import Coalesce, Cast
 from django.views import View
 
 from django.contrib.auth import get_user_model
@@ -29,6 +31,8 @@ from .models import CostCategory, CostRecord
 
 from .permissions import CustomIsAuthorizedPermission
 from .pagination import Pagination
+from .filters import CostCategoryFilter
+
 
 '''
 messages.debug(request, '%s SQL statements were executed.' % count)
@@ -69,8 +73,8 @@ class CostCategoryViewSet(viewsets.ModelViewSet):
 
     permission_classes = (CustomIsAuthorizedPermission, )
     #filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    #filterset_class = CostCategoryFilter
-    filterset_fields = ('description', )
+    filterset_class = CostCategoryFilter
+    # filterset_fields = ('title', )
 	
 
 
@@ -123,6 +127,8 @@ class CostRecordViewSet(viewsets.ModelViewSet):
     serializer_class = CostRecordSerializer
 
     permission_classes = (CustomIsAuthorizedPermission, )
+	
+    filterset_fields = ('category', )
 
     def get_queryset(self):
         """
@@ -178,6 +184,10 @@ class CostRecordViewSet(viewsets.ModelViewSet):
         """
         Retrieve all unpaginated CostRecords with template=True
         """
+        category = request.GET.get('category', '')
+        if category:
+           print('CATEGORY passed')
+			
         templates = CostRecord.objects.filter(template=True, user=request.user)
 
 
@@ -187,6 +197,51 @@ class CostRecordViewSet(viewsets.ModelViewSet):
         # Return paginated response
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
+	
+    @action(detail=False, methods=['GET'])
+    def costs_total(self, request):
+        """
+        Retrieve all costs total or if you pass a cost category it will return total for this costs of this category
+        """
+        category_id = request.query_params.get('category')
+
+
+        queryset = CostRecord.objects
+        if category_id:
+            queryset = queryset.filter(category__id=category_id)
+        
+        # Return paginated response
+        total_sum = queryset.aggregate(total_sum=Sum('total'))['total_sum'] or 0
+        return Response({'total_sum': total_sum}) 
+
+
+    @action(detail=False, methods=['GET'])
+    def costs_total_by_category(self, request):
+        """
+        Retrieve total costs grouped by category.
+        """
+        queryset = CostRecord.objects.filter(user=request.user)
+
+        # Optionally, filter by template or other conditions
+        #template = request.query_params.get('template', None)
+        #if template is not None:
+            #queryset = queryset.filter(template=template)
+
+        # Annotate the queryset to get the sum of total grouped by category
+        queryset = queryset.values('category__title').annotate(
+            total_sum=Sum(
+                Case(
+                    When(total__isnull=True, then=Value(0)),
+                    default=F('total'),
+                    output_field=DecimalField()
+                )
+            )
+        )
+
+        # Construct the result dictionary
+        result = {'total_by_categories': {item['category__title']: item['total_sum'] for item in queryset}}
+
+        return Response(result)
 
 
 # class CostRecordTemplateViewSet(viewsets.ViewSet):

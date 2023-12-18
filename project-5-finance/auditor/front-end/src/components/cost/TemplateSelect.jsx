@@ -16,6 +16,8 @@ export function TemplateSelect(props) {
 
     if (error) return 'An error has occurred: ' + error.message
 
+    if (unpaginatedData.length === 0) return 'No Templates yet.'
+
 
     return (
         <Box sx={{ minWidth: 120 }}>
@@ -28,7 +30,9 @@ export function TemplateSelect(props) {
                     label="Cost Template select"
                     onChange={
                         (event) => {
-                            onChange(event.target.value);
+                            const recordId = event.target.value;
+                            const record = unpaginatedData.find(o => o.id === recordId);
+                            onChange(record);
                           }
                         }
                 >

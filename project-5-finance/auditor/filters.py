@@ -4,8 +4,8 @@ from .models import CostCategory
 
 
 class CostCategoryFilter(django_filters.FilterSet):
-    description = django_filters.CharFilter(lookup_expr='icontains')
+    title__icontains = django_filters.CharFilter(field_name='title', lookup_expr='icontains')
 
     class Meta:
         model = CostCategory
-        fields = ['description']
+        fields = ['title__icontains']
