@@ -14,6 +14,8 @@ import { Drawer } from './Drawer';
 import {  routes } from '@appCore';
 import { useNavigate } from 'react-router-dom';
 
+import { useLogout } from '@appHooks';
+
 const navItems = [
   {
     label: 'Home',
@@ -59,6 +61,7 @@ export function AppBar() {
   const { system: { dispatch } } = useAppContext();
   const navigate = useNavigate();
 
+  const { refetch: triggerLogout } = useLogout();
 
   const openDrawer = () => {
     dispatch({type: 'SET_DRAWER_OPEN', payload: true});
@@ -89,6 +92,10 @@ export function AppBar() {
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
             {navItems.map((item) => (
               <Button key={item.label} sx={{ color: '#fff' }} onClick={() =>  {
+                if (item.path === routes.logout) {
+                  triggerLogout();
+                  return;
+                }
                 navigate(item.path)
               }}>
                 {item.label}

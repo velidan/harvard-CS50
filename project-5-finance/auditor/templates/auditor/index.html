@@ -4,15 +4,16 @@
 
 {% include 'auditor/common/messages.html' %}
 
-<div style="margin-top:64px; border: 1px solid red" class="container py-5">
-    Hi. I'm the Index page
-    {% if request.user.is_authenticated %}
-    <a href="{% url 'auditor:logout' %}">Logout</a>
-    {% else %}
-    <a href="{% url 'auditor:sign_in' %}">Sign in</a>
-    <a href="{% url 'auditor:sign_up' %}">Sign up</a>
+
+    {% if not request.user.is_authenticated %}
+    <div style="margin-top:64px;" class="container py-5">
+        Hi. I'm the Index page
+        <a href="{% url 'auditor:sign_in' %}">Sign in</a>
+        <a href="{% url 'auditor:sign_up' %}">Sign up</a>
+    </div>
+
     {% endif %}
-</div>
+
 
 
 <div id="react-root"></div>
