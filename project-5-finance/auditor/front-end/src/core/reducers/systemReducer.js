@@ -1,8 +1,8 @@
 const initialState = {
-    isDrawerOpen: false,
+    isDrawerOpen: false
 }
 
-const reducer =  (state, action) => {
+const reducer = (state, action) => {
     switch (action.type) {
       case 'SET_DRAWER_OPEN':
         return {

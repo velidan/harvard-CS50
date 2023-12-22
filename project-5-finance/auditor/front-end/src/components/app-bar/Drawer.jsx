@@ -6,20 +6,18 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
-
+import { useNavigate } from 'react-router-dom';
 import Typography from '@mui/material/Typography';
+import { navItems, checkIsActivePath } from './navItems';
 
-
-import { useAppContext } from '@appCore';
+import { useAppContext, routes } from '@appCore';
 
 
 const drawerWidth = 240;
 
-const navItems = ['Home', 'About', 'Contact'];
-
 export function Drawer(props) {
     const { window } = props;
-
+    const navigate = useNavigate();
     const { system: { state, dispatch } } = useAppContext();
 
 
@@ -31,16 +29,25 @@ export function Drawer(props) {
     const drawerContent = (
     <Box onClick={closeDrawer} sx={{ textAlign: 'center' }}>
       <Typography variant="h6" sx={{ my: 2 }}>
-        MUI
+        Auditor
       </Typography>
       <Divider />
       <List>
         {navItems.map((item) => (
           <ListItem key={item} disablePadding>
-            <ListItemButton onClick={() => {
-                console.log("drawer list item click")
-            }} sx={{ textAlign: 'center' }}>
-              <ListItemText primary={item} />
+            <ListItemButton 
+            className={checkIsActivePath(item.path) ? 'active nav-item mobile' : 'nav-item mobile'}
+            onClick={e =>  {
+   
+                if (item.path === routes.logout) {
+                  triggerLogout();
+                  return;
+                }
+                navigate(item.path)
+              }} 
+              sx={{ textAlign: 'center' }}
+              >
+              <ListItemText primary={item.label} />
             </ListItemButton>
           </ListItem>
         ))}

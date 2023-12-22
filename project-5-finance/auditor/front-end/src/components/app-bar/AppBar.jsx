@@ -15,46 +15,7 @@ import {  routes } from '@appCore';
 import { useNavigate } from 'react-router-dom';
 
 import { useLogout } from '@appHooks';
-
-const navItems = [
-  {
-    label: 'Home',
-    path: routes.home
-  }, 
-  {
-    label: 'Create Category',
-    path: routes.createCategory
-  },
-  {
-    label: 'Categories',
-    path: routes.categories
-  }, 
-  {
-    label: 'Costs',
-    path: routes.costRecords
-  }, 
-  {
-    label: 'Cost Templates',
-    path: routes.costRecordTemplates
-  }, 
-  {
-    label: 'Create Cost Record',
-    path: routes.createCostRecord
-  }, 
-  {
-    label: 'About',
-    path: routes.about
-  }, 
-  {
-    label: 'Contact',
-    path: routes.contact
-  }, 
-  {
-    label: 'Logout',
-    path: routes.logout
-  }, 
-
-];
+import { navItems, checkIsActivePath } from './navItems';
 
 export function AppBar() {
 
@@ -71,7 +32,8 @@ export function AppBar() {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBarMUI component="nav">
+      <AppBarMUI component="nav" className='app-bar'>
+        <div className="nav-content-desktop">
         <Toolbar>
           <IconButton
             color="inherit"
@@ -87,11 +49,15 @@ export function AppBar() {
             component="div"
             sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
           >
-            MUI
+            Auditor
           </Typography>
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
             {navItems.map((item) => (
-              <Button key={item.label} sx={{ color: '#fff' }} onClick={() =>  {
+              <Button 
+                className={checkIsActivePath(item.path) ? 'active nav-item' : 'nav-item'}
+                key={item.label} 
+                sx={{ color: '#fff' }}
+                onClick={() =>  {
                 if (item.path === routes.logout) {
                   triggerLogout();
                   return;
@@ -103,6 +69,7 @@ export function AppBar() {
             ))}
           </Box>
         </Toolbar>
+        </div>
       </AppBarMUI>
       <Drawer />
     </Box>

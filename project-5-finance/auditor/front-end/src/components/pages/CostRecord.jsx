@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useParams  } from 'react-router-dom';
-
+import CircularProgress from '@mui/material/CircularProgress';
 import { withPrimaryLayout } from '@appHocs';
 
 import { CostRecordUpdateForm } from '@appComponents/cost';
@@ -15,11 +15,14 @@ export function _CostRecord() {
 
     // const [category, setCategory] = React.useState(null);
 
-    const { isPending, error, data } = useGetCostRecord(id);
+    const { isPending, data } = useGetCostRecord(id);
 
-      if (isPending) return 'Fetching cost record details...'
-
-      if (error) return 'An error has occurred: ' + error.message
+    if (isPending) return (
+        <div className='flex items-center justify-center h-full'>
+          <CircularProgress />
+        </div>
+      )
+  
     
 
 

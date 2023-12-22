@@ -4,10 +4,13 @@ import {
     useQuery,
   } from '@tanstack/react-query'
  
+  import { useAppContext } from '@appCore';
+  import { toastReasons } from '@appCore/reducers/toastReducer';
 
 export function useGetCostsTotalGroupedByCategory(category = null) {
+  const { toast: { dispatch } } = useAppContext();
 
-  let url = 'http://127.0.0.1:8000/api/cost-record/costs_total_by_category';
+  let url = '/api/cost-record/costs_total_by_category';
   if (category ) {
     url += `?category=${category}`
   } 
@@ -19,7 +22,13 @@ export function useGetCostsTotalGroupedByCategory(category = null) {
             (res) => {
                 return res.data;
             },
-          )
+          ),
+          onError: error => {
+            dispatch({type: 'SHOW_TOAST', payload: {
+              reason: toastReasons.error,
+              content: `${error.message}. Please, check logs.`
+            }});
+          },
       });
 
      

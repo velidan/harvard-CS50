@@ -19,26 +19,15 @@ import {
 
 
 import { AppContextProvider, routes } from './core';
-import { Home, Error, CostRecord, CreateCostRecord, Contact, AllCategories, About, Category, AllCostRecords, AllCostRecordTemplates } from './components/pages';
+import { Error, CostRecord, CreateCostRecord, AllCategories,  Category, AllCostRecords, AllCostRecordTemplates } from './components/pages';
 import { CreateCategory } from './components/pages/CreateCategory';
+import { Toast } from './components/Toast';
 
 import { queryClient } from '@appCore';
 
 const router = createBrowserRouter([
     {
       path: routes.home,
-      element: <Home />,
-    },
-    {
-      path: routes.contact,
-      element: <Contact />,
-    },
-    {
-      path: routes.about,
-      element: <About />,
-    },
-    {
-      path: routes.costRecords,
       element: <AllCostRecords />,
     },
     {
@@ -77,7 +66,8 @@ function _App() {
     <QueryClientProvider client={queryClient}>
       <AppContextProvider>
           <React.StrictMode>
-          <RouterProvider router={router} />
+            <RouterProvider router={router} />
+            <Toast />
           </React.StrictMode>
       </AppContextProvider>
     </QueryClientProvider>

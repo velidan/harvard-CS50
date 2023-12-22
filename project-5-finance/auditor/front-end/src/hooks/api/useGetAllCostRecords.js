@@ -3,11 +3,14 @@ import {
     useQuery,
   } from '@tanstack/react-query'
 
+import { useAppContext } from '@appCore';
+import { toastReasons } from '@appCore/reducers/toastReducer';
 
 export function useGetAllCostRecords(page = null, categoryId=null) {
 
-  console.log('categoryId -> ', categoryId);
-  let url = 'http://127.0.0.1:8000/api/cost-record/';
+  const { toast: { dispatch } } = useAppContext();
+
+  let url = '/api/cost-record/';
   if (page && !categoryId) {
     url += `?page=${page}`
   } else if (categoryId) {
@@ -22,6 +25,12 @@ export function useGetAllCostRecords(page = null, categoryId=null) {
                 return res.data;
             },
           ),
+        onError: error => {
+            dispatch({type: 'SHOW_TOAST', payload: {
+              reason: toastReasons.error,
+              content: `${error.message}. Please, check logs.`
+            }});
+        },
       })
 
      

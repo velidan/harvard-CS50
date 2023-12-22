@@ -1,7 +1,7 @@
 import * as React  from 'react';
 import { useRouteError } from "react-router-dom";
 
-// NO REASON. DJANGO HANDLES IT
+// Global error handler 
 export function Error() {
   const error = useRouteError();
   console.error(error);

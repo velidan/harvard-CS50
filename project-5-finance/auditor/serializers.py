@@ -13,7 +13,18 @@ class UserSerializer(serializers.ModelSerializer):
         fields = "__all__"
         # lookup_field = "username"
 
+class ThumbnailUrlField(serializers.ImageField):
+    def to_representation(self, value):
+        if value:
+            request = self.context.get('request', None)
+            if request:
+                return request.build_absolute_uri(value.url)
+            else:
+                return value.url
+        return None
+
 class CostCategorySerializer(serializers.ModelSerializer):
+    thumbnail = ThumbnailUrlField(required=False)
 
     class Meta:
         model = CostCategory
@@ -23,6 +34,11 @@ class CostCategorySerializer(serializers.ModelSerializer):
         instance.title = validated_data.get('title', instance.title)
         instance.user = validated_data.get('user')
         instance.description = validated_data.get('description', instance.description)
+
+        # Update 'thumbnail' separately if provided
+        thumbnail = validated_data.get('thumbnail', None)
+        if thumbnail:
+            instance.thumbnail = thumbnail
         instance.save()
         return instance
 

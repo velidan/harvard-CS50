@@ -1,5 +1,5 @@
 import * as React from 'react';
-
+import CircularProgress from '@mui/material/CircularProgress';
 import { Pagination } from '@appComponents/common';
 
 import { withPrimaryLayout } from '@appHocs';
@@ -20,10 +20,11 @@ export function _AllCostRecordTemplates() {
 
      
 
-    if (isPending) return 'Loading...'
-   
-    if (error) return 'An error has occurred: ' + error.message
-
+    if (isPending) return (
+        <div className='flex items-center justify-center h-full'>
+          <CircularProgress />
+        </div>
+      )
 
     return data.results.length ? 
     <div>

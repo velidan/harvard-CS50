@@ -6,7 +6,6 @@ export const routes = {
     costRecordTemplates: '/cost-record/templates',
     costRecord: '/cost-record/:id',
     createCostRecord: '/create-cost-record',
-    about: '/about',
     contact: '/contact',
     logout: '/logout',
     createCategory: '/create-category',

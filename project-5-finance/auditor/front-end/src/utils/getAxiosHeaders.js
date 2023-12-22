@@ -1,8 +1,9 @@
 import { getCookie } from './getCookie';
 
-export function getAxiosHeaders() {
+export function getAxiosHeaders(headers = {}) {
     return  {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken')  
+        'X-CSRFToken': getCookie('csrftoken'),
+        ...headers
     };
 }

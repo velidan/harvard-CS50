@@ -5,9 +5,14 @@ import {
   } from '@tanstack/react-query'
  
 
+import { useAppContext } from '@appCore';
+import { toastReasons } from '@appCore/reducers/toastReducer';
+
 export function useGetCostsTotal(category = null) {
 
-  let url = 'http://127.0.0.1:8000/api/cost-record/costs_total';
+  const { toast: { dispatch } } = useAppContext();
+
+  let url = '/api/cost-record/costs_total';
   if (category ) {
     url += `?category=${category}`
   } 
@@ -19,7 +24,13 @@ export function useGetCostsTotal(category = null) {
             (res) => {
                 return res.data;
             },
-          )
+          ),
+          onError: error => {
+            dispatch({type: 'SHOW_TOAST', payload: {
+              reason: toastReasons.error,
+              content: `${error.message}. Please, check logs.`
+            }});
+          },
       });
 
      

@@ -5,19 +5,28 @@ import {
     useQuery,
   } from '@tanstack/react-query'
  
+  import { useAppContext } from '@appCore';
+  import { toastReasons } from '@appCore/reducers/toastReducer';
 
 export function useGetAllUnpaginatedCostTemplates() {
 
+    const { toast: { dispatch } } = useAppContext();
 
     const result = useQuery({
         queryKey: ['allUnpaginatedCostTemplates'],
         queryFn: () =>
-        axios.get('http://127.0.0.1:8000/api/cost-record/all_unpaginated_templates/').then(
+        axios.get('/api/cost-record/all_unpaginated_templates/').then(
             (res) => {
                 return res.data;
             },
           ),
           keepPreviousData: true,
+          onError: error => {
+            dispatch({type: 'SHOW_TOAST', payload: {
+              reason: toastReasons.error,
+              content: `${error.message}. Please, check logs.`
+            }});
+          },
       });
 
      

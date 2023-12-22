@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useParams   } from 'react-router-dom';
-
+import CircularProgress from '@mui/material/CircularProgress';
 import {
     useQuery,
   } from '@tanstack/react-query'
@@ -24,9 +24,11 @@ export function _Category() {
 
       console.log('data 0> ', data);
 
-      if (isPending) return 'Fetching category details...'
-
-      if (error) return 'An error has occurred: ' + error.message
+      if (isPending) return (
+        <div className='flex items-center justify-center h-full'>
+          <CircularProgress />
+        </div>
+      )
     
 
 

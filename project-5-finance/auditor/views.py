@@ -6,15 +6,16 @@ from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
 import django_filters.rest_framework
 from rest_framework.decorators import action
-
-
+from rest_framework.parsers import MultiPartParser
+from django.utils import timezone
 from .forms import SignUpForm, SignInForm
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.db.models import F, Sum, DecimalField, IntegerField, Case, When, Value
 from django.db.models.functions import Coalesce, Cast
 from django.views import View
-
+from django.db.models import Count
+from django.db.models.functions import TruncMonth, ExtractYear
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -70,6 +71,7 @@ class CostCategoryViewSet(viewsets.ModelViewSet):
     """
     queryset = CostCategory.objects.all()
     serializer_class = CostCategorySerializer
+    parser_classes = [MultiPartParser]
 
     permission_classes = (CustomIsAuthorizedPermission, )
     #filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
@@ -77,28 +79,35 @@ class CostCategoryViewSet(viewsets.ModelViewSet):
     # filterset_fields = ('title', )
 	
 
+    def get_queryset(self):
+        """
+        Get the queryset for the view. Apply sorting based on the 'ordering' query parameter.
+        """
+        queryset = CostCategory.objects.all()
+        ordering = self.request.query_params.get('ordering', '-id')  # Default ordering by 'id' in descending order
+
+        # Validate ordering field to prevent SQL injection
+        allowed_fields = [field.name for field in CostCategory._meta.get_fields()]
+        ordering = ordering if ordering.lstrip('-') in allowed_fields else '-id'
+
+        return queryset.order_by(ordering)
 
     def create(self, request, *args, **kwargs):
-        print('>>> CREATE <<< ')
-		# Assuming your serializer is named CostCategorySerializer
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 	
     def update(self, request, *args, **kwargs):
-
-      request.data['user'] = self.request.user.id
-      instance = self.get_object()
-     
-      serializer = self.serializer_class(instance=instance,
-                                           data=request.data,
-                                           )
-      serializer.is_valid(raise_exception=True)
-      self.perform_update(serializer)
-      headers = self.get_success_headers(serializer.data)
-      return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
+        request.data['user'] = self.request.user.id
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
 	
     @action(detail=False, methods=['GET'])
     def all_unpaginated_categories(self, request):
@@ -132,11 +141,30 @@ class CostRecordViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        This view should return a list of all the purchases
-        for the currently authenticated user.
+        Get the queryset for the view. Apply default sorting by 'timestamp' in descending order.
         """
         user = self.request.user
-        return CostRecord.objects.filter(user=user)
+        queryset = CostRecord.objects.filter(user=user)
+
+        # Extract month from request parameters
+        month = self.request.query_params.get('month')
+        if month:
+            # Convert the month to a Python datetime object
+            month_date = timezone.datetime.strptime(month, "%Y-%m")
+
+            # Filter queryset by month
+            queryset = queryset.filter(timestamp__month=month_date.month, timestamp__year=month_date.year)
+
+        # Annotate the queryset to handle null values in 'total' field
+        queryset = queryset.annotate(
+            total_value=Case(
+                When(total__isnull=True, then=Value(0)),
+                default=F('total'),
+                output_field=DecimalField()
+            )
+        )
+
+        return queryset.order_by('-timestamp')
 
     def create(self, request, *args, **kwargs):
       print('>>> CREATE <<< ')
@@ -242,6 +270,35 @@ class CostRecordViewSet(viewsets.ModelViewSet):
         result = {'total_by_categories': {item['category__title']: item['total_sum'] for item in queryset}}
 
         return Response(result)
+    
+    @action(detail=False, methods=['GET'])
+    def created_years_months(self, request):
+        """
+        Retrieve a dictionary where the keys are years
+        and the values are lists of months when costs were created.
+        """
+        user = self.request.user
+
+        # Query the database to get the counts of costs for each year-month pair
+        counts_by_month = (
+            CostRecord.objects.filter(user=user)
+            .annotate(year=ExtractYear('timestamp'), month=TruncMonth('timestamp'))
+            .values('year', 'month')
+            .annotate(count=Count('id'))
+        )
+
+        # Create a dictionary where keys are years and values are lists of months
+        year_month_dict = {}
+        for entry in counts_by_month:
+            year = entry['year']
+            month = entry['month'].month
+
+            if year not in year_month_dict:
+                year_month_dict[year] = []
+
+            year_month_dict[year].append(month)
+
+        return Response(year_month_dict)
 
 
 # class CostRecordTemplateViewSet(viewsets.ViewSet):

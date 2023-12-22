@@ -11,3 +11,4 @@ export * from './useGetAllUnpaginatedCostTemplates';
 export * from './useGetCostsTotal';
 export * from './useGetCostsTotalGroupedByCategory';
 export * from './useLogout';
+export * from './useGetDates';

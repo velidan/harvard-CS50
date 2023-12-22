@@ -6,12 +6,15 @@ import {
  
   import { useSearchParams } from 'react-router-dom';
 
-export function useGetAllCategories(page = null) {
+import { useAppContext } from '@appCore';
+import { toastReasons } from '@appCore/reducers/toastReducer';
 
+export function useGetAllCategories(page = null) {
+  const { toast: { dispatch } } = useAppContext();
   const [searchParams] = useSearchParams();
   const titleFilter = searchParams.get('title');
 
-  let url = 'http://127.0.0.1:8000/api/cost-category/';
+  let url = '/api/cost-category/';
   if (page && !titleFilter ) {
     url += `?page=${page}`
   } else if (titleFilter) {
@@ -27,6 +30,12 @@ export function useGetAllCategories(page = null) {
             },
           ),
           keepPreviousData: true,
+          onError: error => {
+            dispatch({type: 'SHOW_TOAST', payload: {
+              reason: toastReasons.error,
+              content: `${error.message}. Please, check logs.`
+            }});
+          },
       });
 
      

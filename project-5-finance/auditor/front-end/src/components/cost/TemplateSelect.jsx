@@ -26,7 +26,7 @@ export function TemplateSelect(props) {
                 <Select
                     labelId="cost-record-select"
                     id="cost-select"
-                    value={value}
+                    value={value?.title}
                     label="Cost Template select"
                     onChange={
                         (event) => {

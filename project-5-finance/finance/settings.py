@@ -47,6 +47,9 @@ INSTALLED_APPS = [
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 STATIC_URL = "static/"
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"

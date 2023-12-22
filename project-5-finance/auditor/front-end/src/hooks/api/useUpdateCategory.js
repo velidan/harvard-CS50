@@ -8,16 +8,34 @@ import {
 import { getAxiosHeaders } from '@appUtils';
 import { queryClient } from '@appCore';
 
+import { useAppContext } from '@appCore';
+import { toastReasons } from '@appCore/reducers/toastReducer';
+
+
 export function useUpdateCategory(id) {
   
+  const { toast: { dispatch } } = useAppContext();
+
   return useMutation({
         mutationFn: (payload) => {
-          return axios.put(`http://127.0.0.1:8000/api/cost-category/${id}/`, payload, {
+          return axios.put(`/api/cost-category/${id}/`, payload, {
             headers: getAxiosHeaders()
           })
         },
         onSuccess: res => {
+          dispatch({type: 'SHOW_TOAST', payload: {
+            reason: toastReasons.success,
+            content: 'Category updated'
+          }});
           queryClient.setQueryData(['categoryDetails'], res.data)
-        }
+        },
+        onError: error => {
+          dispatch({type: 'SHOW_TOAST', payload: {
+            reason: toastReasons.error,
+            content: `${error.message}. Please, check logs.`
+          }});
+          
+        },
+        
       });
     }
