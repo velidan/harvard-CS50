@@ -1,5 +1,6 @@
 const initialState = {
-    isDrawerOpen: false
+    isDrawerOpen: false,
+    userName: window?.USER_NAME || ''
 }
 
 const reducer = (state, action) => {

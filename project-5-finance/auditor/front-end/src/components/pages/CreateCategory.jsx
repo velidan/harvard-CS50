@@ -55,25 +55,10 @@ export function _CreateCategory() {
 
     return (
         <main>
-            <h1>Create New Category</h1>
-
-            <h5>Category Preview</h5>
-            <CategoryCard
-              thumbnailUrl={thumbnail}
-              title={formik.values.title}
-              description={formik.values.description}
-            />
-            {createCategoryMutation.isLoading ? (
-        'Creating...'
-      ) : (
-        <>
-          {createCategoryMutation.isError ? (
-            <div>An error occurred: {createCategoryMutation.error.message}</div>
-          ) : null}
-
-          {createCategoryMutation.isSuccess ? <div>Category created!</div> : null}
-
-            <form  onSubmit={formik.handleSubmit} className='common-form flex-col' >
+              <div class="complex-content-grid">
+                <div>
+                <h1>Create New Category</h1>
+                <form  onSubmit={formik.handleSubmit} className='common-form flex-col' >
                     <FormControl>
                         <FormLabel>Enter Category title</FormLabel>
                         <TextField 
@@ -119,12 +104,23 @@ export function _CreateCategory() {
                     <Button type="submit" disabled={formik.isSubmitting}>Submit</Button>
                 </form>
 
+                </div>
+                <div>
+                  <h5>Category Preview</h5>
+                  <CategoryCard
+                    thumbnailUrl={thumbnail}
+                    title={formik.values.title}
+                    description={formik.values.description}
+                  />
+                </div>
+              </div>
+          
 
 
-         
-        </>
-      )}
-   
+
+            
+
+
 
 
 

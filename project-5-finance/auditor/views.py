@@ -140,11 +140,11 @@ class CostRecordViewSet(viewsets.ModelViewSet):
     filterset_fields = ('category', )
 
     def get_queryset(self):
-        """
-        Get the queryset for the view. Apply default sorting by 'timestamp' in descending order.
-        """
         user = self.request.user
         queryset = CostRecord.objects.filter(user=user)
+
+        print('queryset------')
+        print(queryset)
 
         # Extract month from request parameters
         month = self.request.query_params.get('month')
@@ -234,7 +234,7 @@ class CostRecordViewSet(viewsets.ModelViewSet):
         category_id = request.query_params.get('category')
 
 
-        queryset = CostRecord.objects
+        queryset = CostRecord.objects.filter(user=request.user)
         if category_id:
             queryset = queryset.filter(category__id=category_id)
         
@@ -309,9 +309,9 @@ class CostRecordViewSet(viewsets.ModelViewSet):
 
 class IndexView(View):
 
-	
 	def get(self, request, path=''):
-		return render(request, "auditor/index.html")
+            username = request.user.username
+            return render(request, 'auditor/index.html', {'username': username})
 
 # def index(request):
 # 	return HttpResponse("Hello, world. Auditor")
@@ -347,63 +347,44 @@ def logout_view(request):
 # 	})
 
 class SignInView(View):
-	def post(self, request):
-		form = form = SignInForm(request, data=request.POST)
+    def post(self, request):
+        form = SignInForm(request, data=request.POST)
 
-		if form.is_valid():
-			username = form.cleaned_data.get('username')
-			password = form.cleaned_data.get('password')
-			user = authenticate(username=username, password=password)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
 
-			if user is not None:
-				login(request, user)
-				messages.info(request, f"You are now logged in as {username}.")
-				return redirect("auditor:index")
-			else:
-				messages.error(request,"Invalid username or password.")
-		else:
-			messages.error(request,"Invalid username or password.")
+            if user is not None:
+                login(request, user)
+                messages.info(request, f"You are now logged in as {username}.")
+                return redirect("auditor:index")  # Redirect to the desired page upon successful login
+            else:
+                messages.error(request, "Invalid username or password.")
+        else:
+            # Form is invalid, render the sign-in page with the form and errors
+            return render(request, "auditor/sign_in.html", {"sign_in_form": form})
 
-
-	def get(self, request):
-		form = SignInForm()
-		return render(request, "auditor/sign_in.html", {
+    def get(self, request):
+        form = SignInForm()
+        return render(request, "auditor/sign_in.html", {
 		"sign_in_form": form
 	})
 
-# def sign_up_view(request):
-# 	form = SignUpForm()
-# 	if request.method == "POST":
-
-# 		form = SignUpForm(request.POST)
-# 		print(f"fffffffffff {form.is_valid()}")
-# 		print(form.errors)
-# 		if form.is_valid():
-# 			user = form.save()
-# 			print('SUCCESS')
-# 			login(request, user)
-# 			messages.success(request, "Registration successful." )
-# 			return redirect("auditor:index")
-# 		messages.error(request, form.errors)
-	
-# 	return render(request, "auditor/sign_up.html", {
-# 		"sign_up_form":form
-# 		})
 
 class SignUpView(View):
-	def post(self, request):
-		form = SignUpForm(request.POST)
-		print(form.errors)
-		if form.is_valid():
-			user = form.save()
-			login(request, user)
-			messages.success(request, "Registration successful." )
-			return redirect("auditor:index")
-		messages.error(request, form.errors)
+    def post(self, request):
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Registration successful.")
+            return redirect("auditor:index")  # Redirect to the desired page upon successful registration
+        else:
+            # Form is invalid, render the sign-up page with the form and errors
+            messages.error(request, form.errors)
+            return render(request, "auditor/sign_up.html", {"sign_up_form": form})
 
-
-	def get(self, request):
-		form = SignUpForm()
-		return render(request, "auditor/sign_up.html", {
-		"sign_up_form":form
-		})
+    def get(self, request):
+        form = SignUpForm()
+        return render(request, "auditor/sign_up.html", {"sign_up_form": form})

@@ -12,7 +12,7 @@ export function withPrimaryLayout(Component) {
             <AppBar />
             
             <div className='layout-content-wrapper'>
-            <Component {...props} />
+                <Component {...props} />
             </div>
            
              </main>

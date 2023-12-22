@@ -19,15 +19,15 @@ export function CategorySelect(props) {
 
 
     return (
-        <Box sx={{ minWidth: 120 }}>
+        <Box className="category-select-wrapper" sx={{ minWidth: 120 }}>
             <FormControl fullWidth>
                 <InputLabel id="category-select">Select Category</InputLabel>
                 <Select
                     labelId="category-select"
                     id="category-select"
                     value={value ? value : ''}
-                    label="Category"
-                    InputLabelProps={{ shrink: true }}
+                    label="Select Category"
+                    
                     onChange={
                         (event) => {
                             onChange(event.target.value);

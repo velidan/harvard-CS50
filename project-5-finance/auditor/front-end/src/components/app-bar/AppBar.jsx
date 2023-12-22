@@ -19,7 +19,7 @@ import { navItems, checkIsActivePath } from './navItems';
 
 export function AppBar() {
 
-  const { system: { dispatch } } = useAppContext();
+  const { system: { state, dispatch } } = useAppContext();
   const navigate = useNavigate();
 
   const { refetch: triggerLogout } = useLogout();
@@ -34,7 +34,7 @@ export function AppBar() {
       <CssBaseline />
       <AppBarMUI component="nav" className='app-bar'>
         <div className="nav-content-desktop">
-        <Toolbar>
+        <Toolbar style={{justifyContent: 'space-between'}}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -44,13 +44,26 @@ export function AppBar() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
-          >
-            Auditor
-          </Typography>
+          <div className='app-title'>
+            <Typography
+              variant="h6"
+      
+              component="div"
+              sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
+            >
+              Finance Auditor
+              </Typography>
+             {state.userName && <Typography
+              variant="h6"
+
+              component="div"
+              sx={{ flexGrow: 1, fontSize: 12, display: { xs: 'none', sm: 'block' } }}
+            >
+              <small>Logged as: <b>{state.userName}</b></small>
+            </Typography>} 
+          </div>
+
+          
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
             {navItems.map((item) => (
               <Button 

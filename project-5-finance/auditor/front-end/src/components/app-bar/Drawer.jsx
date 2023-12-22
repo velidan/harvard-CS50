@@ -28,9 +28,20 @@ export function Drawer(props) {
 
     const drawerContent = (
     <Box onClick={closeDrawer} sx={{ textAlign: 'center' }}>
-      <Typography variant="h6" sx={{ my: 2 }}>
-        Auditor
-      </Typography>
+
+      <div className='app-title'>
+              <Typography variant="h6" sx={{ my: 2 }}>
+                Finance Auditor
+              
+              </Typography>
+              { state.userName && <Typography
+              variant="h6"
+              component="div"
+            >
+              <small>Logged as: <b>{state.userName}</b></small>
+            </Typography>
+}
+          </div>
       <Divider />
       <List>
         {navItems.map((item) => (

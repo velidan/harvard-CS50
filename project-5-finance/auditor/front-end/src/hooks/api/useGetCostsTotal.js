@@ -22,7 +22,7 @@ export function useGetCostsTotal(category = null) {
         queryFn: () =>
         axios.get(url).then(
             (res) => {
-                return res.data;
+                return res.data.total_sum;
             },
           ),
           onError: error => {

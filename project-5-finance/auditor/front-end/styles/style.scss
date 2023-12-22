@@ -7,6 +7,10 @@ html, body {
     min-height: 100vh;
 }
 
+.text-center {
+    text-align: center;
+}
+
 .flex {
     display: flex;
 }
@@ -34,6 +38,7 @@ html, body {
 .w-full {
     height: 100%;
 }
+
 
 body {
     .common-form {
@@ -112,7 +117,75 @@ body {
         }
         
     }
+
+    .app-title {
+       
+        display: flex;
+        flex-direction: column;
+        
+        small {
+            font-size: 12px;
+        }
+    }
+    
 }
+
+main {
+    min-height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#react-root {
+    min-height: 100%;
+}
+
+.primary-layout {
+    min-height: 100%;
+    padding-top: 84px;
+    
+}
+
+.layout-content-wrapper {
+    min-height: 100%;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    padding-bottom: 24px;
+}
+
+.complex-content-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 60% 40%;
+    column-gap: 24px;
+    padding: 0 48px 0 24px;
+}
+
+.pie-wrapper {
+    max-width: 90%;
+}
+
+.reset-category-actions {
+    display: flex;
+    justify-content: space-between;
+}
+
+.category-select-wrapper {
+    max-width: 400px;
+    flex: 1;
+}
+
+.content-list {
+    margin-top: 24px;
+
+}
+
+.content-title {
+    margin-bottom: 22px;
+}
+
 
 @media (max-width: 600px) {
     body {
@@ -128,30 +201,10 @@ body {
         }
     
     }
-}
 
-main {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
+    .reset-category-actions {
+        flex-direction: column;
+    }
+    
 }
-
-#react-root {
-    height: 100%;
-}
-
-.primary-layout {
-    height: 100%;
-    padding-top: 84px;
-    max-height: 100vh;
-}
-
-.layout-content-wrapper {
-    height: 100%;
-    width: 100%;
-    justify-content: center;
-    display: flex;
-}
-
 
