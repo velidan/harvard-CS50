@@ -45,7 +45,7 @@ export function Drawer(props) {
       <Divider />
       <List>
         {navItems.map((item) => (
-          <ListItem key={item} disablePadding>
+          <ListItem key={item.path} disablePadding>
             <ListItemButton 
             className={checkIsActivePath(item.path) ? 'active nav-item mobile' : 'nav-item mobile'}
             onClick={e =>  {

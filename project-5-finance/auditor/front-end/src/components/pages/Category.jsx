@@ -1,48 +1,68 @@
-import * as React from 'react';
-import { useParams   } from 'react-router-dom';
-import CircularProgress from '@mui/material/CircularProgress';
-import {
-    useQuery,
-  } from '@tanstack/react-query'
-  import axios from 'axios';
+import * as React from "react";
+import { useParams } from "react-router-dom";
+import CircularProgress from "@mui/material/CircularProgress";
 
-import { withPrimaryLayout } from '@appHocs';
-import { CategoryUpdateForm } from '@appComponents/category';
+import { withPrimaryLayout } from "@appHocs";
+import { CategoryUpdateForm, CategoryCard } from "@appComponents/category";
+
+import { useGetCategory } from "@appHooks";
 
 export function _Category() {
-    let { id } = useParams();
+  let { id } = useParams();
 
-    const { isPending, error, data } = useQuery({
-        queryKey: ['categoryDetails'],
-        queryFn: () =>
-        axios.get(`http://127.0.0.1:8000/api/cost-category/${id}`).then(
-            (res) => {
-                return res.data;
-            },
-          ),
-      })
+  const [state, setState] = React.useState({
+    title: "",
+    description: "",
+    thumbnail: null,
+  });
 
-      console.log('data 0> ', data);
+  const { isPending, data } = useGetCategory(id);
 
-      if (isPending) return (
-        <div className='flex items-center justify-center h-full'>
-          <CircularProgress />
-        </div>
-      )
-    
+  const handleField = (fieldName) => (val) => {
+    setState({
+      ...state,
+      [fieldName]: val,
+    });
+  };
 
+  React.useEffect(() => {
+    if (data) {
+      setState(data);
+    }
+  }, data);
 
+  if (isPending)
     return (
-        <div>
-            <div>
-                <h1><b>Title:</b> {data.title}</h1>
-                <p><b>Description:</b> {data.description}</p>
-                <p><b>ID:</b> ${data.id}</p>
-            </div>
-            {id && data && <CategoryUpdateForm id={id} categoryModel={data} />}
-        </div>
+      <div className="flex items-center justify-center h-full">
+        <CircularProgress />
+      </div>
+    );
 
-    )
+  return (
+    <main>
+      <div className="complex-content-grid create-category common-wrapper">
+        <div>
+          {id && data && (
+            <CategoryUpdateForm
+              id={id}
+              categoryModel={data}
+              onPickThumbnail={handleField("thumbnail")}
+              onUpdateTitle={handleField("title")}
+              onUpdateDescription={handleField("description")}
+            />
+          )}
+        </div>
+        <div className="category-preview-wrapper">
+          <h3 className="text-center">Category Preview</h3>
+          <CategoryCard
+            thumbnailUrl={state.thumbnail}
+            title={state.title}
+            description={state.description}
+          />
+        </div>
+      </div>
+    </main>
+  );
 }
 
 export const Category = withPrimaryLayout(_Category);

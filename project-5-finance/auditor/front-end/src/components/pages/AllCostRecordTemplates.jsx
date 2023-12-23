@@ -15,7 +15,7 @@ export function _AllCostRecordTemplates() {
         paginate
     } = usePagination('Cost Templates');
 
-    const { isPending, error, data } = useGetAllCostRecordTemplates();
+    const { isPending, data } = useGetAllCostRecordTemplates();
 
 
      
@@ -26,34 +26,38 @@ export function _AllCostRecordTemplates() {
         </div>
       )
 
-    return data.results.length ? 
-    <div>
+    return        <div className="common-wrapper content-list">
+    <h5 className="content-title text-center">Your cost records templates</h5>
+    {data.results.length ? (
+      <div className="flex flex-col grow justify-between">
+        <div>
+          {data.results.map((cost) => {
+            return (
+              <CostRecordPreview
+                key={cost.id}
+                id={cost.id}
+                title={cost.title}
+                description={cost.description}
+                total={cost.total}
+              />
+            );
+          })}
+        </div>
+       
 
-
-  
-    {data.results.map(cost => {
-        return (
-            <CostRecordPreview 
-            key={cost.id}
-            id={cost.id}
-            title={cost.title}
-            description={cost.description}
-            total={cost.total}
+        <Pagination
+          page={!page ? 1 : page}
+          count={data.total_pages}
+          onChange={(pageNumber) => {
+            paginate(pageNumber);
+          }}
         />
-        )
-    }) } 
-
-        <Pagination 
-            page={!page ? 1 : page} 
-            count={data.total_pages} 
-            onChange={(pageNumber) => {
-                paginate(pageNumber);
-            }}
-        />
-
       </div>
-    
-    : 'No Cost Templates'
+    ) : (
+      "No Cost records"
+    )}
+  </div>
+
 }
 
 export const AllCostRecordTemplates = withPrimaryLayout(_AllCostRecordTemplates);

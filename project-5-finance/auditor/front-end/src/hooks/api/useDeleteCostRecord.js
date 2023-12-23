@@ -15,7 +15,7 @@ import { toastReasons } from '@appCore/reducers/toastReducer';
     const { toast: { dispatch } } = useAppContext();
     return useMutation({
         mutationFn: (payload) => {
-          return axios.delete(`/api/cost-record/${id}`, payload, {
+          return axios.delete(`/api/cost-record/${id}`, {
             headers: getAxiosHeaders()
           })
         },

@@ -8,55 +8,104 @@ import { withPrimaryLayout } from '@appHocs';
 
 
 import { useUpdateCategory } from '@appHooks';
+import { getUrlFromSelectedFile } from '@appUtils'
+
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+
+const validationSchema = Yup.object().shape({
+  title: Yup.string()
+  .min(2, 'Too Short!')
+  .max(50, 'Too Long!')
+  .required('Required'),
+  description: Yup.string()
+  .min(2, 'Too Short!')
+  .max(50, 'Too Long!')
+  .required('Required')
+});
 
 
-export function _CategoryUpdateForm(props) {
-  const { id, categoryModel } = props;
+export function CategoryUpdateForm(props) {
+  const { id, categoryModel, onPickThumbnail, onUpdateTitle, onUpdateDescription } = props;
   
-  // TODO: service for headers
-    const updateCategoryMutation  = useUpdateCategory(id);
+  const updateCategory = useUpdateCategory(id)
 
+  const formik = useFormik({
+    initialValues: {
+      ...categoryModel
+    },
+    validationSchema: validationSchema,
+    onSubmit: values => {
+      const formData = new FormData();
+      formData.append('thumbnail', values.thumbnail);
+      formData.append('title', values.title);
+      formData.append('description', values.description);
 
-      console.log('updateCategoryMutation  => ', updateCategoryMutation )
-
-  const handleSubmit = (event) => {
-      event.preventDefault();
-
-      updateCategoryMutation .mutate(JSON.stringify({ 
-        title: event.target.title.value, 
-        description: event.target.description.value, 
-      }))
-}
+      updateCategory.mutate(formData)
+    },
+  });
 
     return (
         <main>
-            <h1>Update Category</h1>
+            <h3>Update Category</h3>
 
-            {updateCategoryMutation .isLoading ? (
-        'Updating...'
-      ) : (
-        <>
-          {updateCategoryMutation .isError ? (
-            <div>An error occurred: {updateCategoryMutation .error.message}</div>
-          ) : null}
-
-          {updateCategoryMutation.isSuccess ? <div>Updated!</div> : null}
-
-          <form  onSubmit={handleSubmit} className='common-form flex-col'>
+            <form  onSubmit={formik.handleSubmit} className='common-form  flex-col' >
                     <FormControl>
                         <FormLabel>Enter Category title</FormLabel>
-                        <TextField id="outlined-basic" label="Title" variant="outlined" defaultValue={categoryModel.title} name="title"/>
+                        <TextField 
+                        id="outlined-basic" 
+                        label="Title" 
+                        variant="outlined" 
+                        name="title"
+                        onChange={e => {
+                          onUpdateTitle?.(e.target.value);
+                          formik.handleChange(e);
+                        }}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.title}
+                        error={formik.errors.title}
+                        helperText={formik.errors.title}
+                        />
+
                     </FormControl>
+                    
                     <FormControl>
                         <FormLabel>Enter Category description</FormLabel>
-                        <TextField id="outlined-basic" defaultValue={categoryModel.description} label="Description" variant="outlined" name="description" />
+                        <TextField 
+                        id="outlined-basic" 
+                        label="Description" 
+                        variant="outlined" 
+                        name="description"
+                        onChange={
+                          e => {
+                            onUpdateDescription?.(e.target.value);
+                            formik.handleChange(e);
+                          }
+                        }
+                        onBlur={formik.handleBlur}
+                        value={formik.values.description}
+                        error={formik.errors.description}
+                        helperText={formik.errors.description}
+                        />
                     </FormControl>
-                    <Button type="submit">Update</Button>
+                    <FormControl>
+                        <FormLabel>Pick Category thumbnail</FormLabel>
+                        <label className='file-pick-label' >
+                          Pick
+                        <input accept='.png, .jpg, .jpeg, .webp' type='file' onChange={e => {
+                          const fileUrl = e.target.value;
+                          const files = e.target.files;
+                          getUrlFromSelectedFile(files, (url) => {
+                            onPickThumbnail(url);
+                          })
+                          console.log('files', files, fileUrl)
+                          formik.setFieldValue('thumbnail', files[0])
+                        }} />
+                        </label>
+                        
+                    </FormControl>
+                    <Button className='submit-btn' variant='contained' type="submit" disabled={formik.isSubmitting}>Submit</Button>
                 </form>
-        </>
-      )}
-   
-
 
 
         </main>
@@ -64,4 +113,3 @@ export function _CategoryUpdateForm(props) {
     )
 }
 
-export const CategoryUpdateForm = withPrimaryLayout(_CategoryUpdateForm);

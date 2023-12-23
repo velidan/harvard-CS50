@@ -32,7 +32,8 @@ class CostCategorySerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
-        instance.user = validated_data.get('user')
+        user = self.context['request'].user
+        instance.user = user
         instance.description = validated_data.get('description', instance.description)
 
         # Update 'thumbnail' separately if provided

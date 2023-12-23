@@ -14,8 +14,8 @@ export function PieDiagram() {
     const colors = [];
 
     if (totalByCategoriesValue) {
-      const keys = Object.keys(totalByCategoriesValue);
-      const values = Object.values(totalByCategoriesValue);
+      const keys = Object.keys(totalByCategoriesValue).map(o => o === 'null' ? 'Uncategorized' : o);
+      const values = Object.values(totalByCategoriesValue)
       for (let i = 0; i < values.length; i++) {
         colors.push("#" + Math.floor(Math.random() * 16777215).toString(16));
       }

@@ -11,7 +11,7 @@ import {
 
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import { FormControl, FormLabel } from '@mui/material';
+import { CircularProgress, FormControl, FormLabel } from '@mui/material';
 
 import { withPrimaryLayout } from '@appHocs';
 
@@ -43,10 +43,10 @@ export function _CostRecordUpdateForm(props) {
 
     return (
         <main>
-            <h1>Update Cost Record</h1>
+            <h3>Update Cost Record</h3>
 
             {updateCostRecorddMutation.isLoading ? (
-        'Updating...'
+        <CircularProgress />
       ) : (
         <>
           {updateCostRecorddMutation.isError ? (
@@ -58,7 +58,7 @@ export function _CostRecordUpdateForm(props) {
           <TemplateSelect />
 
 
-          <form  onSubmit={handleSubmit} className='common-form flex-col'>
+          <form  onSubmit={handleSubmit} className='common-form update-cost flex-col'>
                     <FormControl>
                         <FormLabel>Enter Cost title</FormLabel>
                         <TextField id="outlined-basic" label="Title" variant="outlined" defaultValue={costRecordModel.title} name="title"/>
@@ -79,14 +79,17 @@ export function _CostRecordUpdateForm(props) {
                         }}
                       />
                     </FormControl>
-                    <FormControl>
+                    <FormControl className='template-group'>
+                    <div>
                         <FormLabel>Add to templates?</FormLabel>
                         <Checkbox name="template" inputProps={ { 'aria-label': 'Save as template' } } 
                         onChange={() => {
                             console.log('Toggle !!!!')
                         }} defaultChecked={costRecordModel.template} />
+                    </div>
+                        
                     </FormControl>
-                    <Button type="submit">Update</Button>
+                    <Button className='submit-btn' variant='contained' type="submit">Update</Button>
                 </form>
         </>
       )}
@@ -99,4 +102,4 @@ export function _CostRecordUpdateForm(props) {
     )
 }
 
-export const CostRecordUpdateForm = withPrimaryLayout(_CostRecordUpdateForm);
+export const CostRecordUpdateForm = _CostRecordUpdateForm;

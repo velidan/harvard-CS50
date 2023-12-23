@@ -49,16 +49,15 @@ export function _CreateCategory() {
     },
   });
   
-  // TODO: service for headers
     const createCategoryMutation = useCreateCategory()
 
 
     return (
         <main>
-              <div class="complex-content-grid">
+              <div className="complex-content-grid create-category common-wrapper">
                 <div>
-                <h1>Create New Category</h1>
-                <form  onSubmit={formik.handleSubmit} className='common-form flex-col' >
+                <h3>Create New Category</h3>
+                <form  onSubmit={formik.handleSubmit} className='common-form  flex-col' >
                     <FormControl>
                         <FormLabel>Enter Category title</FormLabel>
                         <TextField 
@@ -91,6 +90,8 @@ export function _CreateCategory() {
                     </FormControl>
                     <FormControl>
                         <FormLabel>Pick Category thumbnail</FormLabel>
+                        <label className='file-pick-label' >
+                          Pick
                         <input accept='.png, .jpg, .jpeg, .webp' type='file' onChange={e => {
                           const fileUrl = e.target.value;
                           const files = e.target.files;
@@ -100,13 +101,15 @@ export function _CreateCategory() {
                           console.log('files', files, fileUrl)
                           formik.setFieldValue('thumbnail', files[0])
                         }} />
+                        </label>
+                        
                     </FormControl>
-                    <Button type="submit" disabled={formik.isSubmitting}>Submit</Button>
+                    <Button className='submit-btn' variant='contained' type="submit" disabled={formik.isSubmitting}>Submit</Button>
                 </form>
 
                 </div>
-                <div>
-                  <h5>Category Preview</h5>
+                <div className='category-preview-wrapper' >
+                  <h3 className='text-center'>Category Preview</h3>
                   <CategoryCard
                     thumbnailUrl={thumbnail}
                     title={formik.values.title}
@@ -114,15 +117,6 @@ export function _CreateCategory() {
                   />
                 </div>
               </div>
-          
-
-
-
-            
-
-
-
-
 
         </main>
        

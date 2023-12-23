@@ -32,8 +32,8 @@ export function _AllCostRecords() {
     );
 
   return (
-    <div className="complex-content-grid">
-      <div>
+    <div className="complex-content-grid common-wrapper records">
+      <div className="flex flex-col">
         <div>
           <b>Filter costs by category:</b>
 
@@ -62,18 +62,21 @@ export function _AllCostRecords() {
         <div className="content-list">
           <h5 className="content-title">Your spent cost records</h5>
           {data.results.length ? (
-            <div>
-              {data.results.map((cost) => {
-                return (
-                  <CostRecordPreview
-                    key={cost.id}
-                    id={cost.id}
-                    title={cost.title}
-                    description={cost.description}
-                    total={cost.total}
-                  />
-                );
-              })}
+            <div className="flex flex-col grow justify-between">
+              <div>
+                {data.results.map((cost) => {
+                  return (
+                    <CostRecordPreview
+                      key={cost.id}
+                      id={cost.id}
+                      title={cost.title}
+                      description={cost.description}
+                      total={cost.total}
+                    />
+                  );
+                })}
+              </div>
+             
 
               <Pagination
                 page={!page ? 1 : page}

@@ -18,7 +18,7 @@ import { useCreateCostRecord } from '@appHooks';
 const initalRecord = {
   title: '', 
   description: '', 
-  total: 0,
+  total: '',
   template: false,
   category: null
 }
@@ -81,28 +81,23 @@ export function _CreateCostRecord() {
 // }
 
     return (
-        <main>
-            <h1>Create Cost Record</h1>
+        <main className='create-cost-wrapper'>
+        
+            <h3 className='text-center'>Create Cost Record</h3>
 
-            {createCostRecordMutation.isLoading ? (
-        'Creating...'
-      ) : (
-        <>
-          {createCostRecordMutation.isError ? (
-            <div>An error occurred: {createCostRecordMutation.error.message}</div>
-          ) : null}
 
-          {createCostRecordMutation.isSuccess ? <div>Record added!</div> : null}
+            <div className='create-cost-predefined'>
+              <h5 className='text-center'>Select predefined template</h5>
+            <TemplateSelect  value={template} onChange={template => {
+              setTemplate(template)
+              formik.setValues({
+              ...template
+              });
+              }} />
+            </div>
+  
 
-          <TemplateSelect  value={template} onChange={template => {
-
-                setTemplate(template)
-                formik.setValues({
-                 ...template
-                });
-            }} />
-
-          <form  onSubmit={formik.handleSubmit} className='common-form flex-col'>
+          <form  onSubmit={formik.handleSubmit} className='common-form create-cost '>
                     <FormControl>
                         <FormLabel>Enter Cost title</FormLabel>
                         <TextField 
@@ -154,20 +149,21 @@ export function _CreateCostRecord() {
                         }}
                       />
                     </FormControl>
-                    <FormControl>
+                    <FormControl className='template-group'>
+                      <div>
                         <FormLabel>Add to templates?</FormLabel>
-                        <Checkbox 
-                        name="template" 
-                        inputProps={ { 'aria-label': 'Save as template' } } 
-                        checked={formik.values.template}
-                        onChange={() => {
-                          formik.setFieldValue('template', !formik.values.checked);
-                        }} />
+                          <Checkbox 
+                          name="template" 
+                          inputProps={ { 'aria-label': 'Save as template' } } 
+                          checked={formik.values.template}
+                          onChange={() => {
+                            formik.setFieldValue('template', !formik.values.checked);
+                          }} />
+                      </div>
+
                     </FormControl>
-                    <Button type="submit" disabled={formik.isSubmitting}>Submit</Button>
+                    <Button className='submit-btn' variant='contained' type="submit" disabled={formik.isSubmitting}>Submit</Button>
                 </form>
-        </>
-      )}
    
 
 

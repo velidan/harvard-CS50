@@ -6,6 +6,7 @@ import { withPrimaryLayout } from '@appHocs';
 import { CostRecordUpdateForm } from '@appComponents/cost';
 
 import { useGetCostRecord } from '@appHooks';
+import { Divider } from '@mui/material';
 
 
 export function _CostRecord() {
@@ -27,25 +28,37 @@ export function _CostRecord() {
 
 
     return (
-        <div>
-
 
   
       
 
      
-            {data.template && <b>In templates!</b>}
+            
+            <div className='complex-content-grid cost'>
+             
 
-            <div>
-                <h1><b>Title:</b> {data.title}</h1>
-                <p><b>Description:</b> {data.description}</p>
-                <p><b>ID:</b> {data.id}</p>
-                <p><b>Total:</b> {data.total}</p>
+                <div>
+                   
+                {data && id && <CostRecordUpdateForm id={id} costRecordModel = {data} />}
+                </div>
+
+
+                <div>
+                   
+                    <h3><b>Title:</b> {data.title}</h3>
+                    <p><b>Description:</b> {data.description}</p>
+                    <p><b>ID:</b> {data.id}</p>
+                    <p><b>Total:</b> {data.total}</p>
+<Divider className='divider' />
+                    <b className='template-remark'>{data.template && <i>Const record in templates!</i>}</b>
+                </div>
+
             </div>
 
-            {data && id && <CostRecordUpdateForm id={id} costRecordModel = {data} />}
-            
-        </div>
+          
+
+      
+
 
     )
 }

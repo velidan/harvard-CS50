@@ -19,7 +19,9 @@ export function useUpdateCategory(id) {
   return useMutation({
         mutationFn: (payload) => {
           return axios.put(`/api/cost-category/${id}/`, payload, {
-            headers: getAxiosHeaders()
+            headers: getAxiosHeaders({
+              'Content-Type': 'multipart/form-data'
+            })
           })
         },
         onSuccess: res => {

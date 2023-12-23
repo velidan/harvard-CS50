@@ -13,3 +13,5 @@ export * from './useGetCostsTotalGroupedByCategory';
 export * from './useLogout';
 export * from './useGetDates';
 export * from './useDeleteCostRecord';
+export * from './useDeleteCategory';
+export * from './useGetCategory';

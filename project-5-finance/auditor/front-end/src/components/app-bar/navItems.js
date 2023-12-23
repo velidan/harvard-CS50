@@ -6,10 +6,6 @@ export const navItems = [
       path: routes.home
     }, 
     {
-      label: 'Create Category',
-      path: routes.createCategory
-    },
-    {
       label: 'Categories',
       path: routes.categories
     }, 
@@ -17,6 +13,10 @@ export const navItems = [
       label: 'Cost Templates',
       path: routes.costRecordTemplates
     }, 
+    {
+      label: 'Create Category',
+      path: routes.createCategory
+    },
     {
       label: 'Create Cost Record',
       path: routes.createCostRecord
@@ -28,4 +28,6 @@ export const navItems = [
   
   ];
 
-  export const checkIsActivePath = path => document.location.pathname === path;
+  export const checkIsActivePath = path => {
+    return document.location.pathname.replace(/\/$/, '') === path
+  };

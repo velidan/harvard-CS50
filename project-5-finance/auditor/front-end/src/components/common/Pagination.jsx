@@ -9,13 +9,17 @@ export function Pagination(props) {
 
 
     return count > 1 ? (
-        <Stack spacing={2}>
-            <MUIPagination page={page} count={count} 
-            variant="outlined" 
-            onChange={(_e, pageNumber) => {
-                onChange(pageNumber);
-            }}
-            shape="rounded" />
-        </Stack> 
+        <div className='pagination'>
+            <Stack spacing={2}>
+                <MUIPagination  page={page} count={count} 
+                variant="outlined" 
+                color="primary"
+                onChange={(_e, pageNumber) => {
+                    onChange(pageNumber);
+                }}
+                shape="rounded" />
+            </Stack> 
+        </div>
+       
     ) : null
 }
