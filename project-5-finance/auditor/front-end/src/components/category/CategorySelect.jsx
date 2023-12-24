@@ -4,21 +4,31 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-
+import { useNavigate } from 'react-router-dom';
 import { useGetAllUnpaginatedCategories } from '@appHooks';
+import { Button, Typography } from '@mui/material';
+import { routes } from '@appCore';
 
 export function CategorySelect(props) {
-    const { onChange, value } = props;
-
-    const { isPending, error, data: unpaginatedData } = useGetAllUnpaginatedCategories();
+    const { onChange, value, addUncategorized } = props;
+    const navigate = useNavigate();
+    const { isPending, error, data: unpaginatedData } = useGetAllUnpaginatedCategories(addUncategorized);
     
-    console.log('unpaginatedData -> ', unpaginatedData)
-
-
+    console.log('1111 unpaginatedData ', unpaginatedData);
     if (isPending) return 'Loading...'
 
     if (error) return 'An error has occurred: ' + error.message
 
+    if (!unpaginatedData.length) {
+        return <div className='category-select-none-result'>
+            <p className='category-select-none-result-descr'>You haven't created any category</p>
+            <Button className='category-select-none-result-btn' variant='contained'
+                 onClick={() => {
+                    navigate(routes.createCategory);
+                }} 
+            >Go to create category page</Button>
+        </div>
+    }
 
     return (
         <Box className="category-select-wrapper" sx={{ minWidth: 120 }}>

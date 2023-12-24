@@ -1,10 +1,11 @@
 import * as React from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Pagination } from '@appComponents/common';
-
+import { useNavigate } from 'react-router-dom';
 import { withPrimaryLayout } from '@appHocs';
-
+import { routes } from '@appCore';
 import { CostRecordPreview } from '@appComponents/cost/CostRecordPreview';
+import Button from "@mui/material/Button";
 
 import { useGetAllCostRecordTemplates, usePagination } from '@appHooks'
 export function _AllCostRecordTemplates() {
@@ -14,7 +15,7 @@ export function _AllCostRecordTemplates() {
         page,
         paginate
     } = usePagination('Cost Templates');
-
+    const navigate = useNavigate();
     const { isPending, data } = useGetAllCostRecordTemplates(page);
 
 
@@ -54,7 +55,20 @@ export function _AllCostRecordTemplates() {
         />
       </div>
     ) : (
-      "No Cost records"
+      <div className='no-content-box center'>
+            <p>
+            <span className='no-content-box-intro'>Whoops</span>
+            <i>You have not added any cost to templates! </i>🥲
+            </p>
+            
+            <Button style={{marginTop: 8}} variant="contained"
+            onClick={() => {
+                navigate(routes.createCost);
+            }} 
+          >
+              Create Cost Record
+          </Button>
+           </div>
     )}
   </div>
 

@@ -19,35 +19,39 @@ export function PieDiagram(props) {
    
 
     const totalByCategoryRes = useGetCostsTotalGroupedByCategory();
-    const totalByCategoriesValue = totalByCategoryRes.data?.total_by_categories;
+    let totalByCategoriesValue = totalByCategoryRes.data?.total_by_categories;
 
     React.useEffect(() =>{
       
-      console.log('category ------>', category);
+      console.log('category ------>', category, totalByCategoriesValue);
       let colors = []
       if (totalByCategoriesValue) {
 
-        const mappedTotalByCategoriesValue = {
-          ...totalByCategoriesValue,
-          'Uncategorized' : {
-            id: 'uncategorized',
-            total_sum: totalByCategoriesValue[null].total_sum,
-            title: 'Uncategorized'
-          }
+      
+        console.log('Object.keys(totalByCategoriesValue) - ', Object.keys(totalByCategoriesValue))
+        if (Object.keys(totalByCategoriesValue).includes('null')) {
+          totalByCategoriesValue = {
+            ...totalByCategoriesValue,
+            'Uncategorized' : {
+              id: 'uncategorized',
+              total_sum: totalByCategoriesValue[null].total_sum,
+              title: 'Uncategorized'
+            }
+          };
+          delete totalByCategoriesValue[null];
         }
 
-        delete mappedTotalByCategoriesValue[null];
-        console.log('mappedTotalByCategoriesValue ==> ' , mappedTotalByCategoriesValue);
+
 
  
    
         // const keys = Object.keys(totalByCategoriesValue).map(o => o === 'null' ? 'Uncategorized' : o);
-        const values =  category ? Object.values(mappedTotalByCategoriesValue).filter(o => {
+        const values =  category ? Object.values(totalByCategoriesValue).filter(o => {
           // let criteria = category === 'uncategorized' ? null : category;
           console.log('o.id => ', o.id)
 
           return o.id === category;
-        }) : Object.values(mappedTotalByCategoriesValue)
+        }) : Object.values(totalByCategoriesValue)
 
 
         const keys = values.map(o => o.title);

@@ -5,11 +5,11 @@
 {% include 'auditor/common/messages.html' %}
 
 <div class="container py-5">
-	<h1>Register</h1>
-	<form method="POST">
+	<h1 class="text-center">Register</h1>
+	<form class="common-form" method="POST">
 		{% csrf_token %}
 		{{ sign_up_form|crispy }}                    
-		<button class="btn btn-primary" type="submit">Register</button>
+		<button class="welcome-auth-btn btn btn-primary" type="submit">Register</button>
 	</form>
 
 	<p class="text-center">If you already have an account, <a href="{% url 'auditor:sign_in' %}">Sign In</a> instead.</p>

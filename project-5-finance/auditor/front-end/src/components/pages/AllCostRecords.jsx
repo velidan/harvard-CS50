@@ -4,7 +4,7 @@ import { Pagination } from "@appComponents/common";
 import Button from "@mui/material/Button";
 import { withPrimaryLayout } from "@appHocs";
 import CircularProgress from "@mui/material/CircularProgress";
-
+import { useNavigate } from 'react-router-dom';
 import { CostRecordPreview } from "@appComponents/cost/CostRecordPreview";
 import { CategorySelect } from "@appComponents/category";
 import {
@@ -12,12 +12,13 @@ import {
   useGetCostsTotal,
   usePagination,
 } from "@appHooks";
-
+import { routes } from '@appCore';
 import { PieDiagram } from "@appComponents/common";
 
 export function _AllCostRecords() {
   const [category, setCategory] = React.useState(null);
   const [finalPage, setFinalPage] = React.useState(null);
+  const navigate = useNavigate();
 
   const { page, paginate } = usePagination("Costs");
 
@@ -47,6 +48,7 @@ export function _AllCostRecords() {
 
           <div className="reset-category-actions">
             <CategorySelect
+              addUncategorized
               value={category}
               onChange={(categoryId) => {
                 setCategory(categoryId);
@@ -97,7 +99,20 @@ export function _AllCostRecords() {
               />
             </div>
           ) : (
-            "No Cost records"
+           <div className="no-content-box">
+            <p>
+            <span className="no-content-box-intro">Whoops</span>  <br />
+            <i>You have not created any cost record yet! </i>🥲
+            </p>
+            
+            <Button style={{marginTop: 8}} variant="contained"
+            onClick={() => {
+                navigate(routes.createCostRecord);
+            }} 
+          >
+              Create one
+          </Button>
+           </div>
           )}
         </div>
       </div>

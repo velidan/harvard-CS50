@@ -1,3 +1,5 @@
+@import './django-welcome.scss';
+
 @mixin anim-standard {
     transition: all .3s ease-in-out;
   }
@@ -150,12 +152,12 @@ body {
 
         &:before,
         &:after {
-        height: 3px;
+        height: 1px;
         position: absolute;
         content: '';
         -webkit-transition: all 0.35s ease;
         transition: all 0.35s ease;
-        background-color: #9b59b6;
+        background-color: white;
         width: 0;
         }
 
@@ -180,6 +182,23 @@ body {
         width: 100%;
         }
         
+    }
+
+    .drawer  {
+        .app-title {
+      
+                margin-bottom: 12px ;
+            
+        }
+        .nav-item {
+            &:before,
+            &:after {
+
+            background-color: #1976d2;
+    
+            }
+            
+        }
     }
 
     .app-title {
@@ -219,7 +238,7 @@ main {
     min-height: 100%;
     width: 100%;
     justify-content: center;
-    align-items: center;
+    // align-items: center;
     display: flex;
     padding-bottom: 24px;
     flex-grow: 1;
@@ -234,6 +253,7 @@ main {
 
 .common-wrapper {
     padding: 0 48px 0 24px;
+    width: 100%;
 }
 
 .pie-wrapper {
@@ -389,6 +409,39 @@ main {
     .preview-info {
         margin: 0 12px;
     }
+}
+
+
+
+
+    .no-content-box.center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .no-content-box-intro {
+            display: block;
+            text-align: center;
+        }
+    
+    }
+
+
+
+.category-select-none-result {
+    .category-select-none-result-descr {
+        font-size: 12px;
+        margin: 0;
+    }
+    .category-select-none-result-btn {
+        width: 100%;
+    }
+}
+
+.no-templates-msg {
+    text-align: center;
+    font-style: italic;
+    text-decoration: underline;
 }
 
 // ----- responsive

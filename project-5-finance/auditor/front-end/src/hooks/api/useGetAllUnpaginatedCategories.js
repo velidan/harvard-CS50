@@ -8,7 +8,7 @@ import {
   import { useAppContext } from '@appCore';
 import { toastReasons } from '@appCore/reducers/toastReducer';
 
-export function useGetAllUnpaginatedCategories() {
+export function useGetAllUnpaginatedCategories(addUncategorized) {
   const { toast: { dispatch } } = useAppContext();
 
     const result = useQuery({
@@ -16,14 +16,14 @@ export function useGetAllUnpaginatedCategories() {
         queryFn: () =>
         axios.get('/api/cost-category/all_unpaginated_categories/').then(
             (res) => {
-                return [
+                return addUncategorized ? [
                   {
                     id: 'uncategorized',
                     title: 'Uncategorized'
                   },
-                  ...res.data || [],
+                  ...res.data,
                   
-                ];
+                ] : res.data;
             },
           ),
           keepPreviousData: true,

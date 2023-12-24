@@ -73,7 +73,6 @@ const router = createBrowserRouter([
 
 function _App() {
     return (
- 
     <QueryClientProvider client={queryClient}>
       <AppContextProvider>
           <React.StrictMode>

@@ -1,9 +1,9 @@
 import * as React from 'react';
 
-
-
+import { useNavigate } from 'react-router-dom';
+import Button from "@mui/material/Button";
 import { withPrimaryLayout } from '@appHocs';
-
+import { routes } from '@appCore';
 import { CategoryPreview } from '@appComponents/category/CategoryPreview';
 
 import { useGetAllCategories, usePagination } from '@appHooks';
@@ -16,9 +16,9 @@ export function _AllCategories() {
         page,
         paginate
     } = usePagination('Categories');
+    const navigate = useNavigate();
 
-
-    const { isPending, error, data } = useGetAllCategories(page);
+    const { isPending, data } = useGetAllCategories(page);
 
     if (isPending)     return (
         <div className="flex items-center justify-center h-full">
@@ -27,7 +27,7 @@ export function _AllCategories() {
       );
 
   
-    return        <div className="content-list">
+    return        <div className='common-wrapper categories'><div className="content-list">
     <h5 className="content-title text-center">Your cost categories</h5>
     {data.results.length ? (
       <div className="flex flex-col grow justify-between">
@@ -55,10 +55,23 @@ export function _AllCategories() {
         />
       </div>
     ) : (
-      "No Categories"
+      <div className='no-content-box center'>
+            <p>
+            <span className='no-content-box-intro'>Whoops</span>
+            <i>You have not created any category! </i>🥲
+            </p>
+            
+            <Button style={{marginTop: 8}} variant="contained"
+            onClick={() => {
+                navigate(routes.createCategory);
+            }} 
+          >
+              Create one
+          </Button>
+           </div>
     )}
   </div>
-
+  </div>
 }
 
 export const AllCategories = withPrimaryLayout(_AllCategories);
