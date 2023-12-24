@@ -31,7 +31,6 @@ export const navItems = [
   export const checkIsActivePath = path => {
     // handling home route
     let locPath = location.pathname === '/' ? '/' : document.location.pathname.replace(/\/$/, '');
-    console.log('locPath', locPath)
 
     if (locPath.includes('/category/')) {
       locPath = routes.categories

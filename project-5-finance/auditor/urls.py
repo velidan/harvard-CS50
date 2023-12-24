@@ -7,7 +7,6 @@ from django.conf.urls.static import static
 
 app_name = "auditor"   
 
-# Create a router and register our viewsets with it.
 router = DefaultRouter()
 router.register(r'users', views.UserViewSet,basename="user")
 router.register(r'cost-category', views.CostCategoryViewSet,basename="costcategory")

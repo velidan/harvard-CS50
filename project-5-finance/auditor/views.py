@@ -1,27 +1,20 @@
 from django.contrib.auth import authenticate, login, logout
-from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+
 from django.shortcuts import  render, redirect
 from django.urls import reverse
-from django_filters.rest_framework import DjangoFilterBackend
-import django_filters.rest_framework
+
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from django.utils import timezone
 from .forms import SignUpForm, SignInForm
 from django.contrib.auth import login, logout
 from django.contrib import messages
-from django.db.models import F, Sum, DecimalField, IntegerField, Case, When, Value
+from django.db.models import F, Sum, DecimalField, Case, When, Value
 
-from django.db.models.functions import Coalesce, Cast
 from django.views import View
 from django.db.models import Count, Q
 from django.db.models.functions import TruncMonth, ExtractYear
 from django.contrib.auth import get_user_model
-User = get_user_model()
-
-import logging
-logger = logging.getLogger('django')
 
 from rest_framework.decorators import api_view
 
@@ -33,16 +26,11 @@ from .models import CostCategory, CostRecord
 
 from .permissions import CustomIsAuthorizedPermission
 from .pagination import Pagination
-from .filters import CostCategoryFilter
 
+User = get_user_model()
 
-'''
-messages.debug(request, '%s SQL statements were executed.' % count)
-messages.info(request, 'Three credits remain in your account.')
-messages.success(request, 'Profile details updated.')
-messages.warning(request, 'Your account expires in three days.')
-messages.error(request, 'Document deleted.')
-'''
+import logging
+logger = logging.getLogger('django')
 
 
 @api_view(['GET'])
@@ -66,8 +54,6 @@ class CostCategoryViewSet(viewsets.ModelViewSet):
 
     permission_classes = (CustomIsAuthorizedPermission, )
    
-    filterset_class = CostCategoryFilter
-
 	
 
     def get_queryset(self):
@@ -127,11 +113,9 @@ class CostRecordViewSet(viewsets.ModelViewSet):
         category_id = self.request.query_params.get('category')
         uncategorized = self.request.query_params.get('uncategorized')
         if uncategorized == 'true':
-            # Assuming "uncategorized" is a string, not a valid category ID
             queryset = queryset.filter(category__isnull=True)
 
         if category_id:
-            # Assuming category_id is a valid category ID
             queryset = queryset.filter(Q(category__id=category_id) | Q(template=True))
 
         month = self.request.query_params.get('month')

@@ -1,0 +1,67 @@
+html, body {
+    height: 100%;
+    min-height: 100vh;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.font-tech {
+    font-family: math;
+}
+
+.font-italic {
+    font-style: italic;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.self-center {
+    justify-self: center;
+    align-self: center;
+}
+
+.items-center {
+    align-items: center;
+}
+.justify-center {
+    justify-items: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.grow {
+    flex-grow: 1;
+}
+
+.h-full {
+    height: 100%;
+}
+
+.w-full {
+    height: 100%;
+}
+
+.actions {
+    display: flex; 
+    flex-direction: column;
+    justify-content: space-between;
+}

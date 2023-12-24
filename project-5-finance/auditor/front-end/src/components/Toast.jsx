@@ -11,13 +11,6 @@ import { toastReasons } from '@appCore/reducers/toastReducer';
 export function Toast() {
     const { toast: { state, dispatch } } = useAppContext();
   
-    const handleClick = () => {
-        dispatch({type: 'SHOW_TOAST', payload: {
-            reason: toastReasons.success,
-            content: 'SUCCESSS'
-        }});
-    };
-  
     const handleClose = (_event, reason) => {
       if (reason === 'clickaway') {
         return;

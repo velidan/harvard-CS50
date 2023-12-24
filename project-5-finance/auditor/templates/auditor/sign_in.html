@@ -1,5 +1,5 @@
 {% extends "auditor/layout.html" %}
-{% load crispy_forms_tags %}  
+{% load crispy_forms_tags %}
 {% block body %}
 
 {% include 'auditor/common/messages.html' %}
@@ -8,7 +8,7 @@
 	<h1 class="text-center">Sign in</h1>
 	<form class="common-form" method="POST">
 		{% csrf_token %}
-		{{ sign_in_form|crispy }}                    
+		{{ sign_in_form|crispy }}
 		<button class="welcome-auth-btn btn btn-primary" type="submit">Sign in</button>
 	</form>
 

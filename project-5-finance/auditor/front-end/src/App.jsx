@@ -1,13 +1,7 @@
 import * as React from 'react';
 
-import * as ReactDOM from "react-dom/client";
-import { Outlet, Link } from "react-router-dom";
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  QueryClient,
+
   QueryClientProvider,
 } from '@tanstack/react-query'
 
@@ -25,15 +19,6 @@ import { Toast } from './components/Toast';
 
 import { queryClient } from '@appCore';
 
-// const theme = createTheme({
-//   palette: {
-//     primary: {
-//       main: '#7f50b3',
-//       light: 'rgb(152, 115, 194)',
-//       dark: 'rgb(88, 56, 125)'
-//     },
-//   },
-// });
 
 const router = createBrowserRouter([
     {

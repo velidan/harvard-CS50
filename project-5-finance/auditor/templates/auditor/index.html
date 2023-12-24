@@ -1,53 +1,53 @@
 {% extends "auditor/layout.html" %}
-{% load crispy_forms_tags %}  
+{% load crispy_forms_tags %}
 {% block body %}
 
 {% include 'auditor/common/messages.html' %}
 
 
-    {% if not request.user.is_authenticated %}
+{% if not request.user.is_authenticated %}
 
 
-    <div class="welcome-overlay">     </div>
-    <div class="welcome-wrapper">
-        <div class="welcome-wrapper-logo">
-          Welcome
-        </div>
-        <div class="welcome-wrapper-svg">
-          <svg width="100%" height="100%">
-            <rect width="100%" height="100%" >
-            </svg>
-        </div>
-        <div class="welcome-wrapper-minimize">
-          <svg width="100%" height="100%">
-            <rect width="100%" height="100%" >
-            </svg>
-        </div>
-      </div>
-      <div class="content">
-        <div >
-            <h1 class="welcome-app-title">
-                <span>Finance Auditor</span>
+<div class="welcome-overlay"> </div>
+<div class="welcome-wrapper">
+    <div class="welcome-wrapper-logo">
+        Welcome
+    </div>
+    <div class="welcome-wrapper-svg">
+        <svg width="100%" height="100%">
+            <rect width="100%" height="100%">
+        </svg>
+    </div>
+    <div class="welcome-wrapper-minimize">
+        <svg width="100%" height="100%">
+            <rect width="100%" height="100%">
+        </svg>
+    </div>
+</div>
+<div class="content">
+    <div>
+        <h1 class="welcome-app-title">
+            <span>Finance Auditor</span>
 
-                </h1>
-            <p class="welcome-app-description">
-             
-                    The application where you could track your costs you spent for anything
-            
-            </p>
-         
-            <nav class="welcome-nav">
-                <a href="{% url 'auditor:sign_in' %}">Sign in</a>
-                <a href="{% url 'auditor:sign_up' %}">Sign up</a>
-            </nav>
-           
-        </div>
-      </div>
+        </h1>
+        <p class="welcome-app-description">
 
+            The application where you could track your costs you spent for anything
 
+        </p>
+
+        <nav class="welcome-nav">
+            <a href="{% url 'auditor:sign_in' %}">Sign in</a>
+            <a href="{% url 'auditor:sign_up' %}">Sign up</a>
+        </nav>
+
+    </div>
+</div>
 
 
-    {% endif %}
+
+
+{% endif %}
 
 
 
@@ -56,6 +56,5 @@
 {% endblock %}
 
 {% block script %}
-    {% include 'auditor/common/scripts.html'%}  
+{% include 'auditor/common/scripts.html'%}
 {% endblock %}
-

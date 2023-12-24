@@ -4,7 +4,7 @@ import { Pagination } from "@appComponents/common";
 import Button from "@mui/material/Button";
 import { withPrimaryLayout } from "@appHocs";
 import CircularProgress from "@mui/material/CircularProgress";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { CostRecordPreview } from "@appComponents/cost/CostRecordPreview";
 import { CategorySelect } from "@appComponents/category";
 import {
@@ -12,7 +12,7 @@ import {
   useGetCostsTotal,
   usePagination,
 } from "@appHooks";
-import { routes } from '@appCore';
+import { routes } from "@appCore";
 import { PieDiagram } from "@appComponents/common";
 
 export function _AllCostRecords() {
@@ -22,16 +22,12 @@ export function _AllCostRecords() {
 
   const { page, paginate } = usePagination("Costs");
 
-
   React.useEffect(() => {
-
-      setFinalPage(page);
-
-  }, [page])
+    setFinalPage(page);
+  }, [page]);
 
   const { isPending, data } = useGetAllCostRecords(finalPage, category);
   const { data: totalCostsValue } = useGetCostsTotal();
-  console.log("totalCostsValue -L>> ", totalCostsValue);
 
   if (isPending)
     return (
@@ -88,7 +84,6 @@ export function _AllCostRecords() {
                   );
                 })}
               </div>
-             
 
               <Pagination
                 page={!page ? 1 : page}
@@ -99,32 +94,37 @@ export function _AllCostRecords() {
               />
             </div>
           ) : (
-           <div className="no-content-box">
-            <p>
-            <span className="no-content-box-intro">Whoops</span>  <br />
-            <i className="font-tech ">You have not created any cost record yet! </i>🥲
-            </p>
-            
-            <Button style={{marginTop: 8}} variant="contained"
-            onClick={() => {
-                navigate(routes.createCostRecord);
-            }} 
-          >
-              Create one
-          </Button>
-           </div>
+            <div className="no-content-box">
+              <p>
+                <span className="no-content-box-intro">Whoops</span> <br />
+                <i className="font-tech ">
+                  You have not created any cost record yet!{" "}
+                </i>
+                🥲
+              </p>
+
+              <Button
+                style={{ marginTop: 8 }}
+                variant="contained"
+                onClick={() => {
+                  navigate(routes.createCostRecord);
+                }}
+              >
+                Create one
+              </Button>
+            </div>
           )}
         </div>
       </div>
       <div className="right-col">
         <h2 className="text-center">Total spent: {totalCostsValue}</h2>
-        <PieDiagram 
+        <PieDiagram
           categoryId={category}
-          onSegmentClick={ categoryId => {
-          setCategory(categoryId);
-          setFinalPage(null);
-          console.log('categoryId', categoryId)
-        }} />
+          onSegmentClick={(categoryId) => {
+            setCategory(categoryId);
+            setFinalPage(null);
+          }}
+        />
       </div>
     </div>
   );

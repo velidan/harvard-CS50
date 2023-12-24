@@ -11,7 +11,6 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = "__all__"
-        # lookup_field = "username"
 
 class ThumbnailUrlField(serializers.ImageField):
     def to_representation(self, value):
