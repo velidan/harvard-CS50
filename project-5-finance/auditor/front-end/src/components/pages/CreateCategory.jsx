@@ -1,16 +1,10 @@
 import * as React from 'react';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import { FormControl, FormLabel } from '@mui/material';
-import * as Yup from 'yup';
-import { CategoryCard } from '@appComponents/category';
-import { withPrimaryLayout } from '@appHocs';
 
-import { useFormik } from 'formik';
+import { CategoryCard, CategoryForm } from '@appComponents/category';
+import { withPrimaryLayout } from '@appHocs';
 
 
 import { useCreateCategory } from '@appHooks';
-import { getUrlFromSelectedFile } from '@appUtils'
 
 const initialCategory = {
   title: '', 
@@ -18,102 +12,48 @@ const initialCategory = {
   thumbnail: null
 }
 
-const validationSchema = Yup.object().shape({
-  title: Yup.string()
-  .min(2, 'Too Short!')
-  .max(50, 'Too Long!')
-  .required('Required'),
-  description: Yup.string()
-  .min(2, 'Too Short!')
-  .max(50, 'Too Long!')
-  .required('Required')
-});
 
 
 export function _CreateCategory() {
-  const [thumbnail, setThumbnail] = React.useState(null)
- 
-  const formik = useFormik({
-    initialValues: {
-      ...initialCategory
-    },
-    validationSchema: validationSchema,
-    onSubmit: values => {
-      const formData = new FormData();
-      formData.append('thumbnail', values.thumbnail);
-      formData.append('title', values.title);
-      formData.append('description', values.description);
 
-      createCategoryMutation.mutate(formData)
-      formik.resetForm();
-    },
+  const [state, setState] = React.useState({
+    title: "",
+    description: "",
+    thumbnail: null,
   });
+
+
+  const handleField = (fieldName) => (val) => {
+    setState({
+      ...state,
+      [fieldName]: val,
+    });
+  };
   
-    const createCategoryMutation = useCreateCategory()
 
 
     return (
         <main>
               <div className="complex-content-grid create-category common-wrapper">
-                <div>
+                <div className='create-category-lef-col'>
                 <h3>Create New Category</h3>
-                <form  onSubmit={formik.handleSubmit} className='common-form  flex-col' >
-                    <FormControl>
-                        <FormLabel>Enter Category title</FormLabel>
-                        <TextField 
-                        id="outlined-basic" 
-                        label="Title" 
-                        variant="outlined" 
-                        name="title"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.title}
-                        error={formik.errors.title}
-                        helperText={formik.errors.title}
-                        />
 
-                    </FormControl>
-                    
-                    <FormControl>
-                        <FormLabel>Enter Category description</FormLabel>
-                        <TextField 
-                        id="outlined-basic" 
-                        label="Description" 
-                        variant="outlined" 
-                        name="description"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.description}
-                        error={formik.errors.description}
-                        helperText={formik.errors.description}
-                        />
-                    </FormControl>
-                    <FormControl>
-                        <FormLabel>Pick Category thumbnail</FormLabel>
-                        <label className='file-pick-label' >
-                          Pick
-                        <input accept='.png, .jpg, .jpeg, .webp' type='file' onChange={e => {
-                          const fileUrl = e.target.value;
-                          const files = e.target.files;
-                          getUrlFromSelectedFile(files, (url) => {
-                            setThumbnail(url);
-                          })
-                          console.log('files', files, fileUrl)
-                          formik.setFieldValue('thumbnail', files[0])
-                        }} />
-                        </label>
-                        
-                    </FormControl>
-                    <Button className='submit-btn' variant='contained' type="submit" disabled={formik.isSubmitting}>Submit</Button>
-                </form>
+                <CategoryForm
+                mode="create"
+                categoryModel={state}
+                onPickThumbnail={handleField("thumbnail")}
+                onUpdateTitle={handleField("title")}
+                onUpdateDescription={handleField("description")}
+                
+              />
 
                 </div>
-                <div className='category-preview-wrapper' >
+                <div className='category-preview-wrapper create-category-right-col' >
                   <h3 className='text-center'>Category Preview</h3>
                   <CategoryCard
-                    thumbnailUrl={thumbnail}
-                    title={formik.values.title}
-                    description={formik.values.description}
+                    thumbnailUrl={state.thumbnail}
+                    title={state.title}
+                    description={state.description}
                   />
                 </div>
               </div>

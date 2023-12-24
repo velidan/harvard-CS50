@@ -15,7 +15,7 @@ router.register(r'cost-category/all_unpaginated_categories', views.CostCategoryV
 router.register(r'cost-record', views.CostRecordViewSet,basename="costrecord")
 router.register(r'cost-record/templates', views.CostRecordViewSet,basename="costrecord_templates")
 router.register(r'cost-record/costs_total', views.CostRecordViewSet,basename="costrecord_costs_total")
-router.register(r'cost-record/all_unpaginated_templates', views.CostRecordViewSet,basename="costrecord_templates")
+router.register(r'cost-record/all_unpaginated_templates', views.CostRecordViewSet,basename="costrecord_unpaginated_templates")
 router.register(r'cost-record/costs_total_by_category', views.CostRecordViewSet,basename="costrecord_costs_total_by_category")
 router.register(r'cost-record/created_years_months', views.CostRecordViewSet,basename="costrecord_created_years_months")
 

@@ -28,7 +28,7 @@ export function _AllCategories() {
 
   
     return        <div className="content-list">
-    <h5 className="content-title text-center">Your categories</h5>
+    <h5 className="content-title text-center">Your cost categories</h5>
     {data.results.length ? (
       <div className="flex flex-col grow justify-between">
         <div>

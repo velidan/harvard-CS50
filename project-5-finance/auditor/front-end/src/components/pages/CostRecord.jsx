@@ -37,21 +37,24 @@ export function _CostRecord() {
             <div className='complex-content-grid cost'>
              
 
-                <div>
+                <div >
                    
                 {data && id && <CostRecordUpdateForm id={id} costRecordModel = {data} />}
                 </div>
 
 
-                <div>
-                   
+              <div className='cost-record-preview-box'>
+                <div className='cost-record-preview '>
+                    
                     <h3><b>Title:</b> {data.title}</h3>
                     <p><b>Description:</b> {data.description}</p>
                     <p><b>ID:</b> {data.id}</p>
                     <p><b>Total:</b> {data.total}</p>
-<Divider className='divider' />
-                    <b className='template-remark'>{data.template && <i>Const record in templates!</i>}</b>
+  <Divider className='divider' />
+                    <b className='template-remark'>{data.template && <i>Cost record in templates!</i>}</b>
                 </div>
+              </div>
+ 
 
             </div>
 

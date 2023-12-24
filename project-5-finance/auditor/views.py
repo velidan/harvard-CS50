@@ -197,6 +197,7 @@ class CostRecordViewSet(viewsets.ModelViewSet):
         """
         templates = CostRecord.objects.filter(template=True, user=request.user)
 
+        print(templates)
         # Apply pagination
         paginator = Pagination()
         result_page = paginator.paginate_queryset(templates, request)

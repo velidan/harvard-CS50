@@ -42,20 +42,19 @@ export function _CostRecordUpdateForm(props) {
 }
 
     return (
-        <main>
-            <h3>Update Cost Record</h3>
+        <main >
+            <h3 className='update-cost-title'>Update Cost Record</h3>
 
             {updateCostRecorddMutation.isLoading ? (
         <CircularProgress />
       ) : (
         <>
-          {updateCostRecorddMutation.isError ? (
-            <div>An error occurred: {updateCostRecorddMutation.error.message}</div>
-          ) : null}
 
-          {updateCostRecorddMutation.isSuccess ? <div>Cost Record Updated!</div> : null}
 
-          <TemplateSelect />
+            <div className='update-cost-predefined'>
+              <TemplateSelect />
+            </div>
+         
 
 
           <form  onSubmit={handleSubmit} className='common-form update-cost flex-col'>

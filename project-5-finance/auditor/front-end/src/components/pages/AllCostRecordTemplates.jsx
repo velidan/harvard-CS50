@@ -15,7 +15,7 @@ export function _AllCostRecordTemplates() {
         paginate
     } = usePagination('Cost Templates');
 
-    const { isPending, data } = useGetAllCostRecordTemplates();
+    const { isPending, data } = useGetAllCostRecordTemplates(page);
 
 
      

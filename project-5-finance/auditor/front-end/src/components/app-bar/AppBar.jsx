@@ -41,7 +41,7 @@ export function AppBar() {
             aria-label="open drawer"
             edge="start"
             onClick={openDrawer}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            sx={{ mr: 2, display: { md: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
@@ -50,7 +50,7 @@ export function AppBar() {
               variant="h6"
       
               component="div"
-              sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
+              sx={{ flexGrow: 1, display: { xs: 'none', md: 'block' } }}
             >
               Finance Auditor
               </Typography>
@@ -58,14 +58,14 @@ export function AppBar() {
               variant="h6"
 
               component="div"
-              sx={{ flexGrow: 1, fontSize: 12, display: { xs: 'none', sm: 'block' } }}
+              sx={{ flexGrow: 1, fontSize: 12, display: { xs: 'none', md: 'block' } }}
             >
               <small>Logged as: <b>{state.userName}</b></small>
             </Typography>} 
           </div>
 
           
-          <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
             {navItems.map((item) => (
               <Button 
                 className={checkIsActivePath(item.path) ? 'active nav-item' : 'nav-item'}

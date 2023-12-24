@@ -33,9 +33,9 @@ export function _AllCostRecords() {
 
   return (
     <div className="complex-content-grid common-wrapper records">
-      <div className="flex flex-col">
+      <div className="flex flex-col left-col">
         <div>
-          <b>Filter costs by category:</b>
+          <b className="filter-catetogy-title">Filter costs by category:</b>
 
           <div className="reset-category-actions">
             <CategorySelect
@@ -91,7 +91,7 @@ export function _AllCostRecords() {
           )}
         </div>
       </div>
-      <div>
+      <div className="right-col">
         <h2 className="text-center">Total spent: {totalCostsValue}</h2>
         <PieDiagram />
       </div>

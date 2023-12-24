@@ -4,17 +4,25 @@ import { useQuery } from "@tanstack/react-query";
 import { useAppContext } from "@appCore";
 import { toastReasons } from "@appCore/reducers/toastReducer";
 
-export function useGetAllCostRecordTemplates() {
+export function useGetAllCostRecordTemplates(page = null) {
   const {
     toast: { dispatch },
   } = useAppContext();
 
+
+  let url = '/api/cost-record/templates/';
+  if (page ) {
+    url += `?page=${page}`
+  }
+
+
   const result = useQuery({
-    queryKey: ["allCostRecordTemplates"],
+    queryKey: ["allCostRecordTemplates", page],
     queryFn: () =>
-      axios.get(`/api/cost-record/templates/`).then((res) => {
+      axios.get(url).then((res) => {
         return res.data;
       }),
+      keepPreviousData: true,
     onError: (error) => {
       dispatch({
         type: "SHOW_TOAST",
