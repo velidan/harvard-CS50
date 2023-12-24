@@ -45,10 +45,12 @@ export function AppBar() {
           >
             <MenuIcon />
           </IconButton>
-          <div className='app-title'>
+          <div className='app-title pointer' onClick={() => {
+            navigate(routes.home)
+          }}>
             <Typography
               variant="h6"
-      
+              
               component="div"
               sx={{ flexGrow: 1, display: { xs: 'none', md: 'block' } }}
             >

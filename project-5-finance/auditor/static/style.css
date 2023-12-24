@@ -171,6 +171,7 @@ main {
   min-height: 100%;
   width: 100%;
   justify-content: center;
+  align-items: center;
   display: flex;
   padding-bottom: 24px;
   flex-grow: 1;
@@ -189,6 +190,9 @@ main {
 
 .pie-wrapper {
   max-width: 90%;
+}
+.pie-wrapper canvas {
+  cursor: pointer;
 }
 
 .reset-category-actions {
@@ -334,6 +338,10 @@ main {
   display: block;
 }
 
+.records .content-title {
+  margin: 24px 0 12px;
+}
+
 @media (max-width: 1040px) {
   body .app-title .MuiTypography-h6 {
     font-size: 16px;
@@ -390,9 +398,6 @@ main {
   }
   body .create-cost-wrapper {
     padding: 0 12px;
-  }
-  body .records .content-title {
-    margin: 24px 0 12px;
   }
   body .category-thumbnail-preview {
     width: 80px;

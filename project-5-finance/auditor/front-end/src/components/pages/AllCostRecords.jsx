@@ -17,10 +17,18 @@ import { PieDiagram } from "@appComponents/common";
 
 export function _AllCostRecords() {
   const [category, setCategory] = React.useState(null);
+  const [finalPage, setFinalPage] = React.useState(null);
 
   const { page, paginate } = usePagination("Costs");
 
-  const { isPending, data } = useGetAllCostRecords(page, category);
+
+  React.useEffect(() => {
+
+      setFinalPage(page);
+
+  }, [page])
+
+  const { isPending, data } = useGetAllCostRecords(finalPage, category);
   const { data: totalCostsValue } = useGetCostsTotal();
   console.log("totalCostsValue -L>> ", totalCostsValue);
 
@@ -42,6 +50,7 @@ export function _AllCostRecords() {
               value={category}
               onChange={(categoryId) => {
                 setCategory(categoryId);
+                setFinalPage(null);
               }}
             />
 
@@ -51,6 +60,7 @@ export function _AllCostRecords() {
                 variant="contained"
                 onClick={() => {
                   setCategory(null);
+                  setFinalPage(null);
                 }}
               >
                 Reset Category
@@ -93,7 +103,13 @@ export function _AllCostRecords() {
       </div>
       <div className="right-col">
         <h2 className="text-center">Total spent: {totalCostsValue}</h2>
-        <PieDiagram />
+        <PieDiagram 
+          categoryId={category}
+          onSegmentClick={ categoryId => {
+          setCategory(categoryId);
+          setFinalPage(null);
+          console.log('categoryId', categoryId)
+        }} />
       </div>
     </div>
   );

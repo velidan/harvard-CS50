@@ -58,7 +58,6 @@ html, body {
 }
 
 
-
 body {
     .common-form {
         margin: 0 auto;
@@ -220,6 +219,7 @@ main {
     min-height: 100%;
     width: 100%;
     justify-content: center;
+    align-items: center;
     display: flex;
     padding-bottom: 24px;
     flex-grow: 1;
@@ -238,6 +238,10 @@ main {
 
 .pie-wrapper {
     max-width: 90%;
+
+    canvas {
+        cursor: pointer;
+    }
 }
 
 .reset-category-actions {
@@ -415,6 +419,10 @@ main {
     display: block;
 }
 
+.records .content-title {
+    margin: 24px 0 12px;
+}
+
 body {
     @media (max-width: 1040px) {
         .app-title .MuiTypography-h6 {
@@ -504,9 +512,7 @@ body {
             padding: 0 12px;
         }
 
-        .records .content-title {
-            margin: 24px 0 12px;
-        }
+        
 
         .category-thumbnail-preview {
             width: 80px;

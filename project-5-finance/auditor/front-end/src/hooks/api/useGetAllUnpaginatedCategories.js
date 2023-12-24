@@ -16,7 +16,14 @@ export function useGetAllUnpaginatedCategories() {
         queryFn: () =>
         axios.get('/api/cost-category/all_unpaginated_categories/').then(
             (res) => {
-                return res.data;
+                return [
+                  {
+                    id: 'uncategorized',
+                    title: 'Uncategorized'
+                  },
+                  ...res.data || [],
+                  
+                ];
             },
           ),
           keepPreviousData: true,

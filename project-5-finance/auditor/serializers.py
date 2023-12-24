@@ -36,7 +36,6 @@ class CostCategorySerializer(serializers.ModelSerializer):
         instance.user = user
         instance.description = validated_data.get('description', instance.description)
 
-        # Update 'thumbnail' separately if provided
         thumbnail = validated_data.get('thumbnail', None)
         if thumbnail:
             instance.thumbnail = thumbnail

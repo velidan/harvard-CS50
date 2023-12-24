@@ -12,9 +12,10 @@ from .forms import SignUpForm, SignInForm
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.db.models import F, Sum, DecimalField, IntegerField, Case, When, Value
+
 from django.db.models.functions import Coalesce, Cast
 from django.views import View
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.db.models.functions import TruncMonth, ExtractYear
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -54,39 +55,25 @@ def api_root(request, format=None):
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    This viewset automatically provides `list` and `retrieve` actions.
-    """
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    # lookup_field = 'username'  # Set the lookup field to 'username'
-
+ 
 
 class CostCategoryViewSet(viewsets.ModelViewSet):
-    """
-    This viewset automatically provides `list`, `create`, `retrieve`,
-    `update` and `destroy` actions.
-
-    Additionally we also provide an extra `highlight` action.
-    """
     queryset = CostCategory.objects.all()
     serializer_class = CostCategorySerializer
     parser_classes = [MultiPartParser]
 
     permission_classes = (CustomIsAuthorizedPermission, )
-    #filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+   
     filterset_class = CostCategoryFilter
-    # filterset_fields = ('title', )
+
 	
 
     def get_queryset(self):
-        """
-        Get the queryset for the view. Apply sorting based on the 'ordering' query parameter.
-        """
         queryset = CostCategory.objects.all()
-        ordering = self.request.query_params.get('ordering', '-id')  # Default ordering by 'id' in descending order
+        ordering = self.request.query_params.get('ordering', '-id')  
 
-        # Validate ordering field to prevent SQL injection
         allowed_fields = [field.name for field in CostCategory._meta.get_fields()]
         ordering = ordering if ordering.lstrip('-') in allowed_fields else '-id'
 
@@ -111,28 +98,18 @@ class CostCategoryViewSet(viewsets.ModelViewSet):
 	
     @action(detail=False, methods=['GET'])
     def all_unpaginated_categories(self, request):
-        """
-        Retrieve all unpaginated categories.
-        """
         categories = CostCategory.objects.all()
 
 
-        # Serialize paginated data
+   
         serializer = self.get_serializer(categories, many=True)
         headers = self.get_success_headers(serializer.data)
-        # Return paginated response
+ 
         return Response(serializer.data, status=status.HTTP_200_OK, headers=headers) 
 
 
 
 class CostRecordViewSet(viewsets.ModelViewSet):
-    """
-    This viewset automatically provides `list`, `create`, `retrieve`,
-    `update` and `destroy` actions.
-
-    Additionally we also provide an extra `highlight` action.
-    """
-    # queryset = CostRecord.objects.all()
     serializer_class = CostRecordSerializer
 
     permission_classes = (CustomIsAuthorizedPermission, )
@@ -143,19 +120,21 @@ class CostRecordViewSet(viewsets.ModelViewSet):
         user = self.request.user
         queryset = CostRecord.objects.filter(user=user)
 
-        print('queryset------')
-        print(queryset)
+        category_id = self.request.query_params.get('category')
+        uncategorized = self.request.query_params.get('uncategorized')
+        if uncategorized == 'true':
+            # Assuming "uncategorized" is a string, not a valid category ID
+            queryset = queryset.filter(category__isnull=True)
 
-        # Extract month from request parameters
+        if category_id:
+            # Assuming category_id is a valid category ID
+            queryset = queryset.filter(Q(category__id=category_id) | Q(template=True))
+
         month = self.request.query_params.get('month')
         if month:
-            # Convert the month to a Python datetime object
             month_date = timezone.datetime.strptime(month, "%Y-%m")
-
-            # Filter queryset by month
             queryset = queryset.filter(timestamp__month=month_date.month, timestamp__year=month_date.year)
 
-        # Annotate the queryset to handle null values in 'total' field
         queryset = queryset.annotate(
             total_value=Case(
                 When(total__isnull=True, then=Value(0)),
@@ -167,8 +146,6 @@ class CostRecordViewSet(viewsets.ModelViewSet):
         return queryset.order_by('-timestamp')
 
     def create(self, request, *args, **kwargs):
-      print('>>> CREATE <<< ')
-
       request.data['user'] = self.request.user.id
      
       serializer = self.get_serializer(data=request.data)
@@ -192,46 +169,29 @@ class CostRecordViewSet(viewsets.ModelViewSet):
 	
     @action(detail=False, methods=['GET'])
     def templates(self, request):
-        """
-        Retrieve all CostRecords with template=True.
-        """
         templates = CostRecord.objects.filter(template=True, user=request.user)
 
         print(templates)
-        # Apply pagination
         paginator = Pagination()
         result_page = paginator.paginate_queryset(templates, request)
 
-        # Serialize paginated data
         serializer = self.get_serializer(result_page, many=True)
         
-        # Return paginated response
         return paginator.get_paginated_response(serializer.data)
 	
     @action(detail=False, methods=['GET'])
     def all_unpaginated_templates(self, request):
-        """
-        Retrieve all unpaginated CostRecords with template=True
-        """
-        category = request.GET.get('category', '')
-        if category:
-           print('CATEGORY passed')
 			
         templates = CostRecord.objects.filter(template=True, user=request.user)
 
 
-        # Serialize paginated data
         serializer = self.get_serializer(templates, many=True)
         
-        # Return paginated response
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
 	
     @action(detail=False, methods=['GET'])
     def costs_total(self, request):
-        """
-        Retrieve all costs total or if you pass a cost category it will return total for this costs of this category
-        """
         category_id = request.query_params.get('category')
 
 
@@ -239,7 +199,6 @@ class CostRecordViewSet(viewsets.ModelViewSet):
         if category_id:
             queryset = queryset.filter(category__id=category_id)
         
-        # Return paginated response
         total_sum = queryset.aggregate(total_sum=Sum('total'))['total_sum'] or 0
         return Response({'total_sum': total_sum}) 
 
@@ -251,13 +210,7 @@ class CostRecordViewSet(viewsets.ModelViewSet):
         """
         queryset = CostRecord.objects.filter(user=request.user)
 
-        # Optionally, filter by template or other conditions
-        #template = request.query_params.get('template', None)
-        #if template is not None:
-            #queryset = queryset.filter(template=template)
-
-        # Annotate the queryset to get the sum of total grouped by category
-        queryset = queryset.values('category__title').annotate(
+        queryset = queryset.values('category__id', 'category__title').annotate(
             total_sum=Sum(
                 Case(
                     When(total__isnull=True, then=Value(0)),
@@ -267,8 +220,7 @@ class CostRecordViewSet(viewsets.ModelViewSet):
             )
         )
 
-        # Construct the result dictionary
-        result = {'total_by_categories': {item['category__title']: item['total_sum'] for item in queryset}}
+        result = {'total_by_categories': {item['category__title']: {'id': item['category__id'], 'total_sum': item['total_sum'], 'title': item['category__title']} for item in queryset}}
 
         return Response(result)
     
@@ -280,7 +232,6 @@ class CostRecordViewSet(viewsets.ModelViewSet):
         """
         user = self.request.user
 
-        # Query the database to get the counts of costs for each year-month pair
         counts_by_month = (
             CostRecord.objects.filter(user=user)
             .annotate(year=ExtractYear('timestamp'), month=TruncMonth('timestamp'))
@@ -288,7 +239,6 @@ class CostRecordViewSet(viewsets.ModelViewSet):
             .annotate(count=Count('id'))
         )
 
-        # Create a dictionary where keys are years and values are lists of months
         year_month_dict = {}
         for entry in counts_by_month:
             year = entry['year']
@@ -301,21 +251,11 @@ class CostRecordViewSet(viewsets.ModelViewSet):
 
         return Response(year_month_dict)
 
-
-# class CostRecordTemplateViewSet(viewsets.ViewSet):
-#     def list(self, request):
-#         # Your logic for handling templates
-#         return Response({'detail': 'Handling templates'})
-
-
 class IndexView(View):
 
 	def get(self, request, path=''):
             username = request.user.username
             return render(request, 'auditor/index.html', {'username': username})
-
-# def index(request):
-# 	return HttpResponse("Hello, world. Auditor")
 
 
 
@@ -323,29 +263,6 @@ def logout_view(request):
 	logout(request)
 	return redirect("auditor:index")
 
-# def sign_in_view(request):
-# 	form = SignInForm()
-# 	if request.method == "POST":
-# 		logger.info('POST LOGIN')
-# 		form = form = SignInForm(request, data=request.POST)
-
-# 		if form.is_valid():
-# 			username = form.cleaned_data.get('username')
-# 			password = form.cleaned_data.get('password')
-# 			user = authenticate(username=username, password=password)
-
-# 			if user is not None:
-# 				login(request, user)
-# 				messages.info(request, f"You are now logged in as {username}.")
-# 				return redirect("auditor:index")
-# 			else:
-# 				messages.error(request,"Invalid username or password.")
-# 		else:
-# 			messages.error(request,"Invalid username or password.")
-		
-# 	return render (request, "auditor/sign_in.html", {
-# 		"sign_in_form": form
-# 	})
 
 class SignInView(View):
     def post(self, request):
@@ -359,11 +276,11 @@ class SignInView(View):
             if user is not None:
                 login(request, user)
                 messages.info(request, f"You are now logged in as {username}.")
-                return redirect("auditor:index")  # Redirect to the desired page upon successful login
+                return redirect("auditor:index") 
             else:
                 messages.error(request, "Invalid username or password.")
         else:
-            # Form is invalid, render the sign-in page with the form and errors
+          
             return render(request, "auditor/sign_in.html", {"sign_in_form": form})
 
     def get(self, request):
@@ -380,9 +297,8 @@ class SignUpView(View):
             user = form.save()
             login(request, user)
             messages.success(request, "Registration successful.")
-            return redirect("auditor:index")  # Redirect to the desired page upon successful registration
+            return redirect("auditor:index")  
         else:
-            # Form is invalid, render the sign-up page with the form and errors
             messages.error(request, form.errors)
             return render(request, "auditor/sign_up.html", {"sign_up_form": form})
 

@@ -11,6 +11,8 @@ export function CategorySelect(props) {
     const { onChange, value } = props;
 
     const { isPending, error, data: unpaginatedData } = useGetAllUnpaginatedCategories();
+    
+    console.log('unpaginatedData -> ', unpaginatedData)
 
 
     if (isPending) return 'Loading...'
