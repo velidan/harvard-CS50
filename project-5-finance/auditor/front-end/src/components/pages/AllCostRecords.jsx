@@ -35,7 +35,7 @@ export function _AllCostRecords() {
 
   if (isPending)
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center self-center justify-center h-full">
         <CircularProgress />
       </div>
     );
@@ -102,7 +102,7 @@ export function _AllCostRecords() {
            <div className="no-content-box">
             <p>
             <span className="no-content-box-intro">Whoops</span>  <br />
-            <i>You have not created any cost record yet! </i>🥲
+            <i className="font-tech ">You have not created any cost record yet! </i>🥲
             </p>
             
             <Button style={{marginTop: 8}} variant="contained"

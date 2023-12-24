@@ -17,6 +17,14 @@ html, body {
     cursor: pointer;
 }
 
+.font-tech {
+    font-family: math;
+}
+
+.font-italic {
+    font-style: italic;
+}
+
 .flex {
     display: flex;
 }
@@ -24,6 +32,11 @@ html, body {
 .flex-col {
     display: flex;
     flex-direction: column;
+}
+
+.self-center {
+    justify-self: center;
+    align-self: center;
 }
 
 .items-center {
@@ -367,6 +380,12 @@ main {
     width: 100%;
 }
 
+
+
+.pie-no-costs {
+    text-align: center;
+    font-style: italic;
+}
 
 .cost {
     margin: 0 24px;

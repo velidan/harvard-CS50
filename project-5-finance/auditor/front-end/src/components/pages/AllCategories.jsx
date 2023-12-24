@@ -21,7 +21,7 @@ export function _AllCategories() {
     const { isPending, data } = useGetAllCategories(page);
 
     if (isPending)     return (
-        <div className="flex items-center justify-center h-full">
+        <div className="flex items-center self-center justify-center h-full">
           <CircularProgress />
         </div>
       );
@@ -58,7 +58,7 @@ export function _AllCategories() {
       <div className='no-content-box center'>
             <p>
             <span className='no-content-box-intro'>Whoops</span>
-            <i>You have not created any category! </i>🥲
+            <i class="font-tech ">You have not created any category! </i>🥲
             </p>
             
             <Button style={{marginTop: 8}} variant="contained"

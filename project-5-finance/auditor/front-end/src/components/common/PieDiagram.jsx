@@ -23,12 +23,12 @@ export function PieDiagram(props) {
 
     React.useEffect(() =>{
       
-      console.log('category ------>', category, totalByCategoriesValue);
+   
       let colors = []
       if (totalByCategoriesValue) {
 
       
-        console.log('Object.keys(totalByCategoriesValue) - ', Object.keys(totalByCategoriesValue))
+
         if (Object.keys(totalByCategoriesValue).includes('null')) {
           totalByCategoriesValue = {
             ...totalByCategoriesValue,
@@ -92,34 +92,8 @@ export function PieDiagram(props) {
       setCategory(categoryId);
     }, [categoryId])
 
-/*
-    let pieGeneratedData = null;
-    const colors = [];
 
-    if (totalByCategoriesValue) {
-      console.log('totalByCategoriesValue', totalByCategoriesValue)
-      const keys = Object.keys(totalByCategoriesValue).map(o => o === 'null' ? 'Uncategorized' : o);
-      const values = Object.values(totalByCategoriesValue).map(o => o.total_sum);
-      for (let i = 0; i < values.length; i++) {
-        colors.push("#" + Math.floor(Math.random() * 16777215).toString(16));
-      }
-  
-      pieGeneratedData = {
-        labels: keys,
-        datasets: [
-          {
-            label: "Total Costs",
-            data: values,
-            backgroundColor: colors,
-            hoverOffset: 4,
-          },
-        ],
-      };
-    }
-*/
-
-
-    return state ? <div className='pie-wrapper'>
+    return Boolean(state?.labels?.legnth) ? <div className='pie-wrapper'>
         <Pie 
         onClick={evt => {
 
@@ -131,19 +105,14 @@ export function PieDiagram(props) {
           if (points.length) {
               const firstPoint = points[0];
               const label = chart.data.labels[firstPoint.index];
-              const value = chart.data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
-              console.log('label -> ', label);
-              console.log('value -> ', value);
-              console.log("totalByCategoriesValue ", totalByCategoriesValue)
-
+   
               let res;
               if (label === 'Uncategorized') {
                 res = 'uncategorized'
               } else {
                 res = totalByCategoriesValue[label].id;
               }
-              console.log('res ->> ', res);
-              
+   
               setCategory(res);
               onSegmentClick(res)
           }
@@ -152,5 +121,5 @@ export function PieDiagram(props) {
           console.log('args 0> ', pieRef);
         }}
         ref={pieRef} data={state} />
-    </div> : <b>You haven't created any cost spending yet</b>
+    </div> : <p className='pie-no-costs font-tech '>You haven't created any cost spending yet</p>
 }

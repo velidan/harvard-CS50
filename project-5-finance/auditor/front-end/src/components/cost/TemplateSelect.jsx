@@ -16,7 +16,7 @@ export function TemplateSelect(props) {
 
     if (error) return 'An error has occurred: ' + error.message
 
-    if (unpaginatedData.length === 0) return <p className='no-templates-msg'>No Saved Templates yet!</p>
+    if (unpaginatedData.length === 0) return <p className='no-templates-msg font-tech '>No Saved Templates yet!</p>
 
 
     return (
