@@ -92,8 +92,9 @@ export function PieDiagram(props) {
       setCategory(categoryId);
     }, [categoryId])
 
+    console.log('state', state);
 
-    return Boolean(state?.labels?.legnth) ? <div className='pie-wrapper'>
+    return Boolean(state?.labels?.length) ? <div className='pie-wrapper'>
         <Pie 
         onClick={evt => {
 

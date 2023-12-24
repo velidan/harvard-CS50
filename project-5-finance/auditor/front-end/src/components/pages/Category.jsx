@@ -48,6 +48,9 @@ export function _Category() {
               mode="update"
               id={id}
               categoryModel={data}
+              onSubmitError={() => {
+                setState(data);
+              }}
               onPickThumbnail={handleField("thumbnail")}
               onUpdateTitle={handleField("title")}
               onUpdateDescription={handleField("description")}

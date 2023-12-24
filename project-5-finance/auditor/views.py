@@ -88,14 +88,18 @@ class CostCategoryViewSet(viewsets.ModelViewSet):
 
 	
     def update(self, request, *args, **kwargs):
-        request.data['user'] = self.request.user.id
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data)
+        
+        mutable_data = request.data.copy()
+        mutable_data['user'] = self.request.user.id
+        
+        serializer = self.get_serializer(instance, data=mutable_data)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+        
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
-	
+        
     @action(detail=False, methods=['GET'])
     def all_unpaginated_categories(self, request):
         categories = CostCategory.objects.all()

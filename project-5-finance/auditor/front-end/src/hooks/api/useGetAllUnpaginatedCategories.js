@@ -16,7 +16,8 @@ export function useGetAllUnpaginatedCategories(addUncategorized) {
         queryFn: () =>
         axios.get('/api/cost-category/all_unpaginated_categories/').then(
             (res) => {
-                return addUncategorized ? [
+     
+                return addUncategorized && Boolean(res.data.length) ? [
                   {
                     id: 'uncategorized',
                     title: 'Uncategorized'

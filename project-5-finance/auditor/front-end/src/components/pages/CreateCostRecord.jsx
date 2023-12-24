@@ -73,12 +73,7 @@ export function _CreateCostRecord() {
     });
 
 
-// const handleSubmit = (event) => {
-//       event.preventDefault();
 
-//       createCostRecordMutation.mutate(JSON.stringify(record))
-//       setRecord({...initalRecord});
-// }
 
     return (
         <main className='create-cost-wrapper'>

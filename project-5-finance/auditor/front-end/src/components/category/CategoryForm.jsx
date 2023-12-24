@@ -25,9 +25,16 @@ const validationSchema = Yup.object().shape({
 
 
 export function CategoryForm(props) {
-  const { id, categoryModel, onPickThumbnail, onUpdateTitle, onUpdateDescription, mode } = props;
+  const { id, categoryModel, onReset, onPickThumbnail, onUpdateTitle, onUpdateDescription, mode } = props;
   
   const mutation = mode === 'create' ? useCreateCategory() : useUpdateCategory(id)
+
+
+  React.useEffect(() => {
+    if (mutation.isError) {
+      onSubmitError();
+    }
+  }, [mutation.isError])
 
   const formik = useFormik({
     initialValues: {
@@ -36,13 +43,35 @@ export function CategoryForm(props) {
     validationSchema: validationSchema,
     onSubmit: values => {
       const formData = new FormData();
-      formData.append('thumbnail', values.thumbnail);
+      if (values.thumbnail instanceof File) {
+        formData.append('thumbnail', values.thumbnail);
+      }
+      
       formData.append('title', values.title);
       formData.append('description', values.description);
 
       mutation.mutate(formData)
+     
+      if (mode === 'create') {
+        formik.resetForm();
+        onReset();
+
+      }
+      // formik.resetForm();
+
+      return Promise.resolve();
+      
+      
     },
   });
+
+  console.log('formik.isSubmitting', formik.isSubmitting)
+
+  // React.useEffect(() => {
+  //   if (categoryModel) {
+  //     formik.setValues(categoryModel)
+  //   }
+  // }, [categoryModel])
 
     return (
         <main>

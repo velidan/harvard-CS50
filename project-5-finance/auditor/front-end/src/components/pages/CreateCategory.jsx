@@ -41,6 +41,9 @@ export function _CreateCategory() {
                 <CategoryForm
                 mode="create"
                 categoryModel={state}
+                onReset={() => {
+                  setState(initialCategory);
+                }}
                 onPickThumbnail={handleField("thumbnail")}
                 onUpdateTitle={handleField("title")}
                 onUpdateDescription={handleField("description")}
