@@ -42,12 +42,14 @@ export function _CreateCostRecord() {
   const formik = useFormik({
     initialValues: {
       ...initalRecord,
+      template: false
     },
     enableReinitialize: true,
     validationSchema: validationSchema,
     onSubmit: (values) => {
       createCostRecordMutation.mutate(JSON.stringify(values));
       formik.resetForm();
+      setTemplate(null);
     },
   });
 
@@ -63,6 +65,7 @@ export function _CreateCostRecord() {
             setTemplate(template);
             formik.setValues({
               ...template,
+              template: false
             });
           }}
         />

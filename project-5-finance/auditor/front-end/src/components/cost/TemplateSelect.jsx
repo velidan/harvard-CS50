@@ -9,12 +9,18 @@ import { useGetAllUnpaginatedCostTemplates } from "@appHooks";
 
 export function TemplateSelect(props) {
   const { onChange, value } = props;
+  const [val, setVal] = React.useState(val);
 
   const {
     isPending,
     error,
     data: unpaginatedData,
   } = useGetAllUnpaginatedCostTemplates();
+
+
+  React.useEffect(() => {
+    setVal(value);
+  }, [value])
 
   if (isPending) return "Loading...";
 
@@ -34,7 +40,8 @@ export function TemplateSelect(props) {
         <Select
           labelId="cost-record-select"
           id="cost-select"
-          value={value?.title}
+          value={val?.id || null}
+          defaultValue=""
           label="Cost Template select"
           onChange={(event) => {
             const recordId = event.target.value;
