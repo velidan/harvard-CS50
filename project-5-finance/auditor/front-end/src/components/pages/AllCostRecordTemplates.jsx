@@ -61,7 +61,7 @@ export function _AllCostRecordTemplates() {
             style={{ marginTop: 8 }}
             variant="contained"
             onClick={() => {
-              navigate(routes.createCost);
+              navigate(routes.createCostRecord);
             }}
           >
             Create Cost Record

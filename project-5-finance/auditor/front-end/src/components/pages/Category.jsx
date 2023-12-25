@@ -32,7 +32,7 @@ export function _Category() {
     if (data) {
       setState(data);
     }
-  }, data);
+  }, [data]);
 
   if (isPending)
     return (

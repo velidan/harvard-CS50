@@ -33,6 +33,8 @@ export function CategoryForm(props) {
     mode,
   } = props;
 
+  console.log('categoryModel', categoryModel)
+
   const mutation =
     mode === "create" ? useCreateCategory() : useUpdateCategory(id);
 
@@ -67,6 +69,13 @@ export function CategoryForm(props) {
     },
   });
 
+  React.useEffect(() => {
+    if (categoryModel.id) {
+      formik.setValues(categoryModel);
+    }
+   
+  }, [categoryModel])
+
 
   return (
     <main>
@@ -74,7 +83,7 @@ export function CategoryForm(props) {
         <FormControl>
           <FormLabel>Enter Category title</FormLabel>
           <TextField
-            id="outlined-basic"
+            id="cat-title-basic"
             label="Title"
             variant="outlined"
             name="title"
@@ -92,7 +101,7 @@ export function CategoryForm(props) {
         <FormControl>
           <FormLabel>Enter Category description</FormLabel>
           <TextField
-            id="outlined-basic"
+            id="cat-description-basic"
             label="Description"
             variant="outlined"
             name="description"
@@ -114,7 +123,6 @@ export function CategoryForm(props) {
               accept=".png, .jpg, .jpeg, .webp"
               type="file"
               onChange={(e) => {
-                const fileUrl = e.target.value;
                 const files = e.target.files;
                 getUrlFromSelectedFile(files, (url) => {
                   onPickThumbnail(url);

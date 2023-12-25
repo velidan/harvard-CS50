@@ -1,41 +1,70 @@
 import * as React from "react";
 
-import axios from "axios";
-import { useMutation } from "@tanstack/react-query";
-
 import Checkbox from "@mui/material/Checkbox";
 
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { CircularProgress, FormControl, FormLabel } from "@mui/material";
 
-import { withPrimaryLayout } from "@appHocs";
-
 import { CategorySelect } from "@appComponents/category";
 import { useUpdateCostRecord } from "@appHooks";
 import { TemplateSelect } from "@appComponents/cost/TemplateSelect";
 
+import { useFormik } from "formik";
+import * as Yup from "yup";
+
+const validationSchema = Yup.object().shape({
+  title: Yup.string()
+    .min(2, "Too Short!")
+    .max(50, "Too Long!")
+    .required("Required"),
+  description: Yup.string()
+    .min(2, "Too Short!")
+    .max(50, "Too Long!")
+    .required("Required"),
+  total: Yup.number().positive().required("Required").integer(),
+});
+
+
 export function _CostRecordUpdateForm(props) {
   const { id, costRecordModel } = props;
-  const [category, setCategory] = React.useState(
-    costRecordModel.category || null
-  );
 
   const updateCostRecorddMutation = useUpdateCostRecord(id);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const formik = useFormik({
+    initialValues: {
+      ...costRecordModel,
+    },
+    enableReinitialize: true,
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      updateCostRecorddMutation.mutate(JSON.stringify(values));
+      formik.resetForm();
+      setTemplate(null);
+    },
+  });
 
-    updateCostRecorddMutation.mutate(
-      JSON.stringify({
-        title: event.target.title.value,
-        description: event.target.description.value,
-        total: event.target.total.value,
-        template: event.target.template.checked,
-        category: category,
-      })
-    );
-  };
+
+
+  // const handleSubmit = (event) => {
+  //   event.preventDefault();
+
+  //   updateCostRecorddMutation.mutate(
+  //     JSON.stringify({
+  //       title: event.target.title.value,
+  //       description: event.target.description.value,
+  //       total: event.target.total.value,
+  //       template: event.target.template.checked,
+  //       category: category,
+  //     })
+  //   );
+
+  //   // could use formit but just to show how it could be handled without it
+  //   event.target.title = ''
+  //   event.target.description.value = ''
+  //   event.target.total.value = ''
+  //   event.target.template.checked = ''
+  // };
 
   return (
     <main>
@@ -45,50 +74,59 @@ export function _CostRecordUpdateForm(props) {
         <CircularProgress />
       ) : (
         <>
-          <div className="update-cost-predefined">
-            <TemplateSelect />
-          </div>
 
           <form
-            onSubmit={handleSubmit}
+            onSubmit={formik.handleSubmit}
             className="common-form update-cost flex-col"
           >
             <FormControl>
               <FormLabel>Enter Cost title</FormLabel>
               <TextField
-                id="outlined-basic"
-                label="Title"
-                variant="outlined"
-                defaultValue={costRecordModel.title}
-                name="title"
+               id="title-basic"
+               label="Required"
+               variant="outlined"
+               name="title"
+               onChange={formik.handleChange}
+               onBlur={formik.handleBlur}
+               value={formik.values.title}
+               error={formik.errors.title}
+               helperText={formik.errors.title}
               />
             </FormControl>
             <FormControl>
               <FormLabel>Enter Cost description</FormLabel>
               <TextField
-                id="outlined-basic"
-                defaultValue={costRecordModel.description}
+                id="description-basic"
                 label="Description"
                 variant="outlined"
                 name="description"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.description}
+                error={formik.errors.description}
+                helperText={formik.errors.description}
               />
             </FormControl>
             <FormControl>
               <FormLabel>Total money spend</FormLabel>
               <TextField
-                id="outlined-basic"
-                defaultValue={costRecordModel.total}
+                id="total-basic"
                 label="Total Money Spend"
                 variant="outlined"
                 name="total"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.total}
+                error={formik.errors.total}
+                helperText={formik.errors.total}
               />
             </FormControl>
             <FormControl>
               <FormLabel>Select Category</FormLabel>
               <CategorySelect
-                value={category}
+                value={formik.values.category}
                 onChange={(categoryId) => {
-                  setCategory(categoryId);
+                  formik.setFieldValue("category", categoryId);
                 }}
               />
             </FormControl>
@@ -96,13 +134,16 @@ export function _CostRecordUpdateForm(props) {
               <div>
                 <FormLabel>Add to templates?</FormLabel>
                 <Checkbox
-                  name="template"
-                  inputProps={{ "aria-label": "Save as template" }}
-                  defaultChecked={costRecordModel.template}
+                                name="template"
+                                inputProps={{ "aria-label": "Save as template" }}
+                                checked={formik.values.template}
+                                onChange={() => {
+                                  formik.setFieldValue("template", !formik.values.template);
+                                }}
                 />
               </div>
             </FormControl>
-            <Button className="submit-btn" variant="contained" type="submit">
+            <Button className="submit-btn" variant="contained" type="submit" disabled={formik.isSubmitting}>
               Update
             </Button>
           </form>

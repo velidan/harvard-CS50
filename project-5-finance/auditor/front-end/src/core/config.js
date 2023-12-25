@@ -3,5 +3,4 @@ import {
   } from '@tanstack/react-query'
 
 
-// Create a client
 export const queryClient = new QueryClient()

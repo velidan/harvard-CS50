@@ -15,7 +15,7 @@ import {
 import { AppContextProvider, routes } from './core';
 import { Error, CostRecord, CreateCostRecord, AllCategories,  Category, AllCostRecords, AllCostRecordTemplates } from './components/pages';
 import { CreateCategory } from './components/pages/CreateCategory';
-import { Toast } from './components/Toast';
+import { Toast } from './components/common';
 
 import { queryClient } from '@appCore';
 

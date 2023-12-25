@@ -75,7 +75,7 @@ export function _CreateCostRecord() {
         <FormControl>
           <FormLabel>Enter Cost title</FormLabel>
           <TextField
-            id="outlined-basic"
+            id="title-basic"
             label="Required"
             variant="outlined"
             name="title"
@@ -89,7 +89,7 @@ export function _CreateCostRecord() {
         <FormControl>
           <FormLabel>Enter Cost description</FormLabel>
           <TextField
-            id="outlined-basic"
+            id="description-basic"
             label="Required"
             variant="outlined"
             name="description"
@@ -103,7 +103,7 @@ export function _CreateCostRecord() {
         <FormControl>
           <FormLabel>Total money spend</FormLabel>
           <TextField
-            id="outlined-basic"
+            id="total-basic"
             label="Required"
             variant="outlined"
             name="total"
